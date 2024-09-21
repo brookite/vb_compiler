@@ -131,7 +131,10 @@
     <ClCompile Include="VBCompiler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Flex Include="lexer\lexer.l" />
+    <Flex Include="lexer\lexer.l">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </Flex>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
