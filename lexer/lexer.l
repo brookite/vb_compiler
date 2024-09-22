@@ -28,16 +28,18 @@ EXPONENT[eE][+-]?[0-9]+
 
 \'|REM {BEGIN(COMMENT); comment.clear(); }
 <COMMENT>[^\n]* {comment += yytext;}
-<COMMENT>\\n {printf("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
+<COMMENT>\n {printf("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
+<COMMENT><<EOF>> {printf("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
 
 \" {BEGIN(STRING); strLiteral.clear();}
-<STRING>[^\n\\"]+ {strLiteral += yytext;}
+<STRING>[^\n\\"]* {strLiteral += yytext;}
 <STRING>\\n {strLiteral += "\n";}
 <STRING>\\r {strLiteral += "\r";}
 <STRING>\\t {strLiteral += "\t";}
 <STRING>\\b {strLiteral += "\b";}
 <STRING>\"\" {strLiteral += "\"";}
 <STRING><<EOF>>	{printf("Error: String literal wasn't closed\n"); yyterminate();}
+<STRING>\n	{printf("Error: String literal wasn't closed\n"); yyterminate();}
 <STRING>\" {printf("Found a string literal: %s\n", strLiteral.c_str()); BEGIN(INITIAL);}
 
 \"([^\n"]|\"\")\"[Cc] {printf("Found character literal: %s\n", yytext);}
@@ -46,9 +48,9 @@ EXPONENT[eE][+-]?[0-9]+
 
 # {BEGIN(DATETIME); datetime.clear();}
 <DATETIME>[^#\n]+ {datetime += yytext;}
-<DATETIME># {printf("Found a datetime literal: %s\n", datetime); BEGIN(INITIAL);}
+<DATETIME># {printf("Found a datetime literal: %s\n", datetime.c_str()); BEGIN(INITIAL);}
 
-\[?({LETTER}|_[0-9A-Fa-f_])[0-9A-Fa-f_]*[%&@!#$]?\]? {printf("Found a identifier: %s\n", yytext);}
+\[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {printf("Found a identifier: %s\n", yytext);}
 
 
 [\r\t ]+ {printf("Found a whitespace\n");}
