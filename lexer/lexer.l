@@ -18,33 +18,70 @@ EXPONENT[eE][+-]?[0-9]+
 %x COMMENT
 %x DATETIME
 
+%%
+
 %{
     std::string strLiteral;
     std::string datetime;
     std::string comment;
+    char charValue;
+    double doubleValue;
 %}
 
-%%
-
 \'|REM {BEGIN(COMMENT); comment.clear(); }
-<COMMENT>[^\n]* {comment += yytext;}
+<COMMENT>[^\n]+ {comment += yytext;}
 <COMMENT>\n {printf("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
 <COMMENT><<EOF>> {printf("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
 
 \" {BEGIN(STRING); strLiteral.clear();}
-<STRING>[^\n\\"]* {strLiteral += yytext;}
+<STRING>[^\n\\"]+ {strLiteral += yytext;}
+<STRING>\\\\ {strLiteral += "\\";}
 <STRING>\\n {strLiteral += "\n";}
 <STRING>\\r {strLiteral += "\r";}
 <STRING>\\t {strLiteral += "\t";}
 <STRING>\\b {strLiteral += "\b";}
 <STRING>\"\" {strLiteral += "\"";}
+<STRING>\\x{HEX_DIGIT}{2} {strLiteral += (char) strtol(yytext + 2, NULL, 16);}
 <STRING><<EOF>>	{printf("Error: String literal wasn't closed\n"); yyterminate();}
 <STRING>\n	{printf("Error: String literal wasn't closed\n"); yyterminate();}
+<STRING>\"[Cc] {
+    if (strLiteral.length() == 1) {
+        charValue = strLiteral.at(0);
+        printf("Found a char literal: %s\n", strLiteral.c_str());
+        BEGIN(INITIAL);
+    } else {
+        printf("Error: character literal can have only one character, not string");
+        yyterminate();
+    }
+}
 <STRING>\" {printf("Found a string literal: %s\n", strLiteral.c_str()); BEGIN(INITIAL);}
 
-\"([^\n"]|\"\")\"[Cc] {printf("Found character literal: %s\n", yytext);}
-[+-]?({DIGIT}+\.?{DIGIT}*|{DIGIT}*\.?{DIGIT}+)({EXPONENT})?[frdFRD]? {printf("Found floating point literal: %s\n", yytext);}
 
+[+-]?({DIGIT}+\.?{DIGIT}*|{DIGIT}*\.?{DIGIT}+)({EXPONENT})? {
+    doubleValue = atof(yytext);
+    printf("Found floating point literal: %f\n", doubleValue);
+}
+
+[+-]?({DIGIT}+\.?{DIGIT}*|{DIGIT}*\.?{DIGIT}+)({EXPONENT})?[Ff] {
+    char floatLiteral[10000];
+    strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
+    doubleValue = atof(floatLiteral);
+    printf("Found floating point literal: %f\n", doubleValue);
+}
+
+[+-]?({DIGIT}+\.?{DIGIT}*|{DIGIT}*\.?{DIGIT}+)({EXPONENT})?[Dd] {
+    char floatLiteral[10000];
+    strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
+    doubleValue = atof(floatLiteral);
+    printf("Found floating point literal: %f\n", doubleValue);
+}
+
+[+-]?({DIGIT}+\.?{DIGIT}*|{DIGIT}*\.?{DIGIT}+)({EXPONENT})?[Rr] {
+    char floatLiteral[10000];
+    strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
+    doubleValue = atof(floatLiteral);
+    printf("Found floating point literal: %f\n", doubleValue);
+}
 
 # {BEGIN(DATETIME); datetime.clear();}
 <DATETIME>[^#\n]+ {datetime += yytext;}
@@ -66,13 +103,12 @@ TODO List:
 + Строки и символьные константы (Шашков)
 + Вещественные числа (Шашков)
 + Дата и время (Шашков)
++ Идентификаторы (Шашков)
++ Продолжение строк (Шашков)
+Целые числа с обозначением типа и системы счисления (Шашков)
 
-+ Идентификаторы (Микулина)
-Целые числа с обозначением типа и системы счисления (Микулина)
 Логические значения (Микулина)
 Зарезервированные слова, модификаторы (Микулина)
 Скобки и управляющие символы (Микулина)
-
-+ Продолжение строк (???) (Шашков)
 */
 
