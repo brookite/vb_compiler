@@ -2,16 +2,24 @@
 %option noyywrap
 %option never-interactive
 %option case-insensitive
+%option yylineno
 
 %{
     #include <string>
     #define YY_DECL int yylex()
+
+    bool endsWith(const std::string& str, const std::string& suffix)
+    {
+        return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+    }
+
 %}
 
 
 LETTER[A-Za-z]
 DIGIT[0-9]
 HEX_DIGIT[0-9A-Fa-f]
+OCT_DIGIT[0-7]
 EXPONENT[eE][+-]?[0-9]+
 
 %x STRING
@@ -25,6 +33,7 @@ EXPONENT[eE][+-]?[0-9]+
     std::string datetime;
     std::string comment;
     char charValue;
+    long long intValue;
     double doubleValue;
 %}
 
@@ -43,7 +52,7 @@ EXPONENT[eE][+-]?[0-9]+
 <STRING>\"\" {strLiteral += "\"";}
 <STRING>\\x{HEX_DIGIT}{2} {strLiteral += (char) strtol(yytext + 2, NULL, 16);}
 <STRING><<EOF>>	{printf("Error: String literal wasn't closed\n"); yyterminate();}
-<STRING>\n	{printf("Error: String literal wasn't closed\n"); yyterminate();}
+<STRING>\n	{printf("Error: String literal wasn't closed at line %d\n", yylineno - 1); yyterminate();}
 <STRING>\"[Cc] {
     if (strLiteral.length() == 1) {
         charValue = strLiteral.at(0);
@@ -56,32 +65,65 @@ EXPONENT[eE][+-]?[0-9]+
 }
 <STRING>\" {printf("Found a string literal: %s\n", strLiteral.c_str()); BEGIN(INITIAL);}
 
+[+-]?{DIGIT}+(S|US|I|UI|L|UL)? {
+    char intLiteral[10000];
+    std::string lexeme(yytext);
 
-[+-]?({DIGIT}+\.?{DIGIT}*|{DIGIT}*\.?{DIGIT}+)({EXPONENT})? {
+    if (endsWith(lexeme, "US") || endsWith(lexeme, "UI") || endsWith(lexeme, "UL")) {
+        strncpy_s(intLiteral, yytext, strlen(yytext) - 2);
+    } else if (endsWith(lexeme, "S") || endsWith(lexeme, "I") || endsWith(lexeme, "L")) {
+        strncpy_s(intLiteral, yytext, strlen(yytext - 1));
+    } else {
+        strcpy_s(intLiteral, yytext);
+    }
+
+    intValue = atoi(intLiteral); printf("Found a integer value: %d\n", intValue);
+}
+
+&H{HEX_DIGIT}+(S|US|I|UI|L|UL)? {
+    char intLiteral[10000];
+    std::string lexeme(yytext);
+
+    if (endsWith(lexeme, "US") || endsWith(lexeme, "UI") || endsWith(lexeme, "UL")) {
+        strncpy_s(intLiteral, yytext, strlen(yytext) - 2);
+    } else if (endsWith(lexeme, "S") || endsWith(lexeme, "I") || endsWith(lexeme, "L")) {
+        strncpy_s(intLiteral, yytext, strlen(yytext - 1));
+    } else {
+        strcpy_s(intLiteral, yytext);
+    }
+
+    intValue = strtol(intLiteral + 2, NULL, 16);
+    printf("Found a hex integer value: %d\n", intValue);
+}
+
+&O{OCT_DIGIT}+(S|US|I|UI|L|UL)? {
+    char intLiteral[10000];
+    std::string lexeme(yytext);
+
+    if (endsWith(lexeme, "US") || endsWith(lexeme, "UI") || endsWith(lexeme, "UL")) {
+        strncpy_s(intLiteral, yytext, strlen(yytext) - 2);
+    } else if (endsWith(lexeme, "S") || endsWith(lexeme, "I") || endsWith(lexeme, "L")) {
+        strncpy_s(intLiteral, yytext, strlen(yytext - 1));
+    } else {
+        strcpy_s(intLiteral, yytext);
+    }
+
+    intValue = strtol(intLiteral + 2, NULL, 8);
+    printf("Found a hex integer value: %d\n", intValue);
+}
+
+[+-]?({DIGIT}+(\.{DIGIT}+)?{EXPONENT}|{DIGIT}*\.{DIGIT}+({EXPONENT})?) {
     doubleValue = atof(yytext);
     printf("Found floating point literal: %f\n", doubleValue);
 }
 
-[+-]?({DIGIT}+\.?{DIGIT}*|{DIGIT}*\.?{DIGIT}+)({EXPONENT})?[Ff] {
+[+-]?({DIGIT}+(\.{DIGIT}+)?{EXPONENT}|{DIGIT}*\.{DIGIT}+({EXPONENT})?)([Ff]|[Dd]|[Rr]) {
     char floatLiteral[10000];
     strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
     doubleValue = atof(floatLiteral);
     printf("Found floating point literal: %f\n", doubleValue);
 }
 
-[+-]?({DIGIT}+\.?{DIGIT}*|{DIGIT}*\.?{DIGIT}+)({EXPONENT})?[Dd] {
-    char floatLiteral[10000];
-    strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
-    doubleValue = atof(floatLiteral);
-    printf("Found floating point literal: %f\n", doubleValue);
-}
-
-[+-]?({DIGIT}+\.?{DIGIT}*|{DIGIT}*\.?{DIGIT}+)({EXPONENT})?[Rr] {
-    char floatLiteral[10000];
-    strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
-    doubleValue = atof(floatLiteral);
-    printf("Found floating point literal: %f\n", doubleValue);
-}
 
 # {BEGIN(DATETIME); datetime.clear();}
 <DATETIME>[^#\n]+ {datetime += yytext;}
@@ -89,10 +131,9 @@ EXPONENT[eE][+-]?[0-9]+
 
 \[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {printf("Found a identifier: %s\n", yytext);}
 
-
 [\r\t ]+ {printf("Found a whitespace\n");}
 [\r\t ]_[\r\t ]+\n+ {printf("Found a line continuation\n");}
-\n+  {printf("Found end of line\n");}
+\n+  {printf("Found end of line %d\n", yylineno - 1);}
 <<EOF>> {printf("File ended"); yyterminate();}
 
 %%
@@ -102,12 +143,12 @@ TODO List:
 + Комментарии (Шашков)
 + Строки и символьные константы (Шашков)
 + Вещественные числа (Шашков)
-+ Дата и время (Шашков)
 + Идентификаторы (Шашков)
 + Продолжение строк (Шашков)
-Целые числа с обозначением типа и системы счисления (Шашков)
++ Целые числа с обозначением типа и системы счисления (Шашков)
 
 Логические значения (Микулина)
+Дата и время (Микулина)
 Зарезервированные слова, модификаторы (Микулина)
 Скобки и управляющие символы (Микулина)
 */
