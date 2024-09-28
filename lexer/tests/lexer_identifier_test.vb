@@ -1,0 +1,13 @@
+simple_ident
+simple_ident123
+[If]
+[also_a_ident]
+ident#
+ident&
+ident@
+ident!
+ident%
+ident!
+If!
+[ident%]
+123notident
