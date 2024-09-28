@@ -192,6 +192,46 @@ Xor {printf(" Found keyword : %s\n", yytext);}
 
 Nothing {printf(" Found nothing literal \n");}
 
+/*Separators*/
+\( {printf("Found a plus operator lexeme: %s", yytext);}
+\) {printf("Found a plus operator lexeme: %s", yytext);}
+\{ {printf("Found a plus operator lexeme: %s", yytext);}
+\} {printf("Found a plus operator lexeme: %s", yytext);}
+\? {printf("Found a plus operator lexeme: %s", yytext);}
+\. {printf("Found a plus operator lexeme: %s", yytext);}
+\! {printf("Found a plus operator lexeme: %s", yytext);}
+/# {printf("Found a plus operator lexeme: %s", yytext);}
+/, {printf("Found a plus operator lexeme: %s", yytext);}
+/: {printf("Found a plus operator lexeme: %s", yytext);}
+
+/*operator characters*/
+
+\^ {printf("Found a operator characters: %s", yytext);}
+\* {printf("Found a operator characters: %s", yytext);}
+\\ {printf("Found a operator characters: %s", yytext);}
+// {printf("Found a operator characters: %s", yytext);}
+\+ {printf("Found a operator characters: %s", yytext);}
+\- {printf("Found a operator characters: %s", yytext);}
+\= {printf("Found a operator characters: %s", yytext);}
+\^= {printf("Found a operator characters: %s", yytext);}
+\*= {printf("Found a operator characters: %s", yytext);}
+\+= {printf("Found a operator characters: %s", yytext);}
+\-= {printf("Found a operator characters: %s", yytext);}
+\<= {printf("Found a operator characters: %s", yytext);}
+\< {printf("Found a operator characters: %s", yytext);}
+\> {printf("Found a operator characters: %s", yytext);}
+\>= {printf("Found a operator characters: %s", yytext);}
+\<> {printf("Found a operator characters: %s", yytext);}
+\& {printf("Found a operator characters: %s", yytext);}
+\&= {printf("Found a operator characters: %s", yytext);}
+\>> {printf("Found a operator characters: %s", yytext);}
+\<< {printf("Found a operator characters: %s", yytext);}
+\<<= {printf("Found a operator characters: %s", yytext);}
+\>>= {printf("Found a operator characters: %s", yytext);}
+\\= {printf("Found a operator characters: %s", yytext);}
+//= {printf("Found a operator characters: %s", yytext);}
+
+
 \'|REM {BEGIN(COMMENT); comment.clear(); }
 <COMMENT>[^\n]+ {comment += yytext;}
 <COMMENT>\n {printf("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
