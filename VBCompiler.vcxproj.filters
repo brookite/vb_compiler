@@ -18,6 +18,9 @@
     <ClCompile Include="VBCompiler.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="lexer\lexer.flex.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Flex Include="lexer\lexer.l" />
