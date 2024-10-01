@@ -242,7 +242,6 @@ Nothing {printf("Found nothing literal\n");}
 True {printf("Found boolean literal : %s\n", yytext);}
 False {printf("Found boolean literal : %s\n", yytext);}
 
-/*Separators*/
 \( {printf("Found a plus operator lexeme: %s", yytext);}
 \) {printf("Found a plus operator lexeme: %s", yytext);}
 \{ {printf("Found a plus operator lexeme: %s", yytext);}
@@ -250,16 +249,13 @@ False {printf("Found boolean literal : %s\n", yytext);}
 \? {printf("Found a plus operator lexeme: %s", yytext);}
 \. {printf("Found a plus operator lexeme: %s", yytext);}
 \! {printf("Found a plus operator lexeme: %s", yytext);}
-/# {printf("Found a plus operator lexeme: %s", yytext);}
-/, {printf("Found a plus operator lexeme: %s", yytext);}
-/: {printf("Found a plus operator lexeme: %s", yytext);}
-
-/*operator characters*/
+\, {printf("Found a plus operator lexeme: %s", yytext);}
+\: {printf("Found a plus operator lexeme: %s", yytext);}
 
 \^ {printf("Found a operator characters: %s", yytext);}
 \* {printf("Found a operator characters: %s", yytext);}
 \\ {printf("Found a operator characters: %s", yytext);}
-// {printf("Found a operator characters: %s", yytext);}
+\/\/ {printf("Found a operator characters: %s", yytext);}
 \+ {printf("Found a operator characters: %s", yytext);}
 \- {printf("Found a operator characters: %s", yytext);}
 \= {printf("Found a operator characters: %s", yytext);}
@@ -279,8 +275,7 @@ False {printf("Found boolean literal : %s\n", yytext);}
 \<<= {printf("Found a operator characters: %s", yytext);}
 \>>= {printf("Found a operator characters: %s", yytext);}
 \\= {printf("Found a operator characters: %s", yytext);}
-//= {printf("Found a operator characters: %s", yytext);}
-
+\/\/= {printf("Found a operator characters: %s", yytext);}
 
 \'|REM {BEGIN(COMMENT); comment.clear(); }
 <COMMENT>[^\n]+ {comment += yytext;}
@@ -503,37 +498,12 @@ False {printf("Found boolean literal : %s\n", yytext);}
 
 %%
 
-void runTests() {
-    DEBUG = true;
-    const char* files[] = {
-        "lexer/tests/lexer_comment_test.vb",
-        "lexer/tests/lexer_literal_test.vb",
-        "lexer/tests/lexer_string_test.vb",
-        "lexer/tests/lexer_identifier_test.vb",
-        "lexer/tests/lexer_datetime_test.vb",
-        "lexer/tests/lexer_program1_test.vb",
-        "lexer/tests/lexer_program2_test.vb",
-        "lexer/tests/lexer_program3_test.vb",
-    };
-
-    int numFiles = sizeof(files) / sizeof(files[0]); 
-
-    for (int i = 0; i < numFiles; i++) {
-        fopen_s(&yyin, files[i], "r");
-        printf("Processing file: %s\n", files[i]);
-        yylex(); 
-
-        fclose(yyin);
-    }
-}
-
 int main(int argc, char** argv) {
     if (argc > 1) {
-        if (strcmp(argv[1], "--debug") == 0) {
-            runTests();
-            return 0;
-        }
         fopen_s(&yyin, argv[1], "r");
+        if (argc > 2 && strcmp(argv[2], "--debug") == 0) {
+            DEBUG = true;
+        }
         yylex();
     }
     else {
@@ -557,5 +527,5 @@ TODO List:
 + Логические значения (Микулина)
 + Дата и время (Микулина)
 + Зарезервированные слова, модификаторы (Микулина)
-Скобки и управляющие символы (Микулина)
++ Скобки и управляющие символы (Микулина)
 */
