@@ -241,40 +241,40 @@ Nothing {printf("Found nothing literal\n");}
 True {printf("Found boolean literal : %s\n", yytext);}
 False {printf("Found boolean literal : %s\n", yytext);}
 
-\( {printf("Found a plus operator lexeme: %s", yytext);}
-\) {printf("Found a plus operator lexeme: %s", yytext);}
-\{ {printf("Found a plus operator lexeme: %s", yytext);}
-\} {printf("Found a plus operator lexeme: %s", yytext);}
-\? {printf("Found a plus operator lexeme: %s", yytext);}
-\. {printf("Found a plus operator lexeme: %s", yytext);}
-\! {printf("Found a plus operator lexeme: %s", yytext);}
-\, {printf("Found a plus operator lexeme: %s", yytext);}
-\: {printf("Found a plus operator lexeme: %s", yytext);}
+\( {printf("Found a separator left parenthesis: %s\n", yytext);}
+\) {printf("Found a separator right parenthesis: %s\n", yytext);}
+\{ {printf("Found a separator left curly bracket: %s\n", yytext);}
+\} {printf("Found a separator right curly bracket: %s\n", yytext);}
+\? {printf("Found a separator question mark: %s\n", yytext);}
+\. {printf("Found a separator point: %s\n", yytext);}
+\! {printf("Found a separator exclamation mark: %s\n", yytext);}
+\, {printf("Found a separator comma: %s\n", yytext);}
+\: {printf("Found a separator colon: %s\n", yytext);}
 
-\^ {printf("Found a operator characters: %s", yytext);}
-\* {printf("Found a operator characters: %s", yytext);}
-\\ {printf("Found a operator characters: %s", yytext);}
-\/\/ {printf("Found a operator characters: %s", yytext);}
-\+ {printf("Found a operator characters: %s", yytext);}
-\- {printf("Found a operator characters: %s", yytext);}
-\= {printf("Found a operator characters: %s", yytext);}
-\^= {printf("Found a operator characters: %s", yytext);}
-\*= {printf("Found a operator characters: %s", yytext);}
-\+= {printf("Found a operator characters: %s", yytext);}
-\-= {printf("Found a operator characters: %s", yytext);}
-\<= {printf("Found a operator characters: %s", yytext);}
-\< {printf("Found a operator characters: %s", yytext);}
-\> {printf("Found a operator characters: %s", yytext);}
-\>= {printf("Found a operator characters: %s", yytext);}
-\<> {printf("Found a operator characters: %s", yytext);}
-\& {printf("Found a operator characters: %s", yytext);}
-\&= {printf("Found a operator characters: %s", yytext);}
-\>> {printf("Found a operator characters: %s", yytext);}
-\<< {printf("Found a operator characters: %s", yytext);}
-\<<= {printf("Found a operator characters: %s", yytext);}
-\>>= {printf("Found a operator characters: %s", yytext);}
-\\= {printf("Found a operator characters: %s", yytext);}
-\/\/= {printf("Found a operator characters: %s", yytext);}
+\^ {printf("Found a exponentiation operator: %s\n", yytext);}
+\* {printf("Found a multiplication operator: %s\n", yytext);}
+\\ {printf("Found an integer division operator: %s\n", yytext);}
+\/\/ {printf("Found a floating-point division operator: %s\n", yytext);}44444444444
+\+ {printf("Found an addition operator: %s\n", yytext);}
+\- {printf("Found a subtraction operator: %s\n", yytext);}
+\= {printf("Found an assignment operator: %s\n", yytext);}
+\^= {printf("Found a power assignment operator: %s\n", yytext);}
+\*= {printf("Found a multiplication assignment operator: %s\n", yytext);}
+\+= {printf("Found an addition assignment operator: %s\n", yytext);}
+\-= {printf("Found a subtraction assignment operator: %s\n", yytext);}
+\<= {printf("Found a less than or equal to operator: %s\n", yytext);}
+\< {printf(" Found a less than operator: %s\n", yytext);}
+\> {printf("Found a greater than operator: %s\n", yytext);}
+\>= {printf("Found a greater than or equal to operator: %s\n", yytext);}
+\<> {printf("Found a not equal to operator: %s\n", yytext);}
+\& {printf("Found a concatenation of strings two expressions: %s\n", yytext);}
+\&= {printf("Found concatenation of string assignment of two expressions: %s\n", yytext);}
+\>> {printf("Found a right shift operator: %s\n", yytext);}
+\<< {printf("Found a left shift operator: %s\n", yytext);}
+\<<= {printf("Found a left shift assignment operator: %s\n", yytext);}
+\>>= {printf("Found a right shift assignment operator: %s\n", yytext);}
+\\= {printf("Found an integer assignment division operator: %s\n", yytext);}
+\/\/= {printf("Found a floating-point division assignment operator: %s\n", yytext);}
 
 \'|REM {BEGIN(COMMENT); comment.clear(); }
 <COMMENT>[^\n]+ {comment += yytext;}
