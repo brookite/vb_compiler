@@ -191,7 +191,6 @@ Option {printf("Found keyword : %s\n", yytext);}
 Overloads {printf("Found keyword : %s\n", yytext);}
 Partial {printf("Found keyword : %s\n", yytext);}
 Public {printf("Found keyword : %s\n", yytext);}
-REM {printf("Found keyword : %s\n", yytext);}
 SByte {printf("Found keyword : %s\n", yytext);}
 Shared {printf("Found keyword : %s\n", yytext);}
 Step {printf("Found keyword : %s\n", yytext);}
@@ -290,8 +289,16 @@ False {printf("Found boolean literal : %s\n", yytext);}
 <STRING>\\t {strLiteral += "\t";}
 <STRING>\\b {strLiteral += "\b";}
 <STRING>\"\" {strLiteral += "\"";}
-<STRING><<EOF>>	{printf("Error: String literal wasn't closed\n"); if (!DEBUG) yyterminate();}
-<STRING>\n	{printf("Error: String literal wasn't closed at line %d\n", yylineno - 1); if (!DEBUG) yyterminate();}
+<STRING><<EOF>>	{printf("Error: String literal wasn't closed\n"); yyterminate();}
+<STRING>\n	{
+    printf("Error: String literal wasn't closed at line %d\n", yylineno - 1); 
+    if (!DEBUG) {
+        yyterminate();
+    }
+    else {
+        BEGIN(INITIAL);
+    }
+}
 <STRING>\"[Cc] {
     if (strLiteral.length() == 1) {
         charValue = strLiteral.at(0);
@@ -348,7 +355,7 @@ False {printf("Found boolean literal : %s\n", yytext);}
     }
 
     intValue = strtol(intLiteral + 2, NULL, 8);
-    printf("Found a hex integer value: %d\n", intValue);
+    printf("Found a oct integer value: %d\n", intValue);
 }
 
 [+-]?({DIGIT}+(\.{DIGIT}+)?{EXPONENT}|{DIGIT}*\.{DIGIT}+({EXPONENT})?) {
@@ -412,6 +419,7 @@ False {printf("Found boolean literal : %s\n", yytext);}
     datetime.date->year = tempIntLiteral;
     BEGIN(INITIAL);
     BEGIN(DATETIME);
+    tempIntLiteral = -1;
 }
 <DATETIME>: {
     BEGIN(TIME);
@@ -447,8 +455,11 @@ False {printf("Found boolean literal : %s\n", yytext);}
 
 <DATETIME># {
     if (datetime.date == nullptr && datetime.time == nullptr) {
-        printf("Error: Unrecognized date literal: %d\n", yylineno);
+        printf("Error: Unrecognized date literal at line %d\n", yylineno);
         if (!DEBUG) yyterminate();
+    }
+    if (tempIntLiteral != -1) {
+        printf("Error: Unrecognized int literal: %d at line %d\n", tempIntLiteral, yylineno);
     }
     printf("Found a datetime literal:\n");
     printDateTimeLiteral(datetime);
@@ -482,12 +493,12 @@ False {printf("Found boolean literal : %s\n", yytext);}
     BEGIN(INITIAL);
 }
 
-<DATETIME>[^/:\-0-9#\r\t ]+ {
+<DATETIME>[^/:\-0-9#\r\t\n ]+ {
     printf("Error: invalid characters in datetime literal at line %d: %s\n", yylineno, yytext);
     if (!DEBUG) yyterminate();
 }
 <DATETIME>\n {printf("Error: line break in datetime literal at line %d", yylineno);}
-<DATETIME><<EOF>> {printf("Error: unexpected file end in datetime literal at line %d", yylineno);}
+<DATETIME><<EOF>> {printf("Error: unexpected file end in datetime literal at line %d", yylineno); yyterminate(); }
 
 \[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {printf("Found a identifier: %s\n", yytext);}
 
@@ -498,12 +509,36 @@ False {printf("Found boolean literal : %s\n", yytext);}
 
 %%
 
+void runTests() {
+    DEBUG = true;
+    const char* files[] = {
+        "lexer/tests/lexer_comment_test.vb",
+        "lexer/tests/lexer_literal_test.vb",
+        "lexer/tests/lexer_string_test.vb",
+        "lexer/tests/lexer_identifier_test.vb",
+        "lexer/tests/lexer_datetime_test.vb",
+        "lexer/tests/lexer_program1_test.vb",
+        "lexer/tests/lexer_program2_test.vb",
+        "lexer/tests/lexer_program3_test.vb",
+    };
+    int numFiles = sizeof(files) / sizeof(files[0]);
+    for (int i = 0; i < numFiles; i++) {
+        fopen_s(&yyin, files[i], "r");
+        printf("Processing file: %s\n", files[i]);
+        yylex();
+        fclose(yyin);
+        BEGIN(INITIAL);
+        yylineno = 1;
+    }
+}
+
 int main(int argc, char** argv) {
     if (argc > 1) {
-        fopen_s(&yyin, argv[1], "r");
-        if (argc > 2 && strcmp(argv[2], "--debug") == 0) {
-            DEBUG = true;
+        if (strcmp(argv[1], "--debug") == 0) {
+            runTests();
+            return 0;
         }
+        fopen_s(&yyin, argv[1], "r");
         yylex();
     }
     else {
