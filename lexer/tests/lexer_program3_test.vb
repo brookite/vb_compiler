@@ -7,9 +7,9 @@ Module Program
 
     Private Sub RunMethod(ByVal arg1 As String, Optional ByVal optionalArg As String = Nothing)
         If optionalArg Is Nothing Then
-            Console.WriteLine($"{arg1}!")
+            Console.WriteLine("arg1")
         Else
-            Console.WriteLine($"{arg1} {optionalArg}!")
+            Console.WriteLine("arg1 optionalArg");
         End If
     End Sub
 

@@ -10,10 +10,9 @@
 
     bool DEBUG = false;
 
-    bool endsWith(const std::string& str, const std::string& suffix)
-    {
-        return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
-    }
+    bool endsWith(const std::string & str, const std::string & suffix);
+    void removeUnderline(std::string * str);
+    void removeUnderline(char * str);
 
     struct Date {
         int day = 0;
@@ -33,31 +32,11 @@
     };
 
     struct DateTime {
-        Date * date = nullptr;
-        Time * time = nullptr;
+        Date* date = nullptr;
+        Time* time = nullptr;
     };
 
-    void printDateTimeLiteral(DateTime & datetime) {
-        if (datetime.date != nullptr) {
-            printf("Month: %d\n", datetime.date->month);
-            printf("Day: %d\n", datetime.date->day);
-            printf("Year: %d\n", datetime.date->year);
-        }
-        if (datetime.time != nullptr) {
-            printf("Hour: %d\n", datetime.time->hour);
-            printf("Minute: %d\n", datetime.time->minute);
-            printf("Second: %d\n", datetime.time->second);
-            printf("Time format: ");
-            if (datetime.time->format == AM) {
-                printf("AM\n");
-            } else if (datetime.time->format == PM) {
-                printf("PM\n");
-            } else {
-                printf("24-hour format\n");
-            }
-         }
-    }
-
+    void printDateTimeLiteral(DateTime& datetime);
 %}
 
 
@@ -241,40 +220,31 @@ Nothing {printf("Found nothing literal\n");}
 True {printf("Found boolean literal : %s\n", yytext);}
 False {printf("Found boolean literal : %s\n", yytext);}
 
-\( {printf("Found a separator left parenthesis: %s\n", yytext);}
-\) {printf("Found a separator right parenthesis: %s\n", yytext);}
-\{ {printf("Found a separator left curly bracket: %s\n", yytext);}
-\} {printf("Found a separator right curly bracket: %s\n", yytext);}
-\? {printf("Found a separator question mark: %s\n", yytext);}
-\. {printf("Found a separator point: %s\n", yytext);}
-\! {printf("Found a separator exclamation mark: %s\n", yytext);}
-\, {printf("Found a separator comma: %s\n", yytext);}
-\: {printf("Found a separator colon: %s\n", yytext);}
 
-\^ {printf("Found a exponentiation operator: %s\n", yytext);}
-\* {printf("Found a multiplication operator: %s\n", yytext);}
-\\ {printf("Found an integer division operator: %s\n", yytext);}
-\/\/ {printf("Found a floating-point division operator: %s\n", yytext);}44444444444
-\+ {printf("Found an addition operator: %s\n", yytext);}
-\- {printf("Found a subtraction operator: %s\n", yytext);}
-\= {printf("Found an assignment operator: %s\n", yytext);}
-\^= {printf("Found a power assignment operator: %s\n", yytext);}
-\*= {printf("Found a multiplication assignment operator: %s\n", yytext);}
-\+= {printf("Found an addition assignment operator: %s\n", yytext);}
-\-= {printf("Found a subtraction assignment operator: %s\n", yytext);}
-\<= {printf("Found a less than or equal to operator: %s\n", yytext);}
-\< {printf(" Found a less than operator: %s\n", yytext);}
-\> {printf("Found a greater than operator: %s\n", yytext);}
-\>= {printf("Found a greater than or equal to operator: %s\n", yytext);}
-\<> {printf("Found a not equal to operator: %s\n", yytext);}
-\& {printf("Found a concatenation of strings two expressions: %s\n", yytext);}
-\&= {printf("Found concatenation of string assignment of two expressions: %s\n", yytext);}
-\>> {printf("Found a right shift operator: %s\n", yytext);}
-\<< {printf("Found a left shift operator: %s\n", yytext);}
-\<<= {printf("Found a left shift assignment operator: %s\n", yytext);}
-\>>= {printf("Found a right shift assignment operator: %s\n", yytext);}
-\\= {printf("Found an integer assignment division operator: %s\n", yytext);}
-\/\/= {printf("Found a floating-point division assignment operator: %s\n", yytext);}
+\^ {printf("Found a XOR operator: %s\n", yytext);}
+\* {printf("Found a MUL operator: %s\n", yytext);}
+\\ {printf("Found a FLOOR_DIV operator: %s\n", yytext);}
+\/ {printf("Found a DIV operator: %s\n", yytext);}
+\+ {printf("Found a PLUS operator: %s\n", yytext);}
+\- {printf("Found a MINUS operator: %s\n", yytext);}
+\= {printf("Found an ASSIGNMENT operator: %s\n", yytext);}
+\^= {printf("Found a XOR_ASSIGNMENT operator: %s\n", yytext);}
+\*= {printf("Found a MUL_ASSIGNMENT operator: %s\n", yytext);}
+\+= {printf("Found a ADD_ASSIGNMENT operator: %s\n", yytext);}
+\-= {printf("Found a SUB_ASSIGNMENT operator: %s\n", yytext);}
+\<= {printf("Found a LESS_EQUAL to operator: %s\n", yytext);}
+\< {printf("Found a LESS operator: %s\n", yytext);}
+\> {printf("Found a GREATER operator: %s\n", yytext);}
+\>= {printf("Found a GREATER_EQUAL to operator: %s\n", yytext);}
+\<\> {printf("Found a NOT_EQUAL to operator: %s\n", yytext);}
+\& {printf("Found a STR_CONCAT operator: %s\n", yytext);}
+\&= {printf("Found a STR_CONCAT_ASSIGNMENT operator: %s\n", yytext);}
+\>\> {printf("Found a RSHIFT operator: %s\n", yytext);}
+\<\< {printf("Found a LSHIFT operator: %s\n", yytext);}
+\<\<= {printf("Found a LSHIFT_ASSIGNMENT operator: %s\n", yytext);}
+\>\>= {printf("Found a RSHIFT_ASSIGNMENT operator: %s\n", yytext);}
+\\= {printf("Found an FLOOR_DIV_ASSIGNMENT operator: %s\n", yytext);}
+\/= {printf("Found a DIV_ASSIGNMENT operator: %s\n", yytext);}
 
 \'|REM {BEGIN(COMMENT); comment.clear(); }
 <COMMENT>[^\n]+ {comment += yytext;}
@@ -311,7 +281,24 @@ False {printf("Found boolean literal : %s\n", yytext);}
 }
 <STRING>\" {printf("Found a string literal: %s\n", strLiteral.c_str()); BEGIN(INITIAL);}
 
-[+-]?{DIGIT}+(S|US|I|UI|L|UL)? {
+
+{DIGIT}(\_*{DIGIT})*\_+(S|US|I|UI|L|UL)? {
+    printf("Error: invalid underscore character in number literal\n");
+    if (!DEBUG) yyterminate();
+}
+
+&H{HEX_DIGIT}(\_*{HEX_DIGIT})*\_+(S|US|I|UI|L|UL)? {
+    printf("Error: invalid underscore character in number literal\n");
+    if (!DEBUG) yyterminate();
+}
+
+&O{OCT_DIGIT}(\_*{OCT_DIGIT})*\_+(S|US|I|UI|L|UL)? {
+    printf("Error: invalid underscore character in number literal\n");
+    if (!DEBUG) yyterminate();
+}
+
+
+{DIGIT}(\_*{DIGIT})*(S|US|I|UI|L|UL)? {
     char intLiteral[10000];
     std::string lexeme(yytext);
 
@@ -323,10 +310,11 @@ False {printf("Found boolean literal : %s\n", yytext);}
         strcpy_s(intLiteral, yytext);
     }
 
+    removeUnderline(intLiteral);
     intValue = atoi(intLiteral); printf("Found a integer value: %d\n", intValue);
 }
 
-&H{HEX_DIGIT}+(S|US|I|UI|L|UL)? {
+&H{HEX_DIGIT}(\_*{HEX_DIGIT})*(S|US|I|UI|L|UL)? {
     char intLiteral[10000];
     std::string lexeme(yytext);
 
@@ -338,11 +326,12 @@ False {printf("Found boolean literal : %s\n", yytext);}
         strcpy_s(intLiteral, yytext);
     }
 
+    removeUnderline(intLiteral);
     intValue = strtol(intLiteral + 2, NULL, 16);
     printf("Found a hex integer value: %d\n", intValue);
 }
 
-&O{OCT_DIGIT}+(S|US|I|UI|L|UL)? {
+&O{OCT_DIGIT}(\_*{OCT_DIGIT})*(S|US|I|UI|L|UL)? {
     char intLiteral[10000];
     std::string lexeme(yytext);
 
@@ -354,22 +343,30 @@ False {printf("Found boolean literal : %s\n", yytext);}
         strcpy_s(intLiteral, yytext);
     }
 
+    removeUnderline(intLiteral);
     intValue = strtol(intLiteral + 2, NULL, 8);
     printf("Found a oct integer value: %d\n", intValue);
 }
 
-[+-]?({DIGIT}+(\.{DIGIT}+)?{EXPONENT}|{DIGIT}*\.{DIGIT}+({EXPONENT})?) {
-    doubleValue = atof(yytext);
+({DIGIT}(\_*{DIGIT})*(\.{DIGIT}(\_*{DIGIT})*)?{EXPONENT}|({DIGIT}(\_*{DIGIT})*)?\.{DIGIT}(\_*{DIGIT})*({EXPONENT})?) {
+    std::string lexeme(yytext);
+    removeUnderline(&lexeme);
+    doubleValue = atof(lexeme.c_str());
     printf("Found floating point literal: %f\n", doubleValue);
 }
 
-[+-]?({DIGIT}+(\.{DIGIT}+)?{EXPONENT}|{DIGIT}*\.{DIGIT}+({EXPONENT})?)([Ff]|[Dd]|[Rr]) {
+({DIGIT}(\_*{DIGIT})*(\.{DIGIT}(\_*{DIGIT})*)?{EXPONENT}|({DIGIT}(\_*{DIGIT})*)?\.{DIGIT}(\_*{DIGIT})*({EXPONENT})?)([Ff]|[Dd]|[Rr]) {
     char floatLiteral[10000];
     strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
+    removeUnderline(floatLiteral);
     doubleValue = atof(floatLiteral);
     printf("Found floating point literal: %f\n", doubleValue);
 }
 
+({DIGIT}(\_*{DIGIT})*(\_)+(\.{DIGIT}(\_*{DIGIT})*(\_)+)?{EXPONENT}|({DIGIT}(\_*{DIGIT})*)?(\_)+\.{DIGIT}(\_*{DIGIT})*(\_)+({EXPONENT})?)([Ff]|[Dd]|[Rr])? {
+    printf("Error: invalid underscore character in number literal\n");
+    if (!DEBUG) yyterminate();
+}
 
 # {BEGIN(DATETIME); datetime = DateTime(); printf("Found opening datetime literal lexeme\n");}
 <DATETIME>[\r\t ]+ {printf("Found a whitespace inside datetime literal\n");}
@@ -500,6 +497,16 @@ False {printf("Found boolean literal : %s\n", yytext);}
 <DATETIME>\n {printf("Error: line break in datetime literal at line %d", yylineno);}
 <DATETIME><<EOF>> {printf("Error: unexpected file end in datetime literal at line %d", yylineno); yyterminate(); }
 
+\( { printf("Found a separator left parenthesis: %s\n", yytext); }
+\) {printf("Found a separator right parenthesis: %s\n", yytext);}
+\{ {printf("Found a separator left curly brace: %s\n", yytext); }
+\} { printf("Found a separator right curly brace: %s\n", yytext); }
+\? {printf("Found a separator question mark: %s\n", yytext); }
+\. {printf("Found a separator point: %s\n", yytext); }
+\! {printf("Found a separator exclamation mark: %s\n", yytext); }
+\, { printf("Found a separator comma: %s\n", yytext); }
+\: {printf("Found a separator colon: %s\n", yytext); }
+
 \[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {printf("Found a identifier: %s\n", yytext);}
 
 [\r\t ]+ {printf("Found a whitespace\n");}
@@ -508,6 +515,61 @@ False {printf("Found boolean literal : %s\n", yytext);}
 <<EOF>> {printf("File ended\n"); yyterminate();}
 
 %%
+
+void removeUnderline(std::string* str) {
+    if (str == nullptr) {
+        return; 
+    }
+    str->erase(std::remove(str->begin(), str->end(), '_'), str->end());
+}
+
+void removeUnderline(char* str) {
+    if (str == nullptr) {
+        return; 
+    }
+
+    char* writePtr = str;
+    char* readPtr = str;
+
+    while (*readPtr != '\0') {
+        if (*readPtr != '_') {
+            *writePtr = *readPtr;
+            writePtr++;
+        }
+        readPtr++;
+    }
+
+    *writePtr = '\0';
+}
+
+
+bool endsWith(const std::string& str, const std::string& suffix)
+{
+    return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+void printDateTimeLiteral(DateTime& datetime) {
+    if (datetime.date != nullptr) {
+        printf("Month: %d\n", datetime.date->month);
+        printf("Day: %d\n", datetime.date->day);
+        printf("Year: %d\n", datetime.date->year);
+    }
+    if (datetime.time != nullptr) {
+        printf("Hour: %d\n", datetime.time->hour);
+        printf("Minute: %d\n", datetime.time->minute);
+        printf("Second: %d\n", datetime.time->second);
+        printf("Time format: ");
+        if (datetime.time->format == AM) {
+            printf("AM\n");
+        }
+        else if (datetime.time->format == PM) {
+            printf("PM\n");
+        }
+        else {
+            printf("24-hour format\n");
+        }
+    }
+}
 
 void runTests() {
     DEBUG = true;
