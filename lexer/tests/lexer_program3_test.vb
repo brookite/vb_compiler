@@ -9,7 +9,7 @@ Module Program
         If optionalArg Is Nothing Then
             Console.WriteLine("arg1")
         Else
-            Console.WriteLine("arg1 optionalArg");
+            Console.WriteLine("arg1 optionalArg")
         End If
     End Sub
 

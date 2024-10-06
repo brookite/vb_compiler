@@ -44,7 +44,8 @@ LETTER[A-Za-z]
 DIGIT[0-9]
 HEX_DIGIT[0-9A-Fa-f]
 OCT_DIGIT[0-7]
-EXPONENT[eE][+-]?[0-9]+
+EXPONENT[eE][+-]?[0-9](\_*[0-9])*
+UNDERSCORE_NUMBER [0-9](\_*[0-9])*
 
 %x STRING
 %x COMMENT
@@ -252,12 +253,7 @@ False {printf("Found boolean literal : %s\n", yytext);}
 <COMMENT><<EOF>> {printf("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
 
 \" {BEGIN(STRING); strLiteral.clear();}
-<STRING>[^\n\\"]+ {strLiteral += yytext;}
-<STRING>\\\\ {strLiteral += "\\";}
-<STRING>\\n {strLiteral += "\n";}
-<STRING>\\r {strLiteral += "\r";}
-<STRING>\\t {strLiteral += "\t";}
-<STRING>\\b {strLiteral += "\b";}
+<STRING>[^\n"]+ {strLiteral += yytext;}
 <STRING>\"\" {strLiteral += "\"";}
 <STRING><<EOF>>	{printf("Error: String literal wasn't closed\n"); yyterminate();}
 <STRING>\n	{
@@ -275,14 +271,14 @@ False {printf("Found boolean literal : %s\n", yytext);}
         printf("Found a char literal: %s\n", strLiteral.c_str());
         BEGIN(INITIAL);
     } else {
-        printf("Error: character literal can have only one character, not string, line: %d", yylineno);
+        printf("Error: character literal can have only one character, not string, line: %d\n", yylineno);
         if (!DEBUG) yyterminate();
     }
 }
 <STRING>\" {printf("Found a string literal: %s\n", strLiteral.c_str()); BEGIN(INITIAL);}
 
 
-{DIGIT}(\_*{DIGIT})*\_+(S|US|I|UI|L|UL)? {
+{UNDERSCORE_NUMBER}\_+(S|US|I|UI|L|UL)? {
     printf("Error: invalid underscore character in number literal\n");
     if (!DEBUG) yyterminate();
 }
@@ -298,7 +294,7 @@ False {printf("Found boolean literal : %s\n", yytext);}
 }
 
 
-{DIGIT}(\_*{DIGIT})*(S|US|I|UI|L|UL)? {
+{UNDERSCORE_NUMBER}(S|US|I|UI|L|UL)? {
     char intLiteral[10000];
     std::string lexeme(yytext);
 
@@ -348,14 +344,14 @@ False {printf("Found boolean literal : %s\n", yytext);}
     printf("Found a oct integer value: %d\n", intValue);
 }
 
-({DIGIT}(\_*{DIGIT})*(\.{DIGIT}(\_*{DIGIT})*)?{EXPONENT}|({DIGIT}(\_*{DIGIT})*)?\.{DIGIT}(\_*{DIGIT})*({EXPONENT})?) {
+({UNDERSCORE_NUMBER}(\.{UNDERSCORE_NUMBER})?{EXPONENT}|({UNDERSCORE_NUMBER})?\.{UNDERSCORE_NUMBER}({EXPONENT})?) {
     std::string lexeme(yytext);
     removeUnderline(&lexeme);
     doubleValue = atof(lexeme.c_str());
     printf("Found floating point literal: %f\n", doubleValue);
 }
 
-({DIGIT}(\_*{DIGIT})*(\.{DIGIT}(\_*{DIGIT})*)?{EXPONENT}|({DIGIT}(\_*{DIGIT})*)?\.{DIGIT}(\_*{DIGIT})*({EXPONENT})?)([Ff]|[Dd]|[Rr]) {
+({UNDERSCORE_NUMBER}(\.{UNDERSCORE_NUMBER})?{EXPONENT}|({UNDERSCORE_NUMBER})?\.{UNDERSCORE_NUMBER}({EXPONENT})?)([Ff]|[Dd]|[Rr]) {
     char floatLiteral[10000];
     strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
     removeUnderline(floatLiteral);
@@ -363,8 +359,8 @@ False {printf("Found boolean literal : %s\n", yytext);}
     printf("Found floating point literal: %f\n", doubleValue);
 }
 
-({DIGIT}(\_*{DIGIT})*(\_)+(\.{DIGIT}(\_*{DIGIT})*(\_)+)?{EXPONENT}|({DIGIT}(\_*{DIGIT})*)?(\_)+\.{DIGIT}(\_*{DIGIT})*(\_)+({EXPONENT})?)([Ff]|[Dd]|[Rr])? {
-    printf("Error: invalid underscore character in number literal\n");
+({UNDERSCORE_NUMBER}(\_+)?(\.{UNDERSCORE_NUMBER}(\_+)?)?{EXPONENT}|({UNDERSCORE_NUMBER}(\_+)?)?\.{UNDERSCORE_NUMBER}(\_+)?({EXPONENT}(\_+)?)?)([Ff]|[Dd]|[Rr])? {
+    printf("Invalid float literal: %s at line %d\n", yytext, yylineno);
     if (!DEBUG) yyterminate();
 }
 
@@ -378,11 +374,13 @@ False {printf("Found boolean literal : %s\n", yytext);}
     datetime.time = new Time();
     datetime.time->hour = tempIntLiteral;
     datetime.time->format = AM;
+    tempIntLiteral = -1;
 }
 <DATETIME>PM {
     datetime.time = new Time();
     datetime.time->hour = tempIntLiteral;
     datetime.time->format = PM;
+    tempIntLiteral = -1;
 }
 <DATETIME>[/\-] {
     if (datetime.time != nullptr) {
@@ -470,7 +468,7 @@ False {printf("Found boolean literal : %s\n", yytext);}
         if (!DEBUG) yyterminate();
     }
     datetime.date->year = tempIntLiteral;
-    printf("Found a datetime literal:\n");
+    printf("Found a date literal:\n");
     printDateTimeLiteral(datetime);
     printf("Found closing datetime literal lexeme\n");
     BEGIN(INITIAL);
@@ -494,8 +492,23 @@ False {printf("Found boolean literal : %s\n", yytext);}
     printf("Error: invalid characters in datetime literal at line %d: %s\n", yylineno, yytext);
     if (!DEBUG) yyterminate();
 }
-<DATETIME>\n {printf("Error: line break in datetime literal at line %d", yylineno);}
-<DATETIME><<EOF>> {printf("Error: unexpected file end in datetime literal at line %d", yylineno); yyterminate(); }
+
+<DATETIME,TIME>[^/:\-0-9#\r\t\n ]+ {
+    printf("Error: invalid characters in datetime literal at line %d: %s\n", yylineno, yytext);
+    if (!DEBUG) yyterminate();
+}
+
+<DATETIME,DATE>[^/:\-0-9#\r\t\n ]+ {
+    printf("Error: invalid characters in datetime literal at line %d: %s\n", yylineno, yytext);
+    if (!DEBUG) yyterminate();
+}
+
+<DATETIME>\n {printf("Error: line break in datetime literal at line %d\n", yylineno);}
+<DATETIME><<EOF>> {printf("Error: unexpected file end in datetime literal at line %d\n", yylineno); yyterminate(); }
+
+<DATETIME,TIME>\n {printf("Error: line break in datetime literal at line %d\n", yylineno); if (!DEBUG) yyterminate(); }
+<DATETIME,DATE>\n { printf("Error: line break in datetime literal at line %d\n", yylineno); }
+
 
 \( { printf("Found a separator left parenthesis: %s\n", yytext); }
 \) {printf("Found a separator right parenthesis: %s\n", yytext);}
