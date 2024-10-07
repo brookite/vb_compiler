@@ -6,6 +6,8 @@
 
 %{
     #include <string>
+    #include <iostream>
+    #include <regex>
     #define YY_DECL int yylex()
 
     bool DEBUG = false;
@@ -46,12 +48,14 @@ HEX_DIGIT[0-9A-Fa-f]
 OCT_DIGIT[0-7]
 EXPONENT[eE][+-]?[0-9](\_*[0-9])*
 UNDERSCORE_NUMBER [0-9](\_*[0-9])*
+WHITESPACE [\n\r\t ]
+DATE(({DIGIT}{1,2})[\-\/]({DIGIT}{1,2})[\-\/]({DIGIT}{4}))
+TIME({DIGIT}{1,2}:{DIGIT}{2}(:({DIGIT}{2}))?({WHITESPACE}*(AM|PM))?)
+HOUR({DIGIT}{1,2}{WHITESPACE}*(AM|PM))
+
 
 %x STRING
 %x COMMENT
-%x DATETIME
-%x DATE
-%x TIME
 
 %%
 
@@ -65,6 +69,7 @@ UNDERSCORE_NUMBER [0-9](\_*[0-9])*
 
     int tempIntLiteral;
     int dateOrTimePositionIndex;
+    bool boolLiteral;
 
 %}
 
@@ -218,9 +223,8 @@ Widening {printf("Found keyword : %s\n", yytext);}
 Xor {printf("Found keyword : %s\n", yytext);}
 
 Nothing {printf("Found nothing literal\n");}
-True {printf("Found boolean literal : %s\n", yytext);}
-False {printf("Found boolean literal : %s\n", yytext);}
-
+True {printf("Found boolean literal : %s\n", yytext); boolLiteral = true;}
+False {printf("Found boolean literal : %s\n", yytext); boolLiteral = false;}
 
 \^ {printf("Found a XOR operator: %s\n", yytext);}
 \* {printf("Found a MUL operator: %s\n", yytext);}
@@ -351,7 +355,7 @@ False {printf("Found boolean literal : %s\n", yytext);}
     printf("Found floating point literal: %f\n", doubleValue);
 }
 
-({UNDERSCORE_NUMBER}(\.{UNDERSCORE_NUMBER})?{EXPONENT}|({UNDERSCORE_NUMBER})?\.{UNDERSCORE_NUMBER}({EXPONENT})?)([Ff]|[Dd]|[Rr]) {
+({UNDERSCORE_NUMBER}(\.{UNDERSCORE_NUMBER})?({EXPONENT})?|({UNDERSCORE_NUMBER})?\.{UNDERSCORE_NUMBER}({EXPONENT})?)([Ff]|[Dd]|[Rr]) {
     char floatLiteral[10000];
     strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
     removeUnderline(floatLiteral);
@@ -359,156 +363,74 @@ False {printf("Found boolean literal : %s\n", yytext);}
     printf("Found floating point literal: %f\n", doubleValue);
 }
 
-({UNDERSCORE_NUMBER}(\_+)?(\.{UNDERSCORE_NUMBER}(\_+)?)?{EXPONENT}|({UNDERSCORE_NUMBER}(\_+)?)?\.{UNDERSCORE_NUMBER}(\_+)?({EXPONENT}(\_+)?)?)([Ff]|[Dd]|[Rr])? {
+{UNDERSCORE_NUMBER}(\_*(\.{UNDERSCORE_NUMBER}\_*)?({EXPONENT})?|({UNDERSCORE_NUMBER}\_*)?\.{UNDERSCORE_NUMBER}\_*({EXPONENT}\_*)?)([Ff]|[Dd]|[Rr])? {
     printf("Invalid float literal: %s at line %d\n", yytext, yylineno);
     if (!DEBUG) yyterminate();
 }
 
-# {BEGIN(DATETIME); datetime = DateTime(); printf("Found opening datetime literal lexeme\n");}
-<DATETIME>[\r\t ]+ {printf("Found a whitespace inside datetime literal\n");}
-<DATETIME>{DIGIT}+ {
-    tempIntLiteral = atoi(yytext);
-    dateOrTimePositionIndex = 0;
-}
-<DATETIME>AM {
-    datetime.time = new Time();
-    datetime.time->hour = tempIntLiteral;
-    datetime.time->format = AM;
-    tempIntLiteral = -1;
-}
-<DATETIME>PM {
-    datetime.time = new Time();
-    datetime.time->hour = tempIntLiteral;
-    datetime.time->format = PM;
-    tempIntLiteral = -1;
-}
-<DATETIME>[/\-] {
-    if (datetime.time != nullptr) {
-        printf("Error: Time must not be declared before date, line: %d\n", yylineno);
-        if (!DEBUG) yyterminate();
-    }
-    datetime.date = new Date();
-    datetime.date->month = tempIntLiteral;
-    dateOrTimePositionIndex++;
-    BEGIN(DATE);
-}
-<DATETIME,DATE>{DIGIT}+ {
-    tempIntLiteral = atoi(yytext);
-}
-<DATETIME,DATE>[/\-] {
-    switch (dateOrTimePositionIndex) {
-        case 1:
-            datetime.date->day = tempIntLiteral;
-            break;
-        default:
-            printf("Error: date has more digit literal than required: %d\n", yylineno);
-            if (!DEBUG) yyterminate();
-    }
-    dateOrTimePositionIndex++;
-}
-<DATETIME,DATE>[\r\t ]+ {
-    if (dateOrTimePositionIndex < 2) {
-        printf("Error: Missing date components\n");
-        if (!DEBUG) yyterminate();
-    }
-    datetime.date->year = tempIntLiteral;
-    BEGIN(INITIAL);
-    BEGIN(DATETIME);
-    tempIntLiteral = -1;
-}
-<DATETIME>: {
-    BEGIN(TIME);
-    datetime.time = new Time();
-    datetime.time->hour = tempIntLiteral;
-    dateOrTimePositionIndex++;
-}
+\#{WHITESPACE}*({DATE}{WHITESPACE}+{TIME}|{DATE}|{TIME}|{HOUR}){WHITESPACE}*\# {
+    std::regex date_regex(R"((\d{1,2})[\-\/](\d{1,2})[\-\/](\d{4}))");
+    std::regex time_regex(R"((\d{1,2}):(\d{2})(:(\d{2}))?(\s*(AM|PM))?)");
+    std::regex hour_regex(R"((\d{1,2})\s*(AM|PM))");
 
-<DATETIME,TIME>{DIGIT}+ {
-    tempIntLiteral = atoi(yytext);
-}
-<DATETIME,TIME>: {
-    switch (dateOrTimePositionIndex) {
-        case 1:
-            datetime.time->minute = tempIntLiteral;
-            break;
-        default:
-            printf("Error: time has more digit literal than required: %d\n", yylineno);
-            if (!DEBUG) yyterminate();
-    };
-    dateOrTimePositionIndex++;
-}
-<DATETIME,TIME>AM {
-    datetime.time->format = AM;
-}
-<DATETIME,TIME>PM {
-    datetime.time->format = PM;
-}
-<DATETIME,TIME>[/\-]+ {
-    printf("Error: date literal characters in time literal: %d\n", yylineno);
-    if (!DEBUG) yyterminate();
-}
+    std::smatch match;
+    std::string text(yytext);
 
-<DATETIME># {
-    if (datetime.date == nullptr && datetime.time == nullptr) {
-        printf("Error: Unrecognized date literal at line %d\n", yylineno);
-        if (!DEBUG) yyterminate();
+    Date * date = nullptr;
+    Time * time = nullptr;
+
+    if (std::regex_search(text, match, date_regex)) {
+        date = new Date();
+        date->day = std::stoi(match[2].str());
+        date->month = std::stoi(match[1].str());
+        date->year = std::stoi(match[3].str());
     }
-    if (tempIntLiteral != -1) {
-        printf("Error: Unrecognized int literal: %d at line %d\n", tempIntLiteral, yylineno);
+
+    if (std::regex_search(text, match, hour_regex)) {
+        time = new Time();
+        time->hour = std::stoi(match[1].str());
+
+        if (match[2].str() == "AM") {
+            time->format = AM;
+        }
+        else if (match[2].str() == "PM") {
+            time->format = PM;
+        }
     }
-    printf("Found a datetime literal:\n");
+
+    if (std::regex_search(text, match, time_regex)) {
+        time = new Time();
+        time->hour = std::stoi(match[1].str());
+        time->minute = std::stoi(match[2].str());
+        time->second = match[4].matched ? std::stoi(match[4].str()) : 0;
+
+        if (match[6].matched) {
+            if (match[6].str() == "AM") {
+                time->format = AM;
+            }
+            else if (match[6].str() == "PM") {
+                time->format = PM;
+            }
+        }
+    }
+
+
+    datetime = DateTime();
+    datetime.date = date;
+    datetime.time = time;
+    printf("Found a datetime literal: \n");
     printDateTimeLiteral(datetime);
-    printf("Found closing datetime literal lexeme\n");
-    BEGIN(INITIAL);
 }
 
-<DATETIME,DATE># {
-    if (dateOrTimePositionIndex < 2) {
-        printf("Error: Missing date components: %d\n", yylineno);
-        if (!DEBUG) yyterminate();
-    }
-    datetime.date->year = tempIntLiteral;
-    printf("Found a date literal:\n");
-    printDateTimeLiteral(datetime);
-    printf("Found closing datetime literal lexeme\n");
-    BEGIN(INITIAL);
-}
-
-<DATETIME,TIME># {
-    if (dateOrTimePositionIndex < 1) {
-        printf("Error: Missing time components: %d\n", yylineno);
-    } else if (dateOrTimePositionIndex == 1) {
-        datetime.time->minute = tempIntLiteral;
-    } else if (dateOrTimePositionIndex == 2) {
-        datetime.time->second = tempIntLiteral;
-    }
-    printf("Found a datetime literal:\n");
-    printDateTimeLiteral(datetime);
-    printf("Found closing datetime literal lexeme\n");
-    BEGIN(INITIAL);
-}
-
-<DATETIME>[^/:\-0-9#\r\t\n ]+ {
-    printf("Error: invalid characters in datetime literal at line %d: %s\n", yylineno, yytext);
+\#[^\n]*\# {
+    printf("Invalid datetime literal: %s\n", yytext);
     if (!DEBUG) yyterminate();
 }
 
-<DATETIME,TIME>[^/:\-0-9#\r\t\n ]+ {
-    printf("Error: invalid characters in datetime literal at line %d: %s\n", yylineno, yytext);
+\#[^\n\#]* {
+    printf("Datetime literal wasn't closed: %s\n", yytext);
     if (!DEBUG) yyterminate();
 }
-
-<DATETIME,DATE>[^/:\-0-9#\r\t\n ]+ {
-    printf("Error: invalid characters in datetime literal at line %d: %s\n", yylineno, yytext);
-    if (!DEBUG) yyterminate();
-}
-
-<DATETIME>\n {printf("Error: line break in datetime literal at line %d\n", yylineno);}
-<DATETIME><<EOF>> {printf("Error: unexpected file end in datetime literal at line %d\n", yylineno); yyterminate(); }
-
-<DATETIME,TIME>\n {printf("Error: line break in datetime literal at line %d\n", yylineno); if (!DEBUG) yyterminate(); }
-<DATETIME,DATE>\n { printf("Error: line break in datetime literal at line %d\n", yylineno); }
-
 
 \( { printf("Found a separator left parenthesis: %s\n", yytext); }
 \) {printf("Found a separator right parenthesis: %s\n", yytext);}
@@ -522,7 +444,7 @@ False {printf("Found boolean literal : %s\n", yytext);}
 
 \[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {printf("Found a identifier: %s\n", yytext);}
 
-[\r\t ]+ {printf("Found a whitespace\n");}
+[\r\t ]+ {}
 [\r\t ]_[\r\t ]+\n+ {printf("Found a line continuation: %s\n", yytext);}
 \n+  {printf("Found end of line %d\n\n", yylineno - 1);}
 <<EOF>> {printf("File ended\n"); yyterminate();}
