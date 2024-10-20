@@ -25,4 +25,7 @@
   <ItemGroup>
     <Flex Include="lexer\lexer.l" />
   </ItemGroup>
+  <ItemGroup>
+    <Bison Include="parser\grammar.y" />
+  </ItemGroup>
 </Project>

@@ -144,6 +144,9 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
     </Flex>
   </ItemGroup>
+  <ItemGroup>
+    <Bison Include="parser\grammar.y" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="winflexbison\custom_build_rules\win_flex_bison\win_flex_bison_custom_build.targets" />

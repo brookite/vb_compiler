@@ -3,9 +3,130 @@
 %}
 
 %start program
+
 %token ID
 %token ENDL
-/* сюда добавить еще токены */
+%token GLOBAL_KW
+%token NAMESPACE_KW
+%token END_KW
+%token MODULE_KW
+%token CLASS_KW
+%token STRUCTURE_KW
+%token ENUM_KW
+%token SUB_KW
+%token FUNCTION_KW
+%token PROPERTY_KW
+%token AS_KW
+%token INHERITS_KW
+%token MUSTINHERIT_KW
+%token NOTINHERITABLE_KW
+%token PUBLIC_KW
+%token PROTECTED_KW
+%token FRIEND_KW
+%token PRIVATE_KW
+%token OVERLOADS_KW
+%token OVERRIDABLE_KW
+%token NOTOVERRIDABLE_KW
+%token MUSTOVERRIDE_KW
+%token OVERRIDES_KW
+%token DEFAULT_KW
+%token READONLY_KW
+%token WRITEONLY_KW
+%token DIM_KW
+%token CONST_KW
+%token STATIC_KW
+%token NEW_KW
+%token BYVAL_KW
+%token BYREF_KW
+%token PARAMARRAY_KW
+%token WITH_KW
+%token FROM_KW
+%token KEY_KW
+%token GET_KW
+%token CALL_KW
+%token SET_KW
+%token IF_KW
+%token THEN_KW
+%token ELSE_KW
+%token ELSEIF_KW
+%token SELECT_KW
+%token CASE_KW
+%token TO_KW
+%token GOTO_KW
+%token EXIT_KW
+%token CONTINUE_KW
+%token STOP_KW
+%token RETURN_KW
+%token DO_KW
+%token WHILE_KW
+%token FOR_KW
+%token FOREACH_KW
+%token INT
+%token STRING
+%token BOOL
+%token DATETIME
+%token NOTHING
+%token CHAR
+%token FLOAT
+%token ME_KW
+%token MYCLASS_KW
+%token MYBASE_KW
+%token DIRECTCAST_KW
+%token TRYCAST_KW
+%token CTYPE_KW
+%token CBOOL_KW
+%token OF_KW
+%token BYTE_KW
+%token SBYTE_KW
+%token USHORT_KW
+%token SHORT_KW
+%token UINTEGER_KW
+%token INTEGER_KW
+%token ULONG_KW
+%token LONG_KW
+%token BOOLEAN_KW
+%token DATE_KW
+%token CHAR_KW
+%token STRING_KW
+%token DECIMAL_KW
+%token SINGLE
+%token DOUBLE_KW
+%token OBJECT_KW
+%token CBYTE_KW
+%token CSBYTE_KW
+%token CUSHORT_KW
+%token CSHORT_KW
+%token CINTEGER_KW
+%token CUINTEGER_KW
+%token CLONG_KW
+%token CULONG_KW
+%token CDATE_KW
+%token CCHAR_KW
+%token CSTRING_KW
+%token CDECIMAL_KW
+%token CSINGLE
+%token CDOUBLE
+%token COBJECT_KW
+%token UNTIL_KW
+%token IN_KW
+%token LOOP_KW
+%token STEP_KW
+%token NEXT_KW
+
+%left XOR
+%left OR OR_ELSE
+%left AND AND_ALSO
+%right NOT
+%left EQ NEQ LEQ GEQ '<' '>' IS ISNOT LIKE
+%left LSHIFT RSHIFT
+%left '&'
+%left '+' '-'
+%left MOD
+%left '\\'
+%left '/' '*'
+%right UMINUS UPLUS
+%left '^'
+%nonassoc '.' '(' ')' '{' '}'
 
 %%
 
@@ -114,7 +235,7 @@ primitive_type_name: BYTE_KW
                     | INTEGER_KW
                     | ULONG_KW
                     | LONG_KW
-                    | BOOLWAN_KW
+                    | BOOLEAN_KW
                     | DATE_KW
                     | CHAR_KW
                     | STRING_KW
@@ -122,12 +243,82 @@ primitive_type_name: BYTE_KW
                     | SINGLE
                     | DOUBLE_KW
                     | OBJECT_KW
-                   ;
+                    ;
 
 identifier_or_kw: ID
                 | GLOBAL_KW
-                | /* добавить сюда ключевые слова */
-                ;          
+                | NAMESPACE_KW
+                | END_KW
+                | MODULE_KW
+                | CLASS_KW
+                | STRUCTURE_KW
+                | ENUM_KW
+                | SUB_KW
+                | FUNCTION_KW
+                | PROPERTY_KW
+                | AS_KW
+                | INHERITS_KW
+                | MUSTINHERIT_KW
+                | NOTINHERITABLE_KW
+                | PUBLIC_KW
+                | PROTECTED_KW
+                | FRIEND_KW
+                | PRIVATE_KW
+                | OVERLOADS_KW
+                | OVERRIDABLE_KW
+                | NOTOVERRIDABLE_KW
+                | MUSTOVERRIDE_KW
+                | OVERRIDES_KW
+                | DEFAULT_KW
+                | READONLY_KW
+                | WRITEONLY_KW
+                | DIM_KW
+                | CONST_KW
+                | STATIC_KW
+                | NEW_KW
+                | BYVAL_KW
+                | BYREF_KW
+                | PARAMARRAY_KW
+                | WITH_KW
+                | FROM_KW
+                | KEY_KW
+                | GET_KW
+                | SET_KW
+                | IF_KW
+                | THEN_KW
+                | ELSE_KW
+                | ELSEIF_KW
+                | SELECT_KW
+                | CASE_KW
+                | TO_KW
+                | GOTO_KW
+                | EXIT_KW
+                | CONTINUE_KW
+                | STOP_KW
+                | RETURN_KW
+                | DO_KW
+                | WHILE_KW
+                | FOR_KW
+                | FOREACH_KW
+                | CBOOL_KW
+                | OF_KW
+                | BYTE_KW
+                | SBYTE_KW
+                | USHORT_KW
+                | SHORT_KW
+                | UINTEGER_KW
+                | INTEGER_KW
+                | ULONG_KW
+                | LONG_KW
+                | BOOLEAN_KW
+                | DATE_KW
+                | CHAR_KW
+                | STRING_KW
+                | DECIMAL_KW
+                | SINGLE
+                | DOUBLE_KW
+                | OBJECT_KW
+                ;       
 
 identifier_with_modifiers: ID identifier_modifiers
                          | ID
@@ -359,7 +550,7 @@ property_modifiers: /* empty */
                    ;
 
 abstract_property_modifiers: MUSTOVERRIDE_KW property_modifiers
-                           | property_modifiersE MUSTOVERRIDE_KW
+                           | property_modifiers MUSTOVERRIDE_KW
                            ;
 
 auto_property_modifiers: /* empty */
@@ -447,7 +638,32 @@ literal: INT
 
 operator_expr: expr '+' expr
              | expr '-' expr
-             | /* сюда добавить еще операторов */
+             | expr '*' expr
+             | expr '/' expr
+             | expr '\\' expr
+             | expr '^' expr
+             | expr '&' expr
+             | expr '=' expr %prec EQ
+             | expr '>' expr
+             | expr '<' expr
+             | expr '!' expr
+             | expr NEQ expr
+             | expr LEQ expr
+             | expr GEQ expr
+             | expr AND expr
+             | expr AND_ALSO expr
+             | expr OR_ELSE expr
+             | expr OR expr
+             | expr XOR expr
+             | expr MOD expr
+             | expr LSHIFT expr
+             | expr RSHIFT expr
+             | '+' expr %prec UPLUS
+             | '-' expr %prec UMINUS
+             | NOT expr
+             | expr IS expr
+             | expr ISNOT expr
+             | expr LIKE expr
              ;
 
 conditional_expr: IF_KW open_paren expr comma expr comma expr close_paren
@@ -471,7 +687,21 @@ member_access_base: expr
                   | MYBASE_KW
                   ;
 cast_target: CBOOL_KW
-           | /* сюда добавить операторы, связанные с преобразованием типов */
+           | CBYTE_KW
+           | CSBYTE_KW
+           | CUSHORT_KW
+           | CSHORT_KW
+           | CINTEGER_KW
+           | CUINTEGER_KW
+           | CLONG_KW
+           | CULONG_KW
+           | CDATE_KW
+           | CCHAR_KW
+           | CSTRING_KW
+           | CDECIMAL_KW
+           | CSINGLE
+           | CDOUBLE
+           | COBJECT_KW
            ;
 
 cast_expr: DIRECTCAST_KW open_paren expr comma type_name close_paren
@@ -527,7 +757,15 @@ stmt: assign_stmt
     ;
 
 assign_stmt: expr '=' expr ENDL
-           : /* добавить остальные операторы присваивания, все stmt должны заканчиваться ENDL */
+           | expr '+' '=' expr ENDL
+           | expr '-' '=' expr ENDL
+           | expr '*' '=' expr ENDL
+           | expr '/' '=' expr ENDL
+           | expr '\\' '=' expr ENDL
+           | expr '^' '=' expr ENDL
+           | expr '&' '=' expr ENDL
+           | expr '<' '<' '=' expr ENDL
+           | expr '>' '>' '=' expr ENDL
            ;
 
 label_name: ID
@@ -546,7 +784,9 @@ branch_stmt: GOTO_KW label_name ENDL
            ;
 
 exit_stmt: EXIT_KW DO_KW ENDL
-         : /* добавить остальные условия выхода из оф.грамматики, можешь посмотреть на пример continue_stmt, Try не нужен */
+         | EXIT_KW FOR_KW ENDL
+         | EXIT_KW WHILE_KW ENDL
+         | EXIT_KW SELECT_KW ENDL
          ;
 
 continue_stmt: CONTINUE_KW DO_KW ENDL
@@ -591,6 +831,9 @@ else_stmt: ELSE_KW ENDL block
 line_if_stmt: IF_KW expr THEN_KW stmt_separated_list ENDL
             | IF_KW expr THEN_KW stmt_separated_list ELSE_KW stmt_separated_list ENDL
 
+stmt_separated_list: stmt
+                   | stmt ':' stmt_separated_list
+                   ;
 
 select_stmt: SELECT_KW expr ENDL case_stmts case_else_stmt END_KW SELECT_KW ENDL
            | SELECT_KW expr ENDL case_stmts END_KW SELECT_KW ENDL 
@@ -615,7 +858,36 @@ loop_stmt: while_stmt
          | do_stmt
          ;
 
-/* здесь должны быть указанные выше циклы */
+while_stmt: WHILE_KW expr ENDL block END_KW WHILE_KW ENDL
+          ;
+
+for_stmt: FOR_KW for_loop_variable '=' expr TO_KW expr ENDL block END_KW NEXT_KW ENDL
+        | FOR_KW for_loop_variable '=' expr TO_KW expr STEP_KW expr ENDL block END_KW NEXT_KW ENDL
+        ;
+
+for_loop_variable: ID
+                 | ID AS_KW type_name
+                 ;
+
+foreach_stmt: FOREACH_KW for_loop_variable IN_KW ENDL expr ENDL block NEXT_KW ENDL
+            | FOREACH_KW for_loop_variable IN_KW expr ENDL block NEXT_KW ENDL
+            ;
+
+do_stmt: do_while_stmt
+       | do_until_stmt
+       | do_true_stmt
+       ;
+
+do_true_stmt: DO_KW ENDL block ENDL
+             ;
+
+do_while_stmt: DO_KW ENDL block WHILE_KW expr LOOP_KW ENDL
+             | DO_KW LOOP_KW WHILE_KW expr ENDL block ENDL
+             ;
+
+do_until_stmt: DO_KW ENDL block UNTIL_KW expr LOOP_KW ENDL
+             | DO_KW LOOP_KW UNTIL_KW expr ENDL block ENDL
+             ;
 
 %%
 /*
@@ -625,11 +897,10 @@ TODO List:
 + Классы и структуры, конструкторы, шаблоны (Шашков)
 + Функции, методы (Шашков)
 + Массивы (Шашков)
-+ Оставшиеся сложные выражения (Шашков)
++ Выражения (Шашков)
++ Развилки (Шашков)
++ Перечисления (Шашков)
 
-- Выписывание всех токенов, операторов (и их приоритетов, ассоциативности) (Микулина)
-- Бинарные и унарные операции (выражения) (Микулина)
-- Цикл for, until, while (Микулина)
-+ Развилки (Микулина)
-+ Перечисления (Микулина)
++ Выписывание всех токенов (Микулина)
++ Цикл for, until, while (Микулина)
 */
