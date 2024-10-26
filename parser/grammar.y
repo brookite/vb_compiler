@@ -53,6 +53,12 @@
 %token DO_KW
 %token STEP_KW
 %token AS_KW
+%token CALL_KW
+%token GOTO_KW
+%token CONTINUE_KW
+%token EXIT_KW
+%token STOP_KW
+%token RETURN_KW
 
 %left XOR
 %left OR OR_ELSE
@@ -105,6 +111,12 @@ kw: ME_KW
   | DO_KW
   | STEP_KW
   | AS_KW
+  | CALL_KW
+  | GOTO_KW
+  | CONTINUE_KW
+  | EXIT_KW
+  | STOP_KW
+  | RETURN_KW
   ;
 
 type_name: scalar_type_name
@@ -175,8 +187,8 @@ expr: INT
     | expr LIKE expr
     | expr '(' opt_endl_list expr_list opt_endl_list ')'
     | expr '(' opt_endl_list ')'
-    // | IF_KW '(' opt_endl_list expr ',' opt_endl_list expr ',' opt_endl_list expr opt_endl_list ')'
-    // | IF_KW '(' opt_endl_list expr ',' opt_endl_list expr opt_endl_list ')'
+    //| IF_KW '(' opt_endl_list expr ',' opt_endl_list expr ',' opt_endl_list expr opt_endl_list ')'
+    //| IF_KW '(' opt_endl_list expr ',' opt_endl_list expr opt_endl_list ')'
     | expr '.' member_access_member
     | MYBASE_KW '.' member_access_member
     | MYCLASS_KW '.' member_access_member
@@ -209,13 +221,45 @@ stmt: expr endl_list
     | REDIM_KW redim_clause_list
     | if_stmt
     | select_stmt
+    | label_stmt
     | for_stmt
     | foreach_stmt
     | DO_KW endl_list opt_block LOOP_KW endl_list
     | do_while_stmt
     | do_until_stmt
     | while_stmt
+    //| expr '=' expr endl_list
+    | expr '+' '=' expr endl_list
+    | expr '-' '=' expr endl_list
+    | expr '*' '=' expr endl_list
+    | expr '/' '=' expr endl_list
+    | expr '\\' '=' expr endl_list
+    | expr '^' '=' expr endl_list
+    | expr '&' '=' expr endl_list
+    | expr '<' '<' '=' expr endl_list
+    | expr '>' '>' '=' expr endl_list
+    | CALL_KW expr '(' opt_endl_list expr_list opt_endl_list ')' endl_list
+    | CALL_KW expr '(' opt_endl_list ')' endl_list
+    | RETURN_KW endl_list
+    | RETURN_KW expr endl_list
+    | CONTINUE_KW DO_KW endl_list
+    | CONTINUE_KW FOR_KW endl_list
+    | CONTINUE_KW WHILE_KW endl_list
+    | EXIT_KW DO_KW endl_list
+    | EXIT_KW FOR_KW endl_list
+    | EXIT_KW WHILE_KW endl_list
+    | EXIT_KW SELECT_KW endl_list
+    | STOP_KW endl_list
+    //| END_KW endl_list
+    | GOTO_KW label_name endl_list
     ;
+
+label_name: ID
+          | INT
+          ;
+
+label_stmt: label_name ':'
+          ;
 
 redim_clause: ID '(' opt_endl_list expr_list opt_endl_list ')'
             ;
