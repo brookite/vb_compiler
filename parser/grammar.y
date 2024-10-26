@@ -59,6 +59,10 @@
 %token EXIT_KW
 %token STOP_KW
 %token RETURN_KW
+%token STATIC_KW
+%token DIM_KW
+%token CONST_KW
+%token OF_KW
 
 %left XOR
 %left OR OR_ELSE
@@ -87,6 +91,10 @@ endl_list: ENDL
 opt_endl_list: /* empty */
              | endl_list
              ;
+
+opt_endl: ENDL
+        | /* empty */
+        ;
 
 kw: ME_KW
   | IF_KW
@@ -117,36 +125,31 @@ kw: ME_KW
   | EXIT_KW
   | STOP_KW
   | RETURN_KW
+  | BYTE_KW
+  | SBYTE_KW
+  | USHORT_KW 
+  | SHORT_KW
+  | UINTEGER_KW
+  | INTEGER_KW
+  | ULONG_KW
+  | LONG_KW
+  | BOOLEAN_KW
+  | DATE_KW
+  | CHAR_KW
+  | STRING_KW
+  | DECIMAL_KW
+  | SINGLE_KW
+  | DOUBLE_KW
+  | OBJECT_KW
+  | DIM_KW
+  | CONST_KW
+  | STATIC_KW
+  | OF_KW
   ;
 
-type_name: scalar_type_name
+type_name: simple_type_name
          | array_type_name
          ;
-
-array_type_name: scalar_type_name '(' opt_endl_list ')'
-               ;
-
-scalar_type_name: ID
-                | primitive_type
-                ;
-
-primitive_type: BYTE_KW
-                | SBYTE_KW
-                | USHORT_KW 
-                | SHORT_KW
-                | UINTEGER_KW
-                | INTEGER_KW
-                | ULONG_KW
-                | LONG_KW
-                | BOOLEAN_KW
-                | DATE_KW
-                | CHAR_KW
-                | STRING_KW
-                | DECIMAL_KW
-                | SINGLE_KW
-                | DOUBLE_KW
-                | OBJECT_KW
-                ;
 
 expr: INT
     | STRING
@@ -185,22 +188,35 @@ expr: INT
     | expr IS expr
     | expr ISNOT expr
     | expr LIKE expr
-    | expr '(' opt_endl_list expr_list opt_endl_list ')'
-    | expr '(' opt_endl_list ')'
-    //| IF_KW '(' opt_endl_list expr ',' opt_endl_list expr ',' opt_endl_list expr opt_endl_list ')'
-    //| IF_KW '(' opt_endl_list expr ',' opt_endl_list expr opt_endl_list ')'
+    | expr '(' opt_endl expr_list opt_endl ')'
+    | expr '(' opt_endl ')'
+    //| IF_KW '(' opt_endl expr ',' opt_endl expr ',' opt_endl expr opt_endl ')'
+    //| IF_KW '(' opt_endl expr ',' opt_endl expr opt_endl ')'
     | expr '.' member_access_member
     | MYBASE_KW '.' member_access_member
     | MYCLASS_KW '.' member_access_member
-    | NEW_KW scalar_type_name '(' opt_endl_list ')'
-    | NEW_KW scalar_type_name '(' opt_endl_list expr_list opt_endl_list ')'
+    //| NEW_KW simple_type_name paren_expr_list // проблемное место
     | NEW_KW array_type_name collection_initializer
     | collection_initializer
     ;
 
+/* костыли paren_expr_list, paren_expr */
+paren_expr_list: '(' ENDL ')'
+    | '(' ')'
+    | '(' expr_list ')'
+    | '(' ENDL expr_list ')'
+    | '(' expr_list ENDL ')'
+    | '(' ENDL expr_list ENDL ')'
+    ;
 
-collection_initializer: '{' opt_endl_list expr_list opt_endl_list '}'
-                      | '{' opt_endl_list '}'
+paren_expr: '(' expr ')'
+          | '(' ENDL expr ')'
+          | '(' expr ENDL ')'
+          | '(' ENDL expr ENDL ')'
+          ;
+
+collection_initializer: '{' opt_endl expr_list opt_endl '}'
+                      | '{' opt_endl '}'
                       ;
 
 
@@ -209,7 +225,7 @@ member_access_member: ID
                     ;
 
 expr_list: expr
-         | expr ',' opt_endl_list expr_list
+         | expr ',' opt_endl expr_list
          ;
 
 
@@ -228,6 +244,7 @@ stmt: expr endl_list
     | do_while_stmt
     | do_until_stmt
     | while_stmt
+    | var_declaration
     //| expr '=' expr endl_list
     | expr '+' '=' expr endl_list
     | expr '-' '=' expr endl_list
@@ -238,8 +255,8 @@ stmt: expr endl_list
     | expr '&' '=' expr endl_list
     | expr '<' '<' '=' expr endl_list
     | expr '>' '>' '=' expr endl_list
-    | CALL_KW expr '(' opt_endl_list expr_list opt_endl_list ')' endl_list
-    | CALL_KW expr '(' opt_endl_list ')' endl_list
+    | CALL_KW expr '(' opt_endl expr_list opt_endl ')' endl_list
+    | CALL_KW expr '(' opt_endl ')' endl_list
     | RETURN_KW endl_list
     | RETURN_KW expr endl_list
     | CONTINUE_KW DO_KW endl_list
@@ -261,11 +278,11 @@ label_name: ID
 label_stmt: label_name ':'
           ;
 
-redim_clause: ID '(' opt_endl_list expr_list opt_endl_list ')'
+redim_clause: ID '(' opt_endl expr_list opt_endl ')'
             ;
 
 redim_clause_list: redim_clause
-                 | redim_clause_list ',' opt_endl_list redim_clause
+                 | redim_clause_list ',' opt_endl redim_clause
                  ;
 
 if_stmt: IF_KW expr THEN_KW endl_list opt_block else_if_stmts ELSE_KW endl_list opt_block END_KW IF_KW endl_list
@@ -299,16 +316,16 @@ case_stmts: case_condition_branches
 while_stmt: WHILE_KW expr endl_list opt_block END_KW WHILE_KW endl_list
           ;
 
-for_stmt: FOR_KW for_loop_variable '=' opt_endl_list expr TO_KW expr endl_list opt_block END_KW NEXT_KW endl_list
-        | FOR_KW for_loop_variable '=' opt_endl_list expr TO_KW expr STEP_KW expr endl_list opt_block END_KW NEXT_KW endl_list
+for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list opt_block END_KW NEXT_KW endl_list
+        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list opt_block END_KW NEXT_KW endl_list
         ;
 
 for_loop_variable: ID
                  | ID AS_KW type_name
                  ;
 
-foreach_stmt: FOR_KW EACH_KW for_loop_variable opt_endl_list IN_KW endl_list expr endl_list opt_block NEXT_KW endl_list
-            | FOR_KW EACH_KW for_loop_variable opt_endl_list IN_KW expr endl_list opt_block NEXT_KW endl_list
+foreach_stmt: FOR_KW EACH_KW for_loop_variable opt_endl IN_KW endl_list expr endl_list opt_block NEXT_KW endl_list
+            | FOR_KW EACH_KW for_loop_variable opt_endl IN_KW expr endl_list opt_block NEXT_KW endl_list
             ;
 
 do_while_stmt: DO_KW endl_list opt_block LOOP_KW WHILE_KW expr endl_list
@@ -327,3 +344,56 @@ block: stmt
      | block stmt
      ;
 
+variable_name: ID
+             | ID array_modifier
+             ;
+
+array_modifier: paren_expr
+              | '(' ENDL ')'
+              | '(' ')'
+              ;
+
+var_declarator: variable_name
+              | variable_name AS_KW type_name
+              | variable_name '=' expr
+              | variable_name AS_KW type_name '=' expr
+              ;
+
+var_declaration: STATIC_KW var_declarator endl_list
+               | DIM_KW var_declarator endl_list
+               | CONST_KW var_declarator endl_list
+               ;
+
+array_type_name: simple_type_name array_modifier
+               ;
+
+simple_type_name: ID
+                | primitive_type
+                | ID '(' opt_endl OF_KW type_list opt_endl ')' // SR-конфликт
+                ;
+
+primitive_type: BYTE_KW
+              | SBYTE_KW
+              | USHORT_KW 
+              | SHORT_KW
+              | UINTEGER_KW
+              | INTEGER_KW
+              | ULONG_KW
+              | LONG_KW
+              | BOOLEAN_KW
+              | DATE_KW
+              | CHAR_KW
+              | STRING_KW
+              | DECIMAL_KW
+              | SINGLE_KW
+              | DOUBLE_KW
+              | OBJECT_KW
+              ;
+
+type_list: type_name
+         | type_list ',' opt_endl type_name
+         ;
+
+id_list: ID
+       | id_list ',' opt_endl ID
+       ;
