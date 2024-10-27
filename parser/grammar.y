@@ -63,6 +63,12 @@
 %token DIM_KW
 %token CONST_KW
 %token OF_KW
+%token FUNCTION_KW
+%token SUB_KW
+%token BYREF_KW
+%token BYVAL_KW
+%token PARAMARRAY_KW
+%token OPTIONAL_KW
 
 %left XOR
 %left OR OR_ELSE
@@ -82,7 +88,9 @@
 
 %%
 
-program: stmt;
+program: function_declaration
+       | sub_declaration
+       ;
 
 endl_list: ENDL
          | endl_list ENDL
@@ -145,6 +153,12 @@ kw: ME_KW
   | CONST_KW
   | STATIC_KW
   | OF_KW
+  | FUNCTION_KW
+  | SUB_KW
+  | BYREF_KW
+  | BYVAL_KW
+  | PARAMARRAY_KW
+  | OPTIONAL_KW
   ;
 
 type_name: simple_type_name
@@ -195,8 +209,8 @@ expr: INT
     | expr '.' member_access_member
     | MYBASE_KW '.' member_access_member
     | MYCLASS_KW '.' member_access_member
-    //| NEW_KW simple_type_name paren_expr_list // проблемное место
-    | NEW_KW array_type_name collection_initializer
+    | NEW_KW simple_type_name paren_expr_list
+    //| NEW_KW array_type_name collection_initializer  // проблемное место
     | collection_initializer
     ;
 
@@ -397,3 +411,52 @@ type_list: type_name
 id_list: ID
        | id_list ',' opt_endl ID
        ;
+
+function_signature: FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name
+                  | FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')'
+                  | FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name
+                  | FUNCTION_KW ID '(' opt_endl ')'
+                  | FUNCTION_KW ID AS_KW type_name
+                  | FUNCTION_KW ID
+                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl function_parameters opt_endl ')' AS_KW type_name
+                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl function_parameters opt_endl ')'
+                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl ')' AS_KW type_name
+                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl ')'
+                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')' AS_KW type_name
+                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')'
+                  ;
+
+sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'
+             | SUB_KW ID '(' opt_endl ')'
+             | SUB_KW ID
+             | SUB_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl function_parameters opt_endl ')'
+             | SUB_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl ')'
+             | SUB_KW ID '(' opt_endl OF_KW id_list opt_endl ')'
+             ;
+
+function_declaration: function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
+
+
+sub_declaration: sub_signature endl_list opt_block END_KW SUB_KW endl_list
+
+
+function_parameters: function_parameter
+                   | function_parameters ',' function_parameter
+                   ;
+
+function_parameter: opt_parameter_modifiers variable_name AS_KW type_name '=' expr
+                  ;
+
+opt_parameter_modifiers: /* empty */
+                       | parameter_modifiers
+                       ;
+
+parameter_modifiers: parameter_modifier
+                   | parameter_modifiers parameter_modifier
+                   ;
+
+parameter_modifier: BYREF_KW
+                  | BYVAL_KW
+                  | OPTIONAL_KW
+                  | PARAMARRAY_KW
+                  ;
