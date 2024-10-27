@@ -293,9 +293,7 @@ stmt: expr endl_list
     | expr '&' '=' expr endl_list
     | expr '<' '<' '=' expr endl_list
     | expr '>' '>' '=' expr endl_list
-    | CALL_KW expr '(' opt_endl expr_list opt_endl ')' endl_list
-    | CALL_KW expr '(' opt_endl ')' endl_list
-    //| CALL_KW expr endl_list
+    | CALL_KW expr endl_list
     | RETURN_KW endl_list
     | RETURN_KW expr endl_list
     | CONTINUE_KW DO_KW endl_list
@@ -437,26 +435,17 @@ id_list: ID
        | id_list ',' opt_endl ID
        ;
 
-function_signature: FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name
-                  | FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')'
-                  | FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name
-                  | FUNCTION_KW ID '(' opt_endl ')'
-                  | FUNCTION_KW ID AS_KW type_name
-                  | FUNCTION_KW ID
-                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl function_parameters opt_endl ')' AS_KW type_name
-                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl function_parameters opt_endl ')'
-                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl ')' AS_KW type_name
-                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl ')'
-                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')' AS_KW type_name
-                  | FUNCTION_KW ID '(' opt_endl OF_KW id_list opt_endl ')'
+function_signature: FUNCTION_KW generic_name '(' opt_endl function_parameters opt_endl ')' AS_KW type_name
+                  | FUNCTION_KW generic_name '(' opt_endl function_parameters opt_endl ')'
+                  | FUNCTION_KW generic_name '(' opt_endl ')' AS_KW type_name
+                  | FUNCTION_KW generic_name '(' opt_endl ')'
+                  | FUNCTION_KW generic_name AS_KW type_name
+                  | FUNCTION_KW generic_name
                   ;
 
-sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'
-             | SUB_KW ID '(' opt_endl ')'
-             | SUB_KW ID
-             | SUB_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl function_parameters opt_endl ')'
-             | SUB_KW ID '(' opt_endl OF_KW id_list opt_endl ')' '(' opt_endl ')'
-             | SUB_KW ID '(' opt_endl OF_KW id_list opt_endl ')'
+sub_signature: SUB_KW generic_name '(' opt_endl function_parameters opt_endl ')'
+             | SUB_KW generic_name '(' opt_endl ')'
+             | SUB_KW generic_name
              ;
 
 function_declaration: opt_procedure_modifiers function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
@@ -498,25 +487,21 @@ access_modifier: PUBLIC_KW
                | PRIVATE_KW
                ;
 
-class_declaration: access_modifier CLASS_KW ID stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
-                 | CLASS_KW ID stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
-                 | CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW
-                 | access_modifier CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW 
-                 | access_modifier CLASS_KW ID '(' opt_endl OF_KW id_list opt_endl ')' stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
-                 | CLASS_KW ID '(' opt_endl OF_KW id_list opt_endl ')' stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
-                 | CLASS_KW ID '(' opt_endl OF_KW id_list opt_endl ')' endl_list opt_structure_body END_KW CLASS_KW
-                 | access_modifier CLASS_KW ID '(' opt_endl OF_KW id_list opt_endl ')' endl_list opt_structure_body END_KW CLASS_KW 
+class_declaration: struct_modifiers CLASS_KW generic_name stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
+                 | struct_modifiers CLASS_KW generic_name endl_list opt_structure_body END_KW CLASS_KW
                  ;
 
-struct_declaration: access_modifier STRUCT_KW ID ENDL INHERITS_KW simple_type_name ENDL opt_structure_body END_KW STRUCT_KW
-                 | STRUCT_KW ID ENDL INHERITS_KW simple_type_name ENDL opt_structure_body END_KW STRUCT_KW
-                 | STRUCT_KW ID ENDL opt_structure_body END_KW STRUCT_KW
-                 | access_modifier STRUCT_KW ID ENDL opt_structure_body END_KW STRUCT_KW 
-                 | access_modifier STRUCT_KW ID '(' opt_endl OF_KW id_list opt_endl ')' ENDL INHERITS_KW simple_type_name ENDL opt_structure_body END_KW STRUCT_KW
-                 | STRUCT_KW ID '(' opt_endl OF_KW id_list opt_endl ')' ENDL INHERITS_KW simple_type_name ENDL opt_structure_body END_KW STRUCT_KW
-                 | STRUCT_KW ID '(' opt_endl OF_KW id_list opt_endl ')' ENDL opt_structure_body END_KW STRUCT_KW
-                 | access_modifier STRUCT_KW ID '(' opt_endl OF_KW id_list opt_endl ')' ENDL opt_structure_body END_KW STRUCT_KW 
-                 ;
+struct_declaration: struct_modifiers STRUCT_KW generic_name stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW STRUCT_KW
+                  | struct_modifiers STRUCT_KW generic_name endl_list opt_structure_body END_KW STRUCT_KW
+                  ;
+
+struct_modifiers: access_modifier
+                | /* empty */
+                ;
+                
+generic_name: ID
+            | ID '(' opt_endl OF_KW id_list opt_endl ')'
+            ;
 
 opt_structure_body: /* empty */
                   | structure_body
