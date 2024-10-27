@@ -77,6 +77,7 @@
 %token STRUCT_KW
 %token INHERITS_KW
 %token READONLY_KW
+%token ERASE_KW
 
 %left XOR
 %left OR OR_ELSE
@@ -183,6 +184,7 @@ kw: ME_KW
   | STRUCT_KW
   | INHERITS_KW
   | READONLY_KW
+  | ERASE_KW
   ;
 
 type_name: simple_type_name
@@ -272,7 +274,8 @@ opt_expr_list: /* empty */
           ;
 
 stmt: expr endl_list
-    | REDIM_KW redim_clause_list
+    | REDIM_KW redim_clause_list endl_list
+    | ERASE_KW expr_list endl_list
     | if_stmt
     | select_stmt
     | label_stmt
