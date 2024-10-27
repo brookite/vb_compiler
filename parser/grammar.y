@@ -69,6 +69,10 @@
 %token BYVAL_KW
 %token PARAMARRAY_KW
 %token OPTIONAL_KW
+%token PRIVATE_KW
+%token PROTECTED_KW
+%token PUBLIC_KW
+%token SHARED_KW
 
 %left XOR
 %left OR OR_ELSE
@@ -159,6 +163,10 @@ kw: ME_KW
   | BYVAL_KW
   | PARAMARRAY_KW
   | OPTIONAL_KW
+  | PUBLIC_KW
+  | PRIVATE_KW
+  | PROTECTED_KW
+  | SHARED_KW
   ;
 
 type_name: simple_type_name
@@ -435,10 +443,19 @@ sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'
              ;
 
 function_declaration: function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
+                    | access_modifier function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
+                    | SHARED_KW function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
+                    | SHARED_KW access_modifier function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
+                    | access_modifier SHARED_KW function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
+                    ;
 
 
-sub_declaration: sub_signature endl_list opt_block END_KW SUB_KW endl_list
-
+sub_declaration: access_modifier sub_signature endl_list opt_block END_KW SUB_KW endl_list
+               | sub_signature endl_list opt_block END_KW SUB_KW endl_list
+               | SHARED_KW sub_signature endl_list opt_block END_KW SUB_KW endl_list
+               | access_modifier SHARED_KW sub_signature endl_list opt_block END_KW SUB_KW endl_list
+               | SHARED_KW access_modifier sub_signature endl_list opt_block END_KW SUB_KW endl_list
+               ;
 
 function_parameters: function_parameter
                    | function_parameters ',' function_parameter
@@ -460,3 +477,9 @@ parameter_modifier: BYREF_KW
                   | OPTIONAL_KW
                   | PARAMARRAY_KW
                   ;
+
+access_modifier: PUBLIC_KW
+               | PROTECTED_KW
+               | PRIVATE_KW
+               ;
+
