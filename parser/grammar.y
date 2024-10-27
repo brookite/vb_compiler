@@ -94,6 +94,7 @@
 %token CSINGLE_KW
 %token CDOUBLE_KW
 %token COBJECT_KW
+%token CTYPE_KW
 
 %left XOR
 %left OR OR_ELSE
@@ -213,6 +214,7 @@ kw: ME_KW
   | CSINGLE_KW
   | CDOUBLE_KW
   | COBJECT_KW
+  | CTYPE_KW
   ;
 
 type_name: simple_type_name
@@ -258,7 +260,8 @@ expr: INT
     | expr LIKE expr
     | expr '(' opt_endl expr_list opt_endl ')'
     | expr '(' opt_endl ')'
-    | cast_target '(' expr ')'
+    | cast_target '(' opt_endl expr opt_endl ')'
+    | CTYPE_KW '(' opt_endl expr ',' opt_endl type_name opt_endl ')'
     | IF_KW '(' opt_endl expr ',' opt_endl expr ',' opt_endl expr opt_endl ')' // конфликт SR
     | IF_KW '(' opt_endl expr ',' opt_endl expr opt_endl ')' // конфликт SR
     | expr '.' member_access_member
