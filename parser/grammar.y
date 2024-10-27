@@ -73,6 +73,10 @@
 %token PROTECTED_KW
 %token PUBLIC_KW
 %token SHARED_KW
+%token CLASS_KW
+%token STRUCT_KW
+%token INHERITS_KW
+%token READONLY_KW
 
 %left XOR
 %left OR OR_ELSE
@@ -92,12 +96,20 @@
 
 %%
 
-program: function_declaration
-       | sub_declaration
+program: program_member
+       | program program_member
        ;
+
+program_member: struct_declaration
+              | class_declaration
+              ;
 
 endl_list: ENDL
          | endl_list ENDL
+         ;
+
+stmt_endl: ENDL
+         | ':'
          ;
 
 opt_endl_list: /* empty */
@@ -167,6 +179,10 @@ kw: ME_KW
   | PRIVATE_KW
   | PROTECTED_KW
   | SHARED_KW
+  | CLASS_KW
+  | STRUCT_KW
+  | INHERITS_KW
+  | READONLY_KW
   ;
 
 type_name: simple_type_name
@@ -279,6 +295,7 @@ stmt: expr endl_list
     | expr '>' '>' '=' expr endl_list
     | CALL_KW expr '(' opt_endl expr_list opt_endl ')' endl_list
     | CALL_KW expr '(' opt_endl ')' endl_list
+    //| CALL_KW expr endl_list
     | RETURN_KW endl_list
     | RETURN_KW expr endl_list
     | CONTINUE_KW DO_KW endl_list
@@ -442,20 +459,18 @@ sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'
              | SUB_KW ID '(' opt_endl OF_KW id_list opt_endl ')'
              ;
 
-function_declaration: function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
-                    | access_modifier function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
-                    | SHARED_KW function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
-                    | SHARED_KW access_modifier function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
-                    | access_modifier SHARED_KW function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
+function_declaration: opt_procedure_modifiers function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
                     ;
 
 
-sub_declaration: access_modifier sub_signature endl_list opt_block END_KW SUB_KW endl_list
-               | sub_signature endl_list opt_block END_KW SUB_KW endl_list
-               | SHARED_KW sub_signature endl_list opt_block END_KW SUB_KW endl_list
-               | access_modifier SHARED_KW sub_signature endl_list opt_block END_KW SUB_KW endl_list
-               | SHARED_KW access_modifier sub_signature endl_list opt_block END_KW SUB_KW endl_list
+sub_declaration: opt_procedure_modifiers sub_signature endl_list opt_block END_KW SUB_KW endl_list
                ;
+
+opt_procedure_modifiers: access_modifier
+                   | access_modifier SHARED_KW
+                   | SHARED_KW
+                   | /* empty */
+                   ;
 
 function_parameters: function_parameter
                    | function_parameters ',' function_parameter
@@ -483,3 +498,60 @@ access_modifier: PUBLIC_KW
                | PRIVATE_KW
                ;
 
+class_declaration: access_modifier CLASS_KW ID stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
+                 | CLASS_KW ID stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
+                 | CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW
+                 | access_modifier CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW 
+                 | access_modifier CLASS_KW ID '(' opt_endl OF_KW id_list opt_endl ')' stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
+                 | CLASS_KW ID '(' opt_endl OF_KW id_list opt_endl ')' stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
+                 | CLASS_KW ID '(' opt_endl OF_KW id_list opt_endl ')' endl_list opt_structure_body END_KW CLASS_KW
+                 | access_modifier CLASS_KW ID '(' opt_endl OF_KW id_list opt_endl ')' endl_list opt_structure_body END_KW CLASS_KW 
+                 ;
+
+struct_declaration: access_modifier STRUCT_KW ID ENDL INHERITS_KW simple_type_name ENDL opt_structure_body END_KW STRUCT_KW
+                 | STRUCT_KW ID ENDL INHERITS_KW simple_type_name ENDL opt_structure_body END_KW STRUCT_KW
+                 | STRUCT_KW ID ENDL opt_structure_body END_KW STRUCT_KW
+                 | access_modifier STRUCT_KW ID ENDL opt_structure_body END_KW STRUCT_KW 
+                 | access_modifier STRUCT_KW ID '(' opt_endl OF_KW id_list opt_endl ')' ENDL INHERITS_KW simple_type_name ENDL opt_structure_body END_KW STRUCT_KW
+                 | STRUCT_KW ID '(' opt_endl OF_KW id_list opt_endl ')' ENDL INHERITS_KW simple_type_name ENDL opt_structure_body END_KW STRUCT_KW
+                 | STRUCT_KW ID '(' opt_endl OF_KW id_list opt_endl ')' ENDL opt_structure_body END_KW STRUCT_KW
+                 | access_modifier STRUCT_KW ID '(' opt_endl OF_KW id_list opt_endl ')' ENDL opt_structure_body END_KW STRUCT_KW 
+                 ;
+
+opt_structure_body: /* empty */
+                  | structure_body
+                  ;
+
+structure_body: structure_member
+              | structure_body structure_member
+              ;
+
+structure_member: function_declaration
+                | sub_declaration
+                | field_declaration
+                | const_declaration
+                | class_declaration
+                | struct_declaration
+                ;
+
+const_declaration: access_modifier CONST_KW var_declarator endl_list
+                | CONST_KW var_declarator endl_list
+                ;
+
+field_declaration: field_modifiers var_declarator endl_list
+                 ;
+
+field_modifiers: access_modifier
+               | field_var_modifiers
+               | field_var_modifiers access_modifier
+               | access_modifier field_var_modifier
+               ;
+
+field_var_modifiers: field_var_modifier
+                   | field_var_modifiers field_var_modifier
+                   ;
+
+field_var_modifier: DIM_KW
+                  | READONLY_KW
+                  | SHARED_KW
+                  ;
