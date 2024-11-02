@@ -118,6 +118,7 @@
 %left '^'
 %left '.'
 %nonassoc '(' ')' '{' '}'
+%precedence NEW
 
 %%
 
@@ -265,35 +266,22 @@ expr: INT
     | expr IS expr
     | expr ISNOT expr
     | expr LIKE expr
-    | call_expr
+    | expr '(' opt_endl expr_list opt_endl ')'
+	| expr '(' opt_endl ')'
     | cast_target '(' opt_endl expr opt_endl ')'
     | CTYPE_KW '(' opt_endl expr ',' opt_endl type_name opt_endl ')'
     | IF_KW '(' opt_endl expr ',' opt_endl expr ',' opt_endl expr opt_endl ')'
     | IF_KW '(' opt_endl expr ',' opt_endl expr opt_endl ')'
-    | ID '.' member_access_member
-	| call_expr '.' member_access_member
+    | expr '.' member_access_member
     | MYBASE_KW '.' member_access_member
     | MYCLASS_KW '.' member_access_member
-	| NEW_KW simple_type_name
-    | NEW_KW simple_type_name paren_expr_list
-    | NEW_KW simple_type_name paren_expr_list collection_initializer
+	//| NEW_KW simple_type_name SR конфликт
+    | NEW_KW simple_type_name '(' opt_endl ')'
+    | NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')'
+    | NEW_KW simple_type_name '(' opt_endl ')' collection_initializer
+    | NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')' collection_initializer
     | collection_initializer
     ;
-
-/* костыли paren_expr_list, paren_expr */
-paren_expr_list: '(' ENDL ')'
-    | '(' ')'
-    | '(' expr_list ')'
-    | '(' ENDL expr_list ')'
-    | '(' expr_list ENDL ')'
-    | '(' ENDL expr_list ENDL ')'
-    ;
-
-paren_expr: '(' expr ')'
-          | '(' ENDL expr ')'
-          | '(' expr ENDL ')'
-          | '(' ENDL expr ENDL ')'
-          ;
 
 cast_target: CBOOL_KW
            | CBYTE_KW
@@ -325,17 +313,7 @@ expr_list: expr
          | expr_list ',' opt_endl expr 
          ;
 
-call_expr: ID '(' opt_endl expr_list opt_endl ')'
-	     | ID '(' opt_endl ')'
-		 | call_expr '.' endl_list ID '(' opt_endl expr_list opt_endl ')'
-		 | call_expr '.' ID '(' opt_endl expr_list opt_endl ')'
-		 | call_expr '.' endl_list ID '(' opt_endl ')'
-		 | call_expr '.' ID '(' opt_endl ')'
-		 ;
-
-stmt: call_expr endl_list
-    | CALL_KW call_expr endl_list
-    | CALL_KW ID endl_list
+stmt: CALL_KW expr endl_list
     | REDIM_KW redim_clause_list endl_list
     | ERASE_KW expr_list endl_list
     | if_stmt 
@@ -459,8 +437,7 @@ variable_name: ID
              | ID array_modifier
              ;
 
-array_modifier: paren_expr
-              | '(' ENDL ')'
+array_modifier: '(' ENDL ')'
               | '(' ')'
               ;
 
