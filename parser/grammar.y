@@ -95,6 +95,11 @@
 %token CDOUBLE_KW
 %token COBJECT_KW
 %token CTYPE_KW
+%token END_FUNCTION
+%token END_SELECT
+%token END_IF
+%token END_SUB
+%token END_WHILE
 
 
 %precedence ID
@@ -232,7 +237,7 @@ expr: INT
     | CHAR
     | NOTHING
     | ME_KW
-    | '(' expr ')'
+    | '(' opt_endl expr opt_endl ')'
     | expr '+' expr
     | expr '-' expr
     | expr '*' expr
@@ -260,17 +265,18 @@ expr: INT
     | expr IS expr
     | expr ISNOT expr
     | expr LIKE expr
-    | expr '(' opt_endl expr_list opt_endl ')'
-    | expr '(' opt_endl ')'
+    | call_expr
     | cast_target '(' opt_endl expr opt_endl ')'
     | CTYPE_KW '(' opt_endl expr ',' opt_endl type_name opt_endl ')'
-    //| IF_KW '(' opt_endl expr ',' opt_endl expr ',' opt_endl expr opt_endl ')' // конфликт SR 
-    //| IF_KW '(' opt_endl expr ',' opt_endl expr opt_endl ')' // конфликт SR
-    | expr '.' member_access_member
+    | IF_KW '(' opt_endl expr ',' opt_endl expr ',' opt_endl expr opt_endl ')'
+    | IF_KW '(' opt_endl expr ',' opt_endl expr opt_endl ')'
+    | ID '.' member_access_member
+	| call_expr '.' member_access_member
     | MYBASE_KW '.' member_access_member
     | MYCLASS_KW '.' member_access_member
+	| NEW_KW simple_type_name
     | NEW_KW simple_type_name paren_expr_list
-    //| NEW_KW array_type_name collection_initializer // проблемное место
+    | NEW_KW simple_type_name paren_expr_list collection_initializer
     | collection_initializer
     ;
 
@@ -319,7 +325,17 @@ expr_list: expr
          | expr_list ',' opt_endl expr 
          ;
 
-stmt: expr endl_list
+call_expr: ID '(' opt_endl expr_list opt_endl ')'
+	     | ID '(' opt_endl ')'
+		 | call_expr '.' endl_list ID '(' opt_endl expr_list opt_endl ')'
+		 | call_expr '.' ID '(' opt_endl expr_list opt_endl ')'
+		 | call_expr '.' endl_list ID '(' opt_endl ')'
+		 | call_expr '.' ID '(' opt_endl ')'
+		 ;
+
+stmt: call_expr endl_list
+    | CALL_KW call_expr endl_list
+    | CALL_KW ID endl_list
     | REDIM_KW redim_clause_list endl_list
     | ERASE_KW expr_list endl_list
     | if_stmt 
@@ -332,7 +348,7 @@ stmt: expr endl_list
     | do_until_stmt
     | while_stmt
     | var_declaration
-    //| expr '=' expr endl_list
+    | expr '=' expr endl_list
     | expr '+' '=' expr endl_list
     | expr '-' '=' expr endl_list
     | expr '*' '=' expr endl_list
@@ -342,9 +358,6 @@ stmt: expr endl_list
     | expr '&' '=' expr endl_list
     | expr '<' '<' '=' expr endl_list
     | expr '>' '>' '=' expr endl_list
-    | CALL_KW ID '(' opt_endl expr_list opt_endl ')' endl_list
-    | CALL_KW ID '(' opt_endl ')' endl_list
-    | CALL_KW ID endl_list
     | RETURN_KW endl_list
     | RETURN_KW expr endl_list
     | CONTINUE_KW DO_KW endl_list
@@ -355,7 +368,7 @@ stmt: expr endl_list
     | EXIT_KW WHILE_KW endl_list
     | EXIT_KW SELECT_KW endl_list
     | STOP_KW endl_list
-    //| END_KW endl_list // конфликт SR
+    | END_KW endl_list
     | GOTO_KW label_name endl_list
     ;
 
@@ -373,20 +386,27 @@ redim_clause_list: redim_clause
                  | redim_clause_list ',' opt_endl redim_clause
                  ;
 
-if_stmt: IF_KW expr THEN_KW endl_list opt_block else_if_stmts ELSE_KW endl_list opt_block END_KW IF_KW endl_list
-       | IF_KW expr THEN_KW endl_list opt_block else_if_stmts END_KW IF_KW endl_list
+if_stmt: IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list block END_IF endl_list
+	   | IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list
+	   | IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list
+	   | IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list
+       | IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list
+	   | IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list
        ;
 
 else_if_stmts: /* empty */
-             | else_if_stmts ELSEIF_KW expr THEN_KW endl_list opt_block
+             | else_if_stmts ELSEIF_KW expr THEN_KW endl_list block
+			 | else_if_stmts ELSEIF_KW expr THEN_KW endl_list
              ; 
 
-select_stmt: SELECT_KW expr endl_list case_stmts END_KW SELECT_KW endl_list
-           | SELECT_KW CASE_KW expr endl_list case_stmts END_KW SELECT_KW endl_list 
+select_stmt: SELECT_KW expr endl_list case_stmts END_SELECT endl_list
+           | SELECT_KW CASE_KW expr endl_list case_stmts END_SELECT endl_list 
            ;
 
-case_condition_branch: CASE_KW expr endl_list opt_block
-                     | CASE_KW expr TO_KW expr endl_list opt_block
+case_condition_branch: CASE_KW expr endl_list block
+					 | CASE_KW expr endl_list
+                     | CASE_KW expr TO_KW expr endl_list block
+					 | CASE_KW expr TO_KW expr endl_list
                      ;
 
 case_condition_branches: case_condition_branch
@@ -401,11 +421,14 @@ case_stmts: case_condition_branches
           | case_condition_branches case_else_stmt
           ;
 
-while_stmt: WHILE_KW expr endl_list opt_block END_KW WHILE_KW endl_list
+while_stmt: WHILE_KW expr endl_list block END_WHILE endl_list
+          | WHILE_KW expr endl_list END_WHILE endl_list
           ;
 
-for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list opt_block END_KW NEXT_KW endl_list
-        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list opt_block END_KW NEXT_KW endl_list
+for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list
+        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list
+        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list
+		| FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list
         ;
 
 for_loop_variable: ID
@@ -508,11 +531,13 @@ sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'
              | SUB_KW ID generic_param_list
              ;
 
-function_declaration: opt_procedure_modifiers function_signature endl_list opt_block END_KW FUNCTION_KW endl_list
+function_declaration: opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list |
+				      opt_procedure_modifiers function_signature endl_list END_FUNCTION endl_list
                     ;
 
 
-sub_declaration: opt_procedure_modifiers sub_signature endl_list opt_block END_KW SUB_KW endl_list
+sub_declaration: opt_procedure_modifiers sub_signature endl_list block END_SUB endl_list
+			   | opt_procedure_modifiers sub_signature endl_list END_SUB endl_list
                ;
 
 opt_procedure_modifiers: access_modifier
