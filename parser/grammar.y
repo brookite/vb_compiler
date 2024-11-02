@@ -96,6 +96,8 @@
 %token COBJECT_KW
 %token CTYPE_KW
 
+
+%precedence ID
 %left XOR
 %left OR OR_ELSE
 %left AND AND_ALSO
@@ -262,13 +264,13 @@ expr: INT
     | expr '(' opt_endl ')'
     | cast_target '(' opt_endl expr opt_endl ')'
     | CTYPE_KW '(' opt_endl expr ',' opt_endl type_name opt_endl ')'
-    | IF_KW '(' opt_endl expr ',' opt_endl expr ',' opt_endl expr opt_endl ')' // конфликт SR
-    | IF_KW '(' opt_endl expr ',' opt_endl expr opt_endl ')' // конфликт SR
+    //| IF_KW '(' opt_endl expr ',' opt_endl expr ',' opt_endl expr opt_endl ')' // конфликт SR 
+    //| IF_KW '(' opt_endl expr ',' opt_endl expr opt_endl ')' // конфликт SR
     | expr '.' member_access_member
     | MYBASE_KW '.' member_access_member
     | MYCLASS_KW '.' member_access_member
     | NEW_KW simple_type_name paren_expr_list
-    | NEW_KW array_type_name collection_initializer // проблемное место
+    //| NEW_KW array_type_name collection_initializer // проблемное место
     | collection_initializer
     ;
 
@@ -320,7 +322,7 @@ expr_list: expr
 stmt: expr endl_list
     | REDIM_KW redim_clause_list endl_list
     | ERASE_KW expr_list endl_list
-    | if_stmt
+    | if_stmt 
     | select_stmt
     | label_stmt
     | for_stmt
@@ -330,7 +332,7 @@ stmt: expr endl_list
     | do_until_stmt
     | while_stmt
     | var_declaration
-    | expr '=' expr endl_list // Как определить, что это присваивание, а не проверка равенства
+    //| expr '=' expr endl_list
     | expr '+' '=' expr endl_list
     | expr '-' '=' expr endl_list
     | expr '*' '=' expr endl_list
@@ -340,7 +342,9 @@ stmt: expr endl_list
     | expr '&' '=' expr endl_list
     | expr '<' '<' '=' expr endl_list
     | expr '>' '>' '=' expr endl_list
-    | CALL_KW expr endl_list
+    | CALL_KW ID '(' opt_endl expr_list opt_endl ')' endl_list
+    | CALL_KW ID '(' opt_endl ')' endl_list
+    | CALL_KW ID endl_list
     | RETURN_KW endl_list
     | RETURN_KW expr endl_list
     | CONTINUE_KW DO_KW endl_list
