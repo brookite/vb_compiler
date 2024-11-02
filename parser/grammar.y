@@ -469,7 +469,7 @@ simple_type_name: ID
                 | ID '(' opt_endl OF_KW type_list opt_endl ')'
                 | primitive_type
                 ;
-
+               
 primitive_type: BYTE_KW
               | SBYTE_KW
               | USHORT_KW 
@@ -539,13 +539,13 @@ function_parameter: variable_name AS_KW type_name '=' expr
                   ;
 
 
-class_declaration: CLASS_KW ID stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
+class_declaration: CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW
                  | CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW
-                 | CLASS_KW ID generic_param_list stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
+                 | CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW
                  | CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW
                  ;
 
-struct_declaration: STRUCT_KW ID generic_param_list stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW STRUCT_KW
+struct_declaration: STRUCT_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW STRUCT_KW
                   | STRUCT_KW ID generic_param_list endl_list opt_structure_body END_KW STRUCT_KW
                   ;
 
@@ -565,12 +565,10 @@ structure_member: function_declaration
                 | sub_declaration
                 | field_declaration
                 | const_declaration
-                | class_declaration
-                | struct_declaration
                 ;
 
 const_declaration: CONST_KW var_declarator endl_list
-                ;
+                 ;
 
 field_declaration: field_modifiers var_declarator endl_list
                  ;
