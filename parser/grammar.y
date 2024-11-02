@@ -101,7 +101,17 @@
 %token END_SUB
 %token END_WHILE
 
+%token ADD_ASSIGN
+%token SUB_ASSIGN
+%token MUL_ASSIGN
+%token DIV_ASSIGN
+%token FLOORDIV_ASSIGN
+%token EXP_ASSIGN
+%token STRCAT_ASSIGN
+%token LSHIFT_ASSIGN
+%token RSHIFT_ASSIGN
 
+%precedence BARE_NEW
 %precedence ID
 %left XOR
 %left OR OR_ELSE
@@ -118,7 +128,6 @@
 %left '^'
 %left '.'
 %nonassoc '(' ')' '{' '}'
-%precedence NEW
 
 %%
 
@@ -231,7 +240,7 @@ type_name: simple_type_name
 
 expr: INT
     | STRING
-    | ID
+    | ID 
     | FLOAT
     | BOOL
     | DATETIME
@@ -239,33 +248,34 @@ expr: INT
     | NOTHING
     | ME_KW
     | '(' opt_endl expr opt_endl ')'
-    | expr '+' expr
-    | expr '-' expr
-    | expr '*' expr
-    | expr '/' expr
-    | expr '\\' expr
-    | expr '^' expr
-    | expr '&' expr
-    | expr '=' expr
-    | expr '>' expr
-    | expr '<' expr
-    | expr NEQ expr
-    | expr LEQ expr
-    | expr GEQ expr
-    | expr AND expr
-    | expr AND_ALSO expr
-    | expr OR_ELSE expr
-    | expr OR expr
-    | expr XOR expr
-    | expr MOD expr
-    | expr LSHIFT expr
-    | expr RSHIFT expr
+    | expr '+' opt_endl expr
+    | expr '-' opt_endl expr
+    | expr '*' opt_endl expr
+    | expr '/' opt_endl expr
+    | expr '\\' opt_endl expr
+    | expr '^' opt_endl expr
+    | expr '&' opt_endl expr
+    | expr '>' opt_endl expr
+    | expr '<' opt_endl expr
+    | expr '=' ENDL expr %prec '='
+    | expr '=' expr 
+    | expr NEQ opt_endl expr
+    | expr LEQ opt_endl expr
+    | expr GEQ opt_endl expr
+    | expr AND opt_endl expr
+    | expr AND_ALSO opt_endl expr
+    | expr OR_ELSE opt_endl expr
+    | expr OR opt_endl expr
+    | expr XOR opt_endl expr
+    | expr MOD opt_endl expr
+    | expr LSHIFT opt_endl expr
+    | expr RSHIFT opt_endl expr
     | '+' expr %prec UPLUS
     | '-' expr %prec UMINUS
     | NOT expr
-    | expr IS expr
-    | expr ISNOT expr
-    | expr LIKE expr
+    | expr IS opt_endl expr
+    | expr ISNOT opt_endl expr
+    | expr LIKE opt_endl expr
     | expr '(' opt_endl expr_list opt_endl ')'
 	| expr '(' opt_endl ')'
     | cast_target '(' opt_endl expr opt_endl ')'
@@ -275,7 +285,7 @@ expr: INT
     | expr '.' member_access_member
     | MYBASE_KW '.' member_access_member
     | MYCLASS_KW '.' member_access_member
-	//| NEW_KW simple_type_name SR конфликт
+	| NEW_KW simple_type_name %prec BARE_NEW
     | NEW_KW simple_type_name '(' opt_endl ')'
     | NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')'
     | NEW_KW simple_type_name '(' opt_endl ')' collection_initializer
@@ -327,15 +337,15 @@ stmt: CALL_KW expr endl_list
     | while_stmt
     | var_declaration
     | expr '=' expr endl_list
-    | expr '+' '=' expr endl_list
-    | expr '-' '=' expr endl_list
-    | expr '*' '=' expr endl_list
-    | expr '/' '=' expr endl_list
-    | expr '\\' '=' expr endl_list
-    | expr '^' '=' expr endl_list
-    | expr '&' '=' expr endl_list
-    | expr '<' '<' '=' expr endl_list
-    | expr '>' '>' '=' expr endl_list
+    | expr ADD_ASSIGN expr endl_list
+    | expr SUB_ASSIGN expr endl_list
+    | expr MUL_ASSIGN expr endl_list
+    | expr DIV_ASSIGN expr endl_list
+    | expr FLOORDIV_ASSIGN expr endl_list
+    | expr EXP_ASSIGN expr endl_list
+    | expr STRCAT_ASSIGN expr endl_list
+    | expr LSHIFT_ASSIGN expr endl_list
+    | expr RSHIFT_ASSIGN expr endl_list
     | RETURN_KW endl_list
     | RETURN_KW expr endl_list
     | CONTINUE_KW DO_KW endl_list
@@ -517,9 +527,7 @@ sub_declaration: opt_procedure_modifiers sub_signature endl_list block END_SUB e
 			   | opt_procedure_modifiers sub_signature endl_list END_SUB endl_list
                ;
 
-opt_procedure_modifiers: access_modifier
-                   | access_modifier SHARED_KW
-                   | SHARED_KW
+opt_procedure_modifiers: SHARED_KW
                    | /* empty */
                    ;
 
@@ -527,41 +535,20 @@ function_parameters: function_parameter
                    | function_parameters ',' function_parameter
                    ;
 
-function_parameter: opt_parameter_modifiers variable_name AS_KW type_name '=' expr
+function_parameter: variable_name AS_KW type_name '=' expr
                   ;
 
-opt_parameter_modifiers: /* empty */
-                       | parameter_modifiers
-                       ;
 
-parameter_modifiers: parameter_modifier
-                   | parameter_modifiers parameter_modifier
-                   ;
-
-parameter_modifier: BYREF_KW
-                  | BYVAL_KW
-                  | OPTIONAL_KW
-                  | PARAMARRAY_KW
-                  ;
-
-access_modifier: PUBLIC_KW
-               | PROTECTED_KW
-               | PRIVATE_KW
-               ;
-
-class_declaration: struct_modifiers CLASS_KW ID stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
-                 | struct_modifiers CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW
-                 | struct_modifiers CLASS_KW ID generic_param_list  stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
-                 | struct_modifiers CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW
+class_declaration: CLASS_KW ID stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
+                 | CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW
+                 | CLASS_KW ID generic_param_list stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW CLASS_KW
+                 | CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW
                  ;
 
-struct_declaration: struct_modifiers STRUCT_KW ID generic_param_list stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW STRUCT_KW
-                  | struct_modifiers STRUCT_KW ID generic_param_list endl_list opt_structure_body END_KW STRUCT_KW
+struct_declaration: STRUCT_KW ID generic_param_list stmt_endl INHERITS_KW simple_type_name endl_list opt_structure_body END_KW STRUCT_KW
+                  | STRUCT_KW ID generic_param_list endl_list opt_structure_body END_KW STRUCT_KW
                   ;
 
-struct_modifiers: access_modifier
-                | /* empty */
-                ;
                 
 generic_param_list: ID '(' opt_endl OF_KW id_list opt_endl ')';
 
@@ -582,21 +569,15 @@ structure_member: function_declaration
                 | struct_declaration
                 ;
 
-const_declaration: access_modifier CONST_KW var_declarator endl_list
-                | CONST_KW var_declarator endl_list
+const_declaration: CONST_KW var_declarator endl_list
                 ;
 
 field_declaration: field_modifiers var_declarator endl_list
                  ;
 
-field_modifiers: access_modifier
-               | field_var_modifiers
-               | field_var_modifiers access_modifier
-               | access_modifier field_var_modifiers
-               ;
 
-field_var_modifiers: field_var_modifier
-                   | field_var_modifiers field_var_modifier
+field_modifiers: field_var_modifier
+                   | field_modifiers field_var_modifier
                    ;
 
 field_var_modifier: DIM_KW
