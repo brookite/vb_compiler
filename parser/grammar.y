@@ -518,6 +518,15 @@ sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'
              | SUB_KW ID generic_param_list
              ;
 
+constructor_signature: SUB_KW NEW_KW '(' opt_endl function_parameters opt_endl ')'
+                     | SUB_KW NEW_KW '(' opt_endl ')'
+                     | SUB_KW NEW_KW
+                     ;
+
+constructor_declaration: opt_procedure_modifiers constructor_signature endl_list block END_SUB endl_list
+			           | opt_procedure_modifiers constructor_signature endl_list END_SUB endl_list
+                       ;
+
 function_declaration: opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list |
 				      opt_procedure_modifiers function_signature endl_list END_FUNCTION endl_list
                     ;
@@ -565,6 +574,7 @@ structure_member: function_declaration
                 | sub_declaration
                 | field_declaration
                 | const_declaration
+                | constructor_declaration
                 ;
 
 const_declaration: CONST_KW var_declarator endl_list
