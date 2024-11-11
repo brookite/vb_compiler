@@ -65,8 +65,8 @@ extern int yydebug;
     BOOL = 261,                    /* BOOL  */
     DATETIME = 262,                /* DATETIME  */
     CHAR = 263,                    /* CHAR  */
-    NOTHING = 264,                 /* NOTHING  */
-    ID = 265,                      /* ID  */
+    ID = 264,                      /* ID  */
+    NOTHING = 265,                 /* NOTHING  */
     ENDL = 266,                    /* ENDL  */
     ME_KW = 267,                   /* ME_KW  */
     MYBASE_KW = 268,               /* MYBASE_KW  */
@@ -189,7 +189,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 153 "grammar.y"
+#line 157 "grammar.y"
 
     long long int Int;
     std::string * Str;

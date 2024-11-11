@@ -20,18 +20,21 @@ void yyerror(char const* s) {
     exit(1);
 }
 
+bool DEBUG = true;
+
 %}
 
 %start program
 
-%token INT
-%token STRING
-%token FLOAT
-%token BOOL
-%token DATETIME
-%token CHAR
+%token<Int> INT
+%token<Str> STRING
+%token<Float> FLOAT
+%token<Bool> BOOL
+%token<Datetime> DATETIME
+%token<Char> CHAR
+%token<Id> ID
 %token NOTHING
-%token ID
+
 %token ENDL
 
 %token ME_KW
@@ -149,6 +152,7 @@ void yyerror(char const* s) {
 %left '.'
 %nonassoc '(' ')' '{' '}'
 
+%type<Expr> expr
 
 %union {
     long long int Int;
@@ -162,6 +166,8 @@ void yyerror(char const* s) {
     expr_node * Expr;
     // добавь сюда другие типы и пропиши для них и их правил %type
 }
+
+
 
 %%
 
@@ -272,7 +278,7 @@ type_name: simple_type_name
          | array_type_name
          ;
 
-expr: INT
+expr: INT {debug_print("INT -> expr"); $$ = create_int($1);}
     | STRING
     | ID 
     | FLOAT
@@ -282,7 +288,7 @@ expr: INT
     | NOTHING
     | ME_KW
     | '(' opt_endl expr opt_endl ')'
-    | expr '+' opt_endl expr
+    | expr '+' opt_endl expr {debug_print("expr + opt_endl expr -> expr"); $$ = create_binary($1, $4, AddOp);}
     | expr '-' opt_endl expr
     | expr '*' opt_endl expr
     | expr '/' opt_endl expr
