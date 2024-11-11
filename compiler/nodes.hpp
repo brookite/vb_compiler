@@ -8,11 +8,10 @@ struct stmt_node;
 typedef list<stmt_node*> block; // сокращение, чтобы не писать длинно
 
 struct node {
-public:
+	node() : id(++IdCounter) {};
 	virtual void dot(DotWriter * writer) = 0;
 	virtual std::string getName() = 0;
 	const size_t id; // Номер узла - должен быть уникальным у каждого нового узла, нужно для вывода в dot
-private:
 	static size_t IdCounter; // хранит каждый новый номер узла, его нужно увеличивать после присвоения номера узлу
 };
 
@@ -54,6 +53,8 @@ struct type_node : node {
 
 struct expr_node : public node {
 	expr_type type;
+
+	expr_node(expr_type type_) : type(type_) {}
 
 	long long int Int;
 	std::string String;
@@ -111,6 +112,8 @@ struct typed_value : node {
 };
 
 struct stmt_node : node {
+	stmt_node(stmt_type type_) : type(type_) {}
+
 	stmt_type type;
 	expr_node* target_expr;
 	list<expr_node*>* expr_list; //for redim

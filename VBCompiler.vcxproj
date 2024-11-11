@@ -137,8 +137,12 @@
   <ItemGroup>
     <ClCompile Include="compiler\dot.cpp" />
     <ClCompile Include="compiler\nodes.cpp" />
+    <ClCompile Include="compiler\utils.cpp" />
     <ClCompile Include="lexer\lexer.flex.cpp" />
     <ClCompile Include="parser\grammar.tab.cpp" />
+    <ClCompile Include="parser\grammar_handler.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="VBCompiler.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -23,6 +23,9 @@ public:
 	void label(size_t id, std::string label);
 	void link(size_t id1, size_t id2, std::string label);
 
+	template <typename T>
+	DotWriter& operator<<(const T & value);
+
 	std::string write();
 protected:
 	std::vector<std::ostream *> outputs;

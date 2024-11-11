@@ -50,7 +50,14 @@ void DotWriter::link(size_t id1, size_t id2, std::string label) {
 			*out << id1 << "->" << id2 << std::endl;
 		}
 	}
-	
+}
+
+template <typename T>
+DotWriter& DotWriter::operator<<(const T & value) {
+	for (std::ostream* out : outputs) {
+		*out << value;
+	}
+	return *this;
 }
 
 std::string DotWriter::write() {
