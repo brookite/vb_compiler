@@ -135,7 +135,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="compiler\dot.cpp" />
+    <ClCompile Include="compiler\nodes.cpp" />
     <ClCompile Include="lexer\lexer.flex.cpp" />
+    <ClCompile Include="parser\grammar.tab.cpp" />
     <ClCompile Include="VBCompiler.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +149,12 @@
   </ItemGroup>
   <ItemGroup>
     <Bison Include="parser\grammar.y" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="compiler\dot.hpp" />
+    <ClInclude Include="compiler\nodes.hpp" />
+    <ClInclude Include="compiler\utils.hpp" />
+    <ClInclude Include="parser\grammar.tab.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

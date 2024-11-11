@@ -1,5 +1,25 @@
+%define parse.trace
+%define parse.error detailed
+%locations
+
+%code requires{ #include "../compiler/nodes.hpp" }
+
 %{
 #include <string>
+#include "grammar_handler.cpp"
+#include "../compiler/utils.hpp"
+
+extern int yylineno;
+extern FILE* yyin;
+
+int yyparse();
+int yylex();
+
+void yyerror(char const* s) {
+    fprintf(stderr, "Error: %s on line %d\n", s, yylineno);
+    exit(1);
+}
+
 %}
 
 %start program
@@ -128,6 +148,20 @@
 %left '^'
 %left '.'
 %nonassoc '(' ')' '{' '}'
+
+
+%union {
+    long long int Int;
+    std::string * Str;
+    bool Bool;
+    double Float;
+    DateTime * DateTime;
+    std::string * Id;
+    char Char;
+
+    expr_node * Expr;
+    // добавь сюда другие типы и пропиши для них и их правил %type
+}
 
 %%
 
@@ -592,3 +626,15 @@ field_var_modifier: DIM_KW
                   | READONLY_KW
                   | SHARED_KW
                   ;
+
+%%
+
+int main(int argc, char** argv) {
+    if (argc > 1) {
+        fopen_s(&yyin, argv[1], "r");
+        yyparse();
+    }
+    else {
+        printf("File not found");
+    }
+}

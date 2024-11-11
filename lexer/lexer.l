@@ -8,6 +8,8 @@
     #include <string>
     #include <iostream>
     #include <regex>
+    #include "../compiler/utils.hpp"
+    #include "../parser/grammar.tab.h"
     #define YY_DECL int yylex()
 
     bool DEBUG = false;
@@ -15,28 +17,6 @@
     bool endsWith(const std::string & str, const std::string & suffix);
     void removeUnderline(std::string * str);
     void removeUnderline(char * str);
-
-    struct Date {
-        int day = 0;
-        int month = 0;
-        int year = -1;
-    };
-
-    enum TimeFormat {
-        AM, PM, HOURS_24
-    };
-
-    struct Time {
-        int hour = 0;
-        int minute = 0;
-        int second = 0;
-        TimeFormat format = HOURS_24;
-    };
-
-    struct DateTime {
-        Date* date = nullptr;
-        Time* time = nullptr;
-    };
 
     void printDateTimeLiteral(DateTime& datetime);
 %}
@@ -65,7 +45,7 @@ HOUR({DIGIT}{1,2}{WHITESPACE}*(AM|PM))
     char charValue;
     long long intValue;
     double doubleValue;
-    DateTime datetime;
+    DateTime * datetime;
 
     int tempIntLiteral;
     int dateOrTimePositionIndex;
@@ -73,183 +53,130 @@ HOUR({DIGIT}{1,2}{WHITESPACE}*(AM|PM))
 
 %}
 
-AddHandler {printf("Found keyword : %s\n", yytext);}
-AndAlso {printf("Found keyword : %s\n", yytext);}
-Byte {printf("Found keyword : %s\n", yytext);}
-Catch {printf("Found keyword : %s\n", yytext);}
-CDate {printf("Found keyword : %s\n", yytext);}
-CInt {printf("Found keyword : %s\n", yytext);}
-Const {printf("Found keyword : %s\n", yytext);}
-CSng {printf("Found keyword : %s\n", yytext);}
-CULng {printf("Found keyword : %s\n", yytext);}
-Declare {printf("Found keyword : %s\n", yytext);}
-DirectCast {printf("Found keyword : %s\n", yytext);}
-Else {printf("Found keyword : %s\n", yytext);}
-Enum {printf("Found keyword : %s\n", yytext);}
-Exit {printf("Found keyword : %s\n", yytext);}
-Friend {printf("Found keyword : %s\n", yytext);}
-GetXmlNamespace {printf("Found keyword : %s\n", yytext);}
-Handles {printf("Found keyword : %s\n", yytext);}
-In {printf("Found keyword : %s\n", yytext);}
-Is {printf("Found keyword : %s\n", yytext);}
-Like {printf("Found keyword : %s\n", yytext);}
-Mod {printf("Found keyword : %s\n", yytext);}
-MyBase {printf("Found keyword : %s\n", yytext);}
-New {printf("Found keyword : %s\n", yytext);}
-NotInheritable {printf("Found keyword : %s\n", yytext);}
-On {printf("Found keyword : %s\n", yytext);}
-Or {printf("Found keyword : %s\n", yytext);}
-Overrides {printf("Found keyword : %s\n", yytext);}
-Property {printf("Found keyword : %s\n", yytext);}
-ReadOnly {printf("Found keyword : %s\n", yytext);}
-Resume {printf("Found keyword : %s\n", yytext);}
-Set {printf("Found keyword : %s\n", yytext);}
-Single {printf("Found keyword : %s\n", yytext);}
-String {printf("Found keyword : %s\n", yytext);}
-Then {printf("Found keyword : %s\n", yytext);}
-Try {printf("Found keyword : %s\n", yytext);}
-ULong {printf("Found keyword : %s\n", yytext);}
-Wend {printf("Found keyword : %s\n", yytext);}    
-With {printf("Found keyword : %s\n", yytext);}
-AddressOf {printf("Found keyword : %s\n", yytext);}
-As {printf("Found keyword : %s\n", yytext);}
-ByVal {printf("Found keyword : %s\n", yytext);}
-CBool {printf("Found keyword : %s\n", yytext);}
-CDbl {printf("Found keyword : %s\n", yytext);}
-Class {printf("Found keyword : %s\n", yytext);}
-Continue {printf("Found keyword : %s\n", yytext);}
-CStr {printf("Found keyword : %s\n", yytext);}
-CUShort {printf("Found keyword : %s\n", yytext);}
-Default {printf("Found keyword : %s\n", yytext);}
-Do {printf("Found keyword : %s\n", yytext);}
-ElseIf {printf("Found keyword : %s\n", yytext);}
-Erase {printf("Found keyword : %s\n", yytext);}
-Function {printf("Found keyword : %s\n", yytext);}
-Global {printf("Found keyword : %s\n", yytext);}
-If {printf("Found keyword : %s\n", yytext);}
-Inherits {printf("Found keyword : %s\n", yytext);}
-IsNot {printf("Found keyword : %s\n", yytext);}
-Long {printf("Found keyword : %s\n", yytext);}
-Module {printf("Found keyword : %s\n", yytext);}
-MyClass {printf("Found keyword : %s\n", yytext);}
-Next {printf("Found keyword : %s\n", yytext);}
-NotOverridable {printf("Found keyword : %s\n", yytext);}
-Operator {printf("Found keyword : %s\n", yytext);}
-OrElse {printf("Found keyword : %s\n", yytext);}
-ParamArray {printf("Found keyword : %s\n", yytext);}
-Protected {printf("Found keyword : %s\n", yytext);}
-ReDim {printf("Found keyword : %s\n", yytext);}
-Return {printf("Found keyword : %s\n", yytext);}
-Shadows {printf("Found keyword : %s\n", yytext);}
-Static {printf("Found keyword : %s\n", yytext);}
-Structure {printf("Found keyword : %s\n", yytext);}
-Throw {printf("Found keyword : %s\n", yytext);}
-TryCast {printf("Found keyword : %s\n", yytext);}
-UShort {printf("Found keyword : %s\n", yytext);}
-When {printf("Found keyword : %s\n", yytext);}
-WithEvents {printf("Found keyword : %s\n", yytext);}
-Alias {printf("Found keyword : %s\n", yytext);}
-Boolean {printf("Found keyword : %s\n", yytext);}
-Call {printf("Found keyword : %s\n", yytext);}
-CByte {printf("Found keyword : %s\n", yytext);}
-CDec {printf("Found keyword : %s\n", yytext);}
-CLng {printf("Found keyword : %s\n", yytext);}
-CSByte {printf("Found keyword : %s\n", yytext);}
-CType {printf("Found keyword : %s\n", yytext);}
-Date {printf("Found keyword : %s\n", yytext);}
-Delegate {printf("Found keyword : %s\n", yytext);}
-Double {printf("Found keyword : %s\n", yytext);}
-End {printf("Found keyword : %s\n", yytext);}
-Error {printf("Found keyword : %s\n", yytext);}
-Get {printf("Found keyword : %s\n", yytext);}
-Finally {printf("Found keyword : %s\n", yytext);}
-GoSub {printf("Found keyword : %s\n", yytext);} 
-Implements {printf("Found keyword : %s\n", yytext);}
-Integer {printf("Found keyword : %s\n", yytext);}
-Let {printf("Found keyword : %s\n", yytext);}   
-Loop {printf("Found keyword : %s\n", yytext);}
-MustInherit {printf("Found keyword : %s\n", yytext);}
-Namespace {printf("Found keyword : %s\n", yytext);}
-Not {printf("Found keyword : %s\n", yytext);}
-Object {printf("Found keyword : %s\n", yytext);}
-Option {printf("Found keyword : %s\n", yytext);}
-Overloads {printf("Found keyword : %s\n", yytext);}
-Partial {printf("Found keyword : %s\n", yytext);}
-Public {printf("Found keyword : %s\n", yytext);}
-SByte {printf("Found keyword : %s\n", yytext);}
-Shared {printf("Found keyword : %s\n", yytext);}
-Step {printf("Found keyword : %s\n", yytext);}
-Sub {printf("Found keyword : %s\n", yytext);}
-To {printf("Found keyword : %s\n", yytext);}
-TypeOf {printf("Found keyword : %s\n", yytext);}
-Using {printf("Found keyword : %s\n", yytext);}
-While {printf("Found keyword : %s\n", yytext);}
-WriteOnly {printf("Found keyword : %s\n", yytext);}
-And {printf("Found keyword : %s\n", yytext);}
-ByRef {printf("Found keyword : %s\n", yytext);}
-Case {printf("Found keyword : %s\n", yytext);}
-CChar {printf("Found keyword : %s\n", yytext);}
-Char {printf("Found keyword : %s\n", yytext);}
-CObj {printf("Found keyword : %s\n", yytext);}
-CShort {printf("Found keyword : %s\n", yytext);}
-CUInt {printf("Found keyword : %s\n", yytext);}
-Decimal {printf("Found keyword : %s\n", yytext);}
-Dim {printf("Found keyword : %s\n", yytext);}
-Each {printf("Found keyword : %s\n", yytext);}
-EndIf {printf("Found keyword : %s\n", yytext);} 
-Event {printf("Found keyword : %s\n", yytext);}
-For {printf("Found keyword : %s\n", yytext);}
-GetType {printf("Found keyword : %s\n", yytext);}
-GoTo {printf("Found keyword : %s\n", yytext);}
-Imports {printf("Found keyword : %s\n", yytext);}
-Interface {printf("Found keyword : %s\n", yytext);}
-Lib {printf("Found keyword : %s\n", yytext);}
-Me {printf("Found keyword : %s\n", yytext);}
-MustOverride {printf("Found keyword : %s\n", yytext);}
-Narrowing {printf("Found keyword : %s\n", yytext);}
-Of {printf("Found keyword : %s\n", yytext);}
-Optional {printf("Found keyword : %s\n", yytext);}
-Overridable {printf("Found keyword : %s\n", yytext);}
-Private {printf("Found keyword : %s\n", yytext);}
-RaiseEvent {printf("Found keyword : %s\n", yytext);}
-RemoveHandler {printf("Found keyword : %s\n", yytext);}
-Select {printf("Found keyword : %s\n", yytext);}
-Short {printf("Found keyword : %s\n", yytext);}
-Stop {printf("Found keyword : %s\n", yytext);}
-SyncLock {printf("Found keyword : %s\n", yytext);}
-UInteger {printf("Found keyword : %s\n", yytext);}
-Variant {printf("Found keyword : %s\n", yytext);} 
-Widening {printf("Found keyword : %s\n", yytext);}
-Xor {printf("Found keyword : %s\n", yytext);}
+AndAlso { printf("Found keyword : %s\n", yytext); return AND_ALSO; }
+Byte { printf("Found keyword : %s\n", yytext); return BYTE_KW; }
+CDate { printf("Found keyword : %s\n", yytext); return CDATE_KW; }
+CInt { printf("Found keyword : %s\n", yytext); return CINTEGER_KW; }
+Const { printf("Found keyword : %s\n", yytext); return CONST_KW; }
+CSng { printf("Found keyword : %s\n", yytext); return CSINGLE_KW; }
+CULng { printf("Found keyword : %s\n", yytext); return CULONG_KW; }
+Else { printf("Found keyword : %s\n", yytext); return ELSE_KW; }
+Exit { printf("Found keyword : %s\n", yytext); return EXIT_KW; }
+In { printf("Found keyword : %s\n", yytext); return IN_KW; }
+Is { printf("Found keyword : %s\n", yytext); return IS; }
+Like { printf("Found keyword : %s\n", yytext); return LIKE; }
+Mod { printf("Found keyword : %s\n", yytext); return MOD; }
+MyBase { printf("Found keyword : %s\n", yytext); return MYBASE_KW; }
+New { printf("Found keyword : %s\n", yytext); return NEW_KW; }
+Or { printf("Found keyword : %s\n", yytext); return OR;  }
+ReadOnly { printf("Found keyword : %s\n", yytext); return READONLY_KW; }
+Single { printf("Found keyword : %s\n", yytext); return SINGLE_KW; }
+String { printf("Found keyword : %s\n", yytext); return STRING_KW; }
+Then { printf("Found keyword : %s\n", yytext); return THEN_KW; }
+ULong { printf("Found keyword : %s\n", yytext); return ULONG_KW; }
+As { printf("Found keyword : %s\n", yytext); return AS_KW; }
+ByVal { printf("Found keyword : %s\n", yytext); return BYVAL_KW; }
+CBool { printf("Found keyword : %s\n", yytext); return CBOOL_KW; }
+CDbl { printf("Found keyword : %s\n", yytext); return CDOUBLE_KW; }
+Class { printf("Found keyword : %s\n", yytext); return CLASS_KW; }
+Continue { printf("Found keyword : %s\n", yytext); return CONTINUE_KW; }
+CStr { printf("Found keyword : %s\n", yytext); return CSTRING_KW; }
+CUShort { printf("Found keyword : %s\n", yytext); return CUSHORT_KW; }
+Do { printf("Found keyword : %s\n", yytext); return DO_KW; }
+ElseIf { printf("Found keyword : %s\n", yytext); return ELSEIF_KW; }
+Erase { printf("Found keyword : %s\n", yytext); return ERASE_KW; }
+Function { printf("Found keyword : %s\n", yytext); return FUNCTION_KW; }
+If { printf("Found keyword : %s\n", yytext); return IF_KW; }
+Inherits { printf("Found keyword : %s\n", yytext); return INHERITS_KW;  }
+IsNot { printf("Found keyword : %s\n", yytext); return ISNOT; }
+Long { printf("Found keyword : %s\n", yytext); return LONG_KW; }
+MyClass { printf("Found keyword : %s\n", yytext); return MYCLASS_KW;  }
+Next { printf("Found keyword : %s\n", yytext); return NEXT_KW; }
+OrElse { printf("Found keyword : %s\n", yytext); return OR_ELSE; }
+ParamArray { printf("Found keyword : %s\n", yytext); return PARAMARRAY_KW; }
+Protected { printf("Found keyword : %s\n", yytext); return PROTECTED_KW; }
+ReDim { printf("Found keyword : %s\n", yytext); return REDIM_KW; }
+Return { printf("Found keyword : %s\n", yytext); return RETURN_KW; }
+Static { printf("Found keyword : %s\n", yytext); return STATIC_KW; }
+Structure { printf("Found keyword : %s\n", yytext); return STRUCT_KW; }
+UShort { printf("Found keyword : %s\n", yytext); return USHORT_KW;  }
+Boolean { printf("Found keyword : %s\n", yytext); return BOOLEAN_KW; }
+Call { printf("Found keyword : %s\n", yytext); return CALL_KW; }
+CByte { printf("Found keyword : %s\n", yytext); return CBYTE_KW; }
+CLng { printf("Found keyword : %s\n", yytext); return CLONG_KW; }
+CSByte { printf("Found keyword : %s\n", yytext); return CSBYTE_KW;  }
+CType { printf("Found keyword : %s\n", yytext); return CTYPE_KW; }
+Date { printf("Found keyword : %s\n", yytext); return DATE_KW; }
+Double { printf("Found keyword : %s\n", yytext); return DOUBLE_KW; }
+End { printf("Found keyword : %s\n", yytext); return END_KW; }
+End[ ]+Function { printf("Found keyword : %s\n", yytext); return END_FUNCTION; }
+End[ ]+Select { printf("Found keyword : %s\n", yytext); return END_SELECT; }
+End[ ]+If { printf("Found keyword : %s\n", yytext); return END_IF; }
+End[ ]+Sub { printf("Found keyword : %s\n", yytext); return END_SUB; }
+End[ ]+While { printf("Found keyword : %s\n", yytext); return END_WHILE; }
+Integer { printf("Found keyword : %s\n", yytext); return INTEGER_KW; }
+Loop { printf("Found keyword : %s\n", yytext); return LOOP_KW; }
+Not { printf("Found keyword : %s\n", yytext); return NOT; }
+Object { printf("Found keyword : %s\n", yytext); return OBJECT_KW; }
+Public { printf("Found keyword : %s\n", yytext); return PUBLIC_KW; }
+SByte { printf("Found keyword : %s\n", yytext); return SBYTE_KW; }
+Shared { printf("Found keyword : %s\n", yytext); return SHARED_KW; }
+Step { printf("Found keyword : %s\n", yytext); return STEP_KW; }
+Sub { printf("Found keyword : %s\n", yytext); return SUB_KW; }
+To { printf("Found keyword : %s\n", yytext); return TO_KW; }
+While { printf("Found keyword : %s\n", yytext); return WHILE_KW; }
+And { printf("Found keyword : %s\n", yytext); return AND; }
+ByRef { printf("Found keyword : %s\n", yytext); return BYREF_KW; }
+Case { printf("Found keyword : %s\n", yytext); return CASE_KW; }
+CChar { printf("Found keyword : %s\n", yytext); return CCHAR_KW; }
+Char { printf("Found keyword : %s\n", yytext); return CHAR_KW; }
+CObj { printf("Found keyword : %s\n", yytext); return COBJECT_KW; }
+CShort { printf("Found keyword : %s\n", yytext); return CSHORT_KW; }
+CUInt { printf("Found keyword : %s\n", yytext); return CUINTEGER_KW; }
+Decimal { printf("Found keyword : %s\n", yytext); return DECIMAL_KW; }
+Dim { printf("Found keyword : %s\n", yytext); return DIM_KW; }
+Each { printf("Found keyword : %s\n", yytext); return EACH_KW; }
+For { printf("Found keyword : %s\n", yytext); return FOR_KW; }
+GoTo { printf("Found keyword : %s\n", yytext); return GOTO_KW; }
+Me { printf("Found keyword : %s\n", yytext); return ME_KW; }
+Of { printf("Found keyword : %s\n", yytext); return OF_KW; }
+Optional { printf("Found keyword : %s\n", yytext); return OPTIONAL_KW; }
+Private { printf("Found keyword : %s\n", yytext); return PRIVATE_KW; }
+Select { printf("Found keyword : %s\n", yytext); return SELECT_KW; }
+Short { printf("Found keyword : %s\n", yytext); return SHORT_KW; }
+Stop { printf("Found keyword : %s\n", yytext); return STOP_KW; }
+UInteger { printf("Found keyword : %s\n", yytext); return UINTEGER_KW; }
+Xor { printf("Found keyword : %s\n", yytext); return XOR; }
+Until { printf("Found keyword : %s\n", yytext); return UNTIL_KW; }
 
-Nothing {printf("Found nothing literal\n");}
-True {printf("Found boolean literal : %s\n", yytext); boolLiteral = true;}
-False {printf("Found boolean literal : %s\n", yytext); boolLiteral = false;}
+Nothing { printf("Found nothing literal\n"); return NOTHING; }
+True { printf("Found boolean literal : %s\n", yytext); yylval.Bool = true; return BOOL; }
+False { printf("Found boolean literal : %s\n", yytext); yylval.Bool = false; return BOOL; }
 
-\^ {printf("Found a XOR operator: %s\n", yytext);}
-\* {printf("Found a MUL operator: %s\n", yytext);}
-\\ {printf("Found a FLOOR_DIV operator: %s\n", yytext);}
-\/ {printf("Found a DIV operator: %s\n", yytext);}
-\+ {printf("Found a PLUS operator: %s\n", yytext);}
-\- {printf("Found a MINUS operator: %s\n", yytext);}
-\= {printf("Found an ASSIGNMENT operator: %s\n", yytext);}
-\^= {printf("Found a XOR_ASSIGNMENT operator: %s\n", yytext);}
-\*= {printf("Found a MUL_ASSIGNMENT operator: %s\n", yytext);}
-\+= {printf("Found a ADD_ASSIGNMENT operator: %s\n", yytext);}
-\-= {printf("Found a SUB_ASSIGNMENT operator: %s\n", yytext);}
-\<= {printf("Found a LESS_EQUAL to operator: %s\n", yytext);}
-\< {printf("Found a LESS operator: %s\n", yytext);}
-\> {printf("Found a GREATER operator: %s\n", yytext);}
-\>= {printf("Found a GREATER_EQUAL to operator: %s\n", yytext);}
-\<\> {printf("Found a NOT_EQUAL to operator: %s\n", yytext);}
-\& {printf("Found a STR_CONCAT operator: %s\n", yytext);}
-\&= {printf("Found a STR_CONCAT_ASSIGNMENT operator: %s\n", yytext);}
-\>\> {printf("Found a RSHIFT operator: %s\n", yytext);}
-\<\< {printf("Found a LSHIFT operator: %s\n", yytext);}
-\<\<= {printf("Found a LSHIFT_ASSIGNMENT operator: %s\n", yytext);}
-\>\>= {printf("Found a RSHIFT_ASSIGNMENT operator: %s\n", yytext);}
-\\= {printf("Found an FLOOR_DIV_ASSIGNMENT operator: %s\n", yytext);}
-\/= {printf("Found a DIV_ASSIGNMENT operator: %s\n", yytext);}
+\^ {printf("Found a XOR operator: %s\n", yytext); return '^'; }
+\* {printf("Found a MUL operator: %s\n", yytext); return '*'; }
+\\ {printf("Found a FLOOR_DIV operator: %s\n", yytext); return '\\'; }
+\/ {printf("Found a DIV operator: %s\n", yytext); return '/'; }
+\+ {printf("Found a PLUS operator: %s\n", yytext); return '+'; }
+\- {printf("Found a MINUS operator: %s\n", yytext); return '-'; }
+\= { printf("Found an ASSIGNMENT operator: %s\n", yytext); return '='; }
+\^= {printf("Found a XOR_ASSIGNMENT operator: %s\n", yytext); return EXP_ASSIGN; }
+\*= {printf("Found a MUL_ASSIGNMENT operator: %s\n", yytext); return MUL_ASSIGN; }
+\+= {printf("Found a ADD_ASSIGNMENT operator: %s\n", yytext); return ADD_ASSIGN; }
+\-= {printf("Found a SUB_ASSIGNMENT operator: %s\n", yytext); return SUB_ASSIGN; }
+\<= {printf("Found a LESS_EQUAL to operator: %s\n", yytext); return LEQ; }
+\< {printf("Found a LESS operator: %s\n", yytext); return '<'; }
+\> {printf("Found a GREATER operator: %s\n", yytext); return '>'; }
+\>= {printf("Found a GREATER_EQUAL to operator: %s\n", yytext); return GEQ; }
+\<\> {printf("Found a NOT_EQUAL to operator: %s\n", yytext); return NEQ; }
+\& {printf("Found a STR_CONCAT operator: %s\n", yytext); return '&'; }
+\&= {printf("Found a STR_CONCAT_ASSIGNMENT operator: %s\n", yytext); return STRCAT_ASSIGN; }
+\>\>  {printf("Found a RSHIFT operator: %s\n", yytext); return RSHIFT; }
+\<\< {printf("Found a LSHIFT operator: %s\n", yytext); return LSHIFT; }
+\<\<= {printf("Found a LSHIFT_ASSIGNMENT operator: %s\n", yytext); return LSHIFT_ASSIGN; }
+\>\>= {printf("Found a RSHIFT_ASSIGNMENT operator: %s\n", yytext); return RSHIFT_ASSIGN; }
+\\= { printf("Found an FLOOR_DIV_ASSIGNMENT operator: %s\n", yytext); return FLOORDIV_ASSIGN; }
+\/= {printf("Found a DIV_ASSIGNMENT operator: %s\n", yytext); return DIV_ASSIGN; }
 
 \'|REM {BEGIN(COMMENT); comment.clear(); }
 <COMMENT>[^\n]+ {comment += yytext;}
@@ -274,12 +201,14 @@ False {printf("Found boolean literal : %s\n", yytext); boolLiteral = false;}
         charValue = strLiteral.at(0);
         printf("Found a char literal: %s\n", strLiteral.c_str());
         BEGIN(INITIAL);
+        yylval.Char = charValue;
+        return CHAR;
     } else {
         printf("Error: character literal can have only one character, not string, line: %d\n", yylineno);
         if (!DEBUG) yyterminate();
     }
 }
-<STRING>\" {printf("Found a string literal: %s\n", strLiteral.c_str()); BEGIN(INITIAL);}
+<STRING>\" {printf("Found a string literal: %s\n", strLiteral.c_str()); yylval.Str = new std::string(strLiteral); BEGIN(INITIAL); return STRING; }
 
 
 {UNDERSCORE_NUMBER}\_+(S|US|I|UI|L|UL)? {
@@ -312,6 +241,8 @@ False {printf("Found boolean literal : %s\n", yytext); boolLiteral = false;}
 
     removeUnderline(intLiteral);
     intValue = atoi(intLiteral); printf("Found a integer value: %d\n", intValue);
+    yylval.Int = intValue;
+    return INT;
 }
 
 &H{HEX_DIGIT}(\_*{HEX_DIGIT})*(S|US|I|UI|L|UL)? {
@@ -329,6 +260,8 @@ False {printf("Found boolean literal : %s\n", yytext); boolLiteral = false;}
     removeUnderline(intLiteral);
     intValue = strtol(intLiteral + 2, NULL, 16);
     printf("Found a hex integer value: %d\n", intValue);
+    yylval.Int = intValue;
+    return INT;
 }
 
 &O{OCT_DIGIT}(\_*{OCT_DIGIT})*(S|US|I|UI|L|UL)? {
@@ -346,6 +279,8 @@ False {printf("Found boolean literal : %s\n", yytext); boolLiteral = false;}
     removeUnderline(intLiteral);
     intValue = strtol(intLiteral + 2, NULL, 8);
     printf("Found a oct integer value: %d\n", intValue);
+    yylval.Int = intValue;
+    return INT;
 }
 
 ({UNDERSCORE_NUMBER}(\.{UNDERSCORE_NUMBER})?{EXPONENT}|({UNDERSCORE_NUMBER})?\.{UNDERSCORE_NUMBER}({EXPONENT})?) {
@@ -353,6 +288,8 @@ False {printf("Found boolean literal : %s\n", yytext); boolLiteral = false;}
     removeUnderline(&lexeme);
     doubleValue = atof(lexeme.c_str());
     printf("Found floating point literal: %f\n", doubleValue);
+    yylval.Float = doubleValue;
+    return FLOAT;
 }
 
 ({UNDERSCORE_NUMBER}(\.{UNDERSCORE_NUMBER})?({EXPONENT})?|({UNDERSCORE_NUMBER})?\.{UNDERSCORE_NUMBER}({EXPONENT})?)([Ff]|[Dd]|[Rr]) {
@@ -361,6 +298,8 @@ False {printf("Found boolean literal : %s\n", yytext); boolLiteral = false;}
     removeUnderline(floatLiteral);
     doubleValue = atof(floatLiteral);
     printf("Found floating point literal: %f\n", doubleValue);
+    yylval.Float = doubleValue;
+    return FLOAT;
 }
 
 {UNDERSCORE_NUMBER}(\_*(\.{UNDERSCORE_NUMBER}\_*)?({EXPONENT})?|({UNDERSCORE_NUMBER}\_*)?\.{UNDERSCORE_NUMBER}\_*({EXPONENT}\_*)?)([Ff]|[Dd]|[Rr])? {
@@ -415,11 +354,13 @@ False {printf("Found boolean literal : %s\n", yytext); boolLiteral = false;}
     }
 
 
-    datetime = DateTime();
-    datetime.date = date;
-    datetime.time = time;
+    datetime = new DateTime();
+    datetime->date = date;
+    datetime->time = time;
     printf("Found a datetime literal: \n");
-    printDateTimeLiteral(datetime);
+    printDateTimeLiteral(*datetime);
+    yylval.DateTime = datetime;
+    return DATETIME;
 }
 
 \#[^\n]*\# {
@@ -442,11 +383,15 @@ False {printf("Found boolean literal : %s\n", yytext); boolLiteral = false;}
 \, { printf("Found a separator comma: %s\n", yytext); }
 \: {printf("Found a separator colon: %s\n", yytext); }
 
-\[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {printf("Found a identifier: %s\n", yytext);}
+\[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {
+    printf("Found a identifier: %s\n", yytext);
+    yylval.Id = new std::string(yytext);
+    return ID;
+}
 
 [\r\t ]+ {}
 [\r\t ]_[\r\t ]+\n+ {printf("Found a line continuation: %s\n", yytext);}
-\n+  {printf("Found end of line %d\n\n", yylineno - 1);}
+\n+ {printf("Found end of line %d\n\n", yylineno - 1); return ENDL; }
 <<EOF>> {printf("File ended\n"); yyterminate();}
 
 %%
@@ -483,7 +428,7 @@ bool endsWith(const std::string& str, const std::string& suffix)
     return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
-void printDateTimeLiteral(DateTime& datetime) {
+void printDateTimeLiteral(DateTime & datetime) {
     if (datetime.date != nullptr) {
         printf("Month: %d\n", datetime.date->month);
         printf("Day: %d\n", datetime.date->day);
@@ -526,20 +471,6 @@ void runTests() {
         fclose(yyin);
         BEGIN(INITIAL);
         yylineno = 1;
-    }
-}
-
-int main(int argc, char** argv) {
-    if (argc > 1) {
-        if (strcmp(argv[1], "--debug") == 0) {
-            runTests();
-            return 0;
-        }
-        fopen_s(&yyin, argv[1], "r");
-        yylex();
-    }
-    else {
-        printf("File not found");
     }
 }
 

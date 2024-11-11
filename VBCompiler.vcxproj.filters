@@ -21,11 +21,38 @@
     <ClCompile Include="lexer\lexer.flex.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="parser\grammar.tab.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="compiler\dot.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="compiler\nodes.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Flex Include="lexer\lexer.l" />
+    <ClInclude Include="compiler\dot.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\grammar.tab.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="compiler\nodes.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="compiler\utils.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Bison Include="parser\grammar.y" />
+    <Bison Include="parser\grammar.y">
+      <Filter>Файлы ресурсов</Filter>
+    </Bison>
+  </ItemGroup>
+  <ItemGroup>
+    <Flex Include="lexer\lexer.l">
+      <Filter>Файлы ресурсов</Filter>
+    </Flex>
   </ItemGroup>
 </Project>
