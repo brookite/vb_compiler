@@ -19,8 +19,9 @@ enum expr_type {
 	String, Id, Int, Float, Nothing, Me, Char, Datetime,
 	AddOp, SubOp, MulOp, DivOp, FloorDivOp, ExpOp, StrConcatOp, 
 	LtOp, GtOp, GteOp, LteOp, EqOp, NeqOp,
-	AndOp, AndAlsoOp, OrOp, OrElseOp, // добавь дополнительные бинарные операции из грамматики
-	UnaryMinusOp, UnaryPlusOp, NotOp, //...
+	AndOp, AndAlsoOp, OrOp, OrElseOp, LeqOp, GeqOp, XorOp, ModOp, 
+	LshiftOp, RshiftOp, IsOp, IsNotOp, LikeOp
+	UnaryMinusOp, UnaryPlusOp, NotOp
 
 	MemberAccess, MyClassMemberAccess, MyBaseMemberAccess, CallOrIndex
 };
@@ -32,7 +33,9 @@ enum stmt_type {
 };
 
 enum datatype_type {
-	Byte, Object, Integer, // добавь сюда все примитивные типы
+	Byte, Object, Integer, Boolean, SByte, UShort, Short,
+	UInteger, Long, ULong, Date, Char, String, Decimal,
+	Single, Double,
 	UserType
 };
 

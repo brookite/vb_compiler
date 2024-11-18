@@ -2919,47 +2919,47 @@ YY_RULE_SETUP
 case 144:
 YY_RULE_SETUP
 #line 376 "lexer.l"
-{ debug_print("Found a separator left parenthesis: %s\n", yytext); }
+{ debug_print("Found a separator left parenthesis: %s\n", yytext); return '(';}
 	YY_BREAK
 case 145:
 YY_RULE_SETUP
 #line 377 "lexer.l"
-{debug_print("Found a separator right parenthesis: %s\n", yytext);}
+{debug_print("Found a separator right parenthesis: %s\n", yytext); return ')';}
 	YY_BREAK
 case 146:
 YY_RULE_SETUP
 #line 378 "lexer.l"
-{debug_print("Found a separator left curly brace: %s\n", yytext); }
+{debug_print("Found a separator left curly brace: %s\n", yytext); return '{';}
 	YY_BREAK
 case 147:
 YY_RULE_SETUP
 #line 379 "lexer.l"
-{ debug_print("Found a separator right curly brace: %s\n", yytext); }
+{ debug_print("Found a separator right curly brace: %s\n", yytext); return '}';}
 	YY_BREAK
 case 148:
 YY_RULE_SETUP
 #line 380 "lexer.l"
-{debug_print("Found a separator question mark: %s\n", yytext); }
+{debug_print("Found a separator question mark: %s\n", yytext); return '?';}
 	YY_BREAK
 case 149:
 YY_RULE_SETUP
 #line 381 "lexer.l"
-{debug_print("Found a separator point: %s\n", yytext); }
+{debug_print("Found a separator point: %s\n", yytext); return '.';}
 	YY_BREAK
 case 150:
 YY_RULE_SETUP
 #line 382 "lexer.l"
-{debug_print("Found a separator exclamation mark: %s\n", yytext); }
+{debug_print("Found a separator exclamation mark: %s\n", yytext); return '!'; }
 	YY_BREAK
 case 151:
 YY_RULE_SETUP
 #line 383 "lexer.l"
-{ debug_print("Found a separator comma: %s\n", yytext); }
+{ debug_print("Found a separator comma: %s\n", yytext); return ','; }
 	YY_BREAK
 case 152:
 YY_RULE_SETUP
 #line 384 "lexer.l"
-{debug_print("Found a separator colon: %s\n", yytext); }
+{debug_print("Found a separator colon: %s\n", yytext); return ':'; }
 	YY_BREAK
 case 153:
 YY_RULE_SETUP

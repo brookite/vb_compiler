@@ -21,6 +21,7 @@ void yyerror(char const* s) {
 }
 
 bool DEBUG = true;
+program_node * program = NULL;
 
 %}
 
@@ -153,6 +154,17 @@ bool DEBUG = true;
 %nonassoc '(' ')' '{' '}'
 
 %type<Expr> expr
+%type<Stmt> stmt
+%type<ExprList> expr_list;
+
+%type<Struct> program_member;
+%type<Struct> struct_declaration;
+%type<Struct> class_declaration;
+
+%type<Type> type_name;
+%type<Type> simple_type_name;
+%type<Type> array_type_name;
+%type<Type> cast_target;
 
 %union {
     long long int Int;
@@ -164,6 +176,11 @@ bool DEBUG = true;
     char Char;
 
     expr_node * Expr;
+    stmt_node * Stmt;
+    list<expr_node *> * ExprList;
+    struct_node * Struct;
+    type_node * Type;
+
     // добавь сюда другие типы и пропиши для них и их правил %type
 }
 
@@ -171,12 +188,12 @@ bool DEBUG = true;
 
 %%
 
-program: program_member
-       | program program_member
+program: program_member                     {debug_print("program_member -> program"); program = create_program(); program->nodes.add($1);}
+       | program program_member             {debug_print("program program_member -> program"); program = $1; program->nodes.add($2);}
        ;
 
-program_member: struct_declaration
-              | class_declaration
+program_member: struct_declaration              {debug_print("struct_declaration -> program_member"); $$ = $1;}
+              | class_declaration               {debug_print("class_declaration -> program_member"); $$ = $1;}
               ;
 
 endl_list: ENDL
@@ -191,220 +208,220 @@ opt_endl: ENDL
         | /* empty */
         ;
 
-kw: ME_KW
-  | IF_KW
-  | MYBASE_KW
-  | MYCLASS_KW
-  | NEW_KW
-  | REDIM_KW
-  | THEN_KW
-  | END_KW
-  | ELSE_KW
-  | ELSEIF_KW
-  | SELECT_KW
-  | CASE_KW
-  | TO_KW
-  | FOR_KW
-  | EACH_KW
-  | WHILE_KW
-  | NEXT_KW
-  | IN_KW
-  | UNTIL_KW
-  | LOOP_KW
-  | DO_KW
-  | STEP_KW
-  | AS_KW
-  | CALL_KW
-  | GOTO_KW
-  | CONTINUE_KW
-  | EXIT_KW
-  | STOP_KW
-  | RETURN_KW
-  | BYTE_KW
-  | SBYTE_KW
-  | USHORT_KW 
-  | SHORT_KW
-  | UINTEGER_KW
-  | INTEGER_KW
-  | ULONG_KW
-  | LONG_KW
-  | BOOLEAN_KW
-  | DATE_KW
-  | CHAR_KW
-  | STRING_KW
-  | DECIMAL_KW
-  | SINGLE_KW
-  | DOUBLE_KW
-  | OBJECT_KW
-  | DIM_KW
-  | CONST_KW
-  | STATIC_KW
-  | OF_KW
-  | FUNCTION_KW
-  | SUB_KW
-  | BYREF_KW
-  | BYVAL_KW
-  | PARAMARRAY_KW
-  | OPTIONAL_KW
-  | PUBLIC_KW
-  | PRIVATE_KW
-  | PROTECTED_KW
-  | SHARED_KW
-  | CLASS_KW
-  | STRUCT_KW
-  | INHERITS_KW
-  | READONLY_KW
-  | ERASE_KW
-  | CBOOL_KW
-  | CBYTE_KW
-  | CSBYTE_KW
-  | CUSHORT_KW
-  | CSHORT_KW
-  | CINTEGER_KW
-  | CUINTEGER_KW
-  | CLONG_KW
-  | CULONG_KW
-  | CDATE_KW
-  | CCHAR_KW
-  | CSTRING_KW
-  | CDECIMAL_KW
-  | CSINGLE_KW
-  | CDOUBLE_KW
-  | COBJECT_KW
-  | CTYPE_KW
+kw: ME_KW                               {$$ = create_id("Me");}
+  | IF_KW                               {$$ = create_id("If");}
+  | MYBASE_KW                           {$$ = create_id("MyBase");}
+  | MYCLASS_KW                          {$$ = create_id("MyClass");}
+  | NEW_KW                              {$$ = create_id("New");}
+  | REDIM_KW                            {$$ = create_id("ReDim");}
+  | THEN_KW                             {$$ = create_id("Then");}
+  | END_KW                              {$$ = create_id("End");}
+  | ELSE_KW                             {$$ = create_id("Else");}
+  | ELSEIF_KW                           {$$ = create_id("ElseIf");}
+  | SELECT_KW                           {$$ = create_id("Select");}
+  | CASE_KW                             {$$ = create_id("Case");}
+  | TO_KW                               {$$ = create_id("To");}
+  | FOR_KW                              {$$ = create_id("For");}
+  | EACH_KW                             {$$ = create_id("Each");}
+  | WHILE_KW                            {$$ = create_id("While");}
+  | NEXT_KW                             {$$ = create_id("Next");}
+  | IN_KW                               {$$ = create_id("In");}
+  | UNTIL_KW                            {$$ = create_id("Until");}
+  | LOOP_KW                             {$$ = create_id("Loop");}
+  | DO_KW                               {$$ = create_id("Do");}
+  | STEP_KW                             {$$ = create_id("Step");}
+  | AS_KW                               {$$ = create_id("As");}
+  | CALL_KW                             {$$ = create_id("Call");}
+  | GOTO_KW                             {$$ = create_id("GoTo");}
+  | CONTINUE_KW                         {$$ = create_id("Continue");}
+  | EXIT_KW                             {$$ = create_id("Exit");}
+  | STOP_KW                             {$$ = create_id("Stop");}
+  | RETURN_KW                           {$$ = create_id("Return");}
+  | BYTE_KW                             {$$ = create_id("Byte");}
+  | SBYTE_KW                            {$$ = create_id("SByte");}
+  | USHORT_KW                           {$$ = create_id("UShort");}
+  | SHORT_KW                            {$$ = create_id("Short");}
+  | UINTEGER_KW                         {$$ = create_id("UInteger");}
+  | INTEGER_KW                          {$$ = create_id("Integer");}
+  | ULONG_KW                            {$$ = create_id("ULong");}
+  | LONG_KW                             {$$ = create_id("Long");}
+  | BOOLEAN_KW                          {$$ = create_id("Boolean");}
+  | DATE_KW                             {$$ = create_id("Date");}
+  | CHAR_KW                             {$$ = create_id("Char");}
+  | STRING_KW                           {$$ = create_id("String");}
+  | DECIMAL_KW                          {$$ = create_id("Decimal");}
+  | SINGLE_KW                           {$$ = create_id("Single");}
+  | DOUBLE_KW                           {$$ = create_id("Double");}
+  | OBJECT_KW                           {$$ = create_id("Object");}
+  | DIM_KW                              {$$ = create_id("Dim");}
+  | CONST_KW                            {$$ = create_id("Const");}
+  | STATIC_KW                           {$$ = create_id("Static");}
+  | OF_KW                               {$$ = create_id("Of");}
+  | FUNCTION_KW                         {$$ = create_id("Function");}
+  | SUB_KW                              {$$ = create_id("Sub");}
+  | BYREF_KW                            {$$ = create_id("ByRef");}
+  | BYVAL_KW                            {$$ = create_id("ByVal");}
+  | PARAMARRAY_KW                       {$$ = create_id("ParamArray");}
+  | OPTIONAL_KW                         {$$ = create_id("Optional");}
+  | PUBLIC_KW                           {$$ = create_id("Public");}
+  | PRIVATE_KW                          {$$ = create_id("Private");}
+  | PROTECTED_KW                        {$$ = create_id("Protected");}
+  | SHARED_KW                           {$$ = create_id("Shared");}
+  | CLASS_KW                            {$$ = create_id("Class");}
+  | STRUCT_KW                           {$$ = create_id("Struct");}
+  | INHERITS_KW                         {$$ = create_id("Inherits");}
+  | READONLY_KW                         {$$ = create_id("Readonly");}
+  | ERASE_KW                            {$$ = create_id("Erase");}
+  | CBOOL_KW                            {$$ = create_id("CBool");}
+  | CBYTE_KW                            {$$ = create_id("CByte");}
+  | CSBYTE_KW                           {$$ = create_id("CSByte");}
+  | CUSHORT_KW                          {$$ = create_id("CUShort");}
+  | CSHORT_KW                           {$$ = create_id("CShort");}
+  | CINTEGER_KW                         {$$ = create_id("CInteger");}
+  | CUINTEGER_KW                        {$$ = create_id("CUInteger");}
+  | CLONG_KW                            {$$ = create_id("CLong");}
+  | CULONG_KW                           {$$ = create_id("CULong");}
+  | CDATE_KW                            {$$ = create_id("CDate");}
+  | CCHAR_KW                            {$$ = create_id("CChar");}
+  | CSTRING_KW                          {$$ = create_id("CString");}
+  | CDECIMAL_KW                         {$$ = create_id("CDecimal");}
+  | CSINGLE_KW                          {$$ = create_id("CSingle");}
+  | CDOUBLE_KW                          {$$ = create_id("CDouble");}
+  | COBJECT_KW                          {$$ = create_id("CObject");}
+  | CTYPE_KW                            {$$ = create_id("CType");}
   ;
 
-type_name: simple_type_name
-         | array_type_name
+type_name: simple_type_name         {$$ = $1;}
+         | array_type_name          {$$ = $1;}
          ;
 
-expr: INT {debug_print("INT -> expr"); $$ = create_int($1);}
-    | STRING
-    | ID 
-    | FLOAT
-    | BOOL
-    | DATETIME
-    | CHAR
-    | NOTHING
-    | ME_KW
-    | '(' opt_endl expr opt_endl ')'
-    | expr '+' opt_endl expr {debug_print("expr + opt_endl expr -> expr"); $$ = create_binary($1, $4, AddOp);}
-    | expr '-' opt_endl expr
-    | expr '*' opt_endl expr
-    | expr '/' opt_endl expr
-    | expr '\\' opt_endl expr
-    | expr '^' opt_endl expr
-    | expr '&' opt_endl expr
-    | expr '>' opt_endl expr
-    | expr '<' opt_endl expr
-    | expr '=' ENDL expr %prec '='
-    | expr '=' expr 
-    | expr NEQ opt_endl expr
-    | expr LEQ opt_endl expr
-    | expr GEQ opt_endl expr
-    | expr AND opt_endl expr
-    | expr AND_ALSO opt_endl expr
-    | expr OR_ELSE opt_endl expr
-    | expr OR opt_endl expr
-    | expr XOR opt_endl expr
-    | expr MOD opt_endl expr
-    | expr LSHIFT opt_endl expr
-    | expr RSHIFT opt_endl expr
-    | '+' expr %prec UPLUS
-    | '-' expr %prec UMINUS
-    | NOT expr
-    | expr IS opt_endl expr
-    | expr ISNOT opt_endl expr
-    | expr LIKE opt_endl expr
-    | expr '(' opt_endl expr_list opt_endl ')'
-	| expr '(' opt_endl ')'
-    | cast_target '(' opt_endl expr opt_endl ')'
-    | CTYPE_KW '(' opt_endl expr ',' opt_endl type_name opt_endl ')'
-    | IF_KW '(' opt_endl expr ',' opt_endl expr ',' opt_endl expr opt_endl ')'
-    | IF_KW '(' opt_endl expr ',' opt_endl expr opt_endl ')'
-    | expr '.' member_access_member
-    | MYBASE_KW '.' member_access_member
-    | MYCLASS_KW '.' member_access_member
-	| NEW_KW simple_type_name %prec BARE_NEW
-    | NEW_KW simple_type_name '(' opt_endl ')'
-    | NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')'
-    | NEW_KW simple_type_name '(' opt_endl ')' collection_initializer
-    | NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')' collection_initializer
-    | collection_initializer
+expr: INT                                        {debug_print("INT -> expr"); $$ = create_int($1);}
+    | STRING                                     {debug_print("STRING -> expr"); $$ = create_string($1);}
+    | ID                                         {debug_print("ID -> expr"); $$ = create_id($1);}
+    | FLOAT                                      {debug_print("FLOAT -> expr"); $$ = create_float($1);}
+    | BOOL                                       {debug_print("BOOL -> expr"); $$ = create_bool($1);}
+    | DATETIME                                   {debug_print("DATETIME -> expr"); $$ = create_datetime($1);}
+    | CHAR                                       {debug_print("CHAR -> expr"); $$ = create_char($1);}
+    | NOTHING                                    {debug_print("NOTHING -> expr"); $$ = create_nothing($1);}
+    | ME_KW                                      {debug_print("ME_KW -> expr"); $$ = create_me($1);}
+    | '(' opt_endl expr opt_endl ')'             {$$ = $3;}
+    | expr '+' opt_endl expr                     {debug_print("expr + opt_endl expr -> expr"); $$ = create_binary($1, $4, AddOp);}
+    | expr '-' opt_endl expr                     {debug_print("expr - opt_endl expr -> expr"); $$ = create_binary($1, $4, SubOp);}
+    | expr '*' opt_endl expr                     {debug_print("expr * opt_endl expr -> expr"); $$ = create_binary($1, $4, MulOp);}
+    | expr '/' opt_endl expr                     {debug_print("expr / opt_endl expr -> expr"); $$ = create_binary($1, $4, DivOp);} 
+    | expr '\\' opt_endl expr                     {debug_print("expr \\ opt_endl expr -> expr"); $$ = create_binary($1, $4, FloorDivOp);} 
+    | expr '^' opt_endl expr                      {debug_print("expr ^ opt_endl expr -> expr"); $$ = create_binary($1, $4, ExpOp);} 
+    | expr '&' opt_endl expr                      {debug_print("expr & opt_endl expr -> expr"); $$ = create_binary($1, $4, StrConcatOp);}  
+    | expr '>' opt_endl expr                      {debug_print("expr > opt_endl expr -> expr"); $$ = create_binary($1, $4, GtOp);}  
+    | expr '<' opt_endl expr                      {debug_print("expr < opt_endl expr -> expr"); $$ = create_binary($1, $4, LtOp);}  
+    | expr '=' ENDL expr %prec '='                {debug_print("expr = ENDL expr -> expr"); $$ = create_binary($1, $4, EqOp);}         
+    | expr '=' expr                               {debug_print("expr = expr -> expr"); $$ = create_binary($1, $4, EqOp);}   
+    | expr NEQ opt_endl expr                      {debug_print("expr NEQ expr -> expr"); $$ = create_binary($1, $4, NeqOp);} 
+    | expr LEQ opt_endl expr                      {debug_print("expr LEQ expr -> expr"); $$ = create_binary($1, $4, LeqOp);} 
+    | expr GEQ opt_endl expr                      {debug_print("expr GEQ expr -> expr"); $$ = create_binary($1, $4, GeqOp);} 
+    | expr AND opt_endl expr                      {debug_print("expr AND expr -> expr"); $$ = create_binary($1, $4, AndOp);} 
+    | expr AND_ALSO opt_endl expr                 {debug_print("expr AND_ALSO expr -> expr"); $$ = create_binary($1, $4, AndAlsoOp);} 
+    | expr OR_ELSE opt_endl expr                  {debug_print("expr OR_ELSE expr -> expr"); $$ = create_binary($1, $4, OrElseOp);} 
+    | expr OR opt_endl expr                       {debug_print("expr OR expr -> expr"); $$ = create_binary($1, $4, OrOp);} 
+    | expr XOR opt_endl expr                      {debug_print("expr XOR expr -> expr"); $$ = create_binary($1, $4, XorOp);} 
+    | expr MOD opt_endl expr                      {debug_print("expr MOD expr -> expr"); $$ = create_binary($1, $4, ModOp);} 
+    | expr LSHIFT opt_endl expr                   {debug_print("expr LSHIFT expr -> expr"); $$ = create_binary($1, $4, LshiftOp);} 
+    | expr RSHIFT opt_endl expr                   {debug_print("expr RSHIFT expr -> expr"); $$ = create_binary($1, $4, RshiftOp);} 
+    | '+' expr %prec UPLUS                        {debug_print("expr = + expr"); $$ = create_unary($1, $4, UnaryPlusOp);} 
+    | '-' expr %prec UMINUS                       {debug_print("expr = - expr"); $$ = create_unary($1, $4, UnaryMinusOp);} 
+    | NOT expr                                    {debug_print("expr = Not expr"); $$ = create_unary($1, $4, NotOp);} 
+    | expr IS opt_endl expr                       {debug_print("expr Is opt_endl expr -> expr"); $$ = create_binary($1, $4, IsOp);} 
+    | expr ISNOT opt_endl expr                    {debug_print("expr IsNot opt_endl expr -> expr"); $$ = create_binary($1, $4, IsNotOp);} 
+    | expr LIKE opt_endl expr                     {debug_print("expr Like opt_endl expr -> expr"); $$ = create_binary($1, $4, LikeOp);} 
+    | expr '(' opt_endl expr_list opt_endl ')'    {debug_print("expr(expr_list) -> expr"); $$ = create_call_expr($1, $4);} 
+	| expr '(' opt_endl ')'                       {debug_print("expr() -> expr"); $$ = create_call($1);} 
+    | cast_target '(' opt_endl expr opt_endl ')'  {debug_print("cast_target (expr) -> expr"); $$ = create_cast($1, $4);} 
+    | CTYPE_KW '(' opt_endl expr ',' opt_endl type_name opt_endl ')'                {debug_print("cast_target (expr) -> expr"); $$ = create_cast($7, $4);} 
+    | IF_KW '(' opt_endl expr ',' opt_endl expr ',' opt_endl expr opt_endl ')'      {debug_print("if(expr, expr, expr) -> expr"); $$ = create_if_expr($4, $6, $10);}
+    | IF_KW '(' opt_endl expr ',' opt_endl expr opt_endl ')'                        {debug_print("if(expr, expr) -> expr"); $$ = create_if_expr($4, $6);}
+    | expr '.' member_access_member               {debug_print("expr . member_access_member -> expr"); $$ = create_member_access($1, $3);}
+    | MYBASE_KW '.' member_access_member          {debug_print("my_base . member_access_member -> expr"); $$ = create_mybase_access($3);}
+    | MYCLASS_KW '.' member_access_member         {debug_print("my_base . member_access_member -> expr"); $$ = create_myclass_access($3);}
+	| NEW_KW simple_type_name %prec BARE_NEW      {debug_print("NEW simple_type_name -> expr"); $$ = create_new_expr($2);}
+    | NEW_KW simple_type_name '(' opt_endl ')'    {debug_print("NEW simple_type_name -> expr"); $$ = create_new_expr($2);}
+    | NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')'       {debug_print("NEW simple_type_name (expr_list)-> expr"); $$ = create_new_expr($2, $4);}
+    | NEW_KW simple_type_name '(' opt_endl ')' collection_initializer   {debug_print("NEW simple_type_name () collection_initializer -> expr"); $$ = create_arraynew_expr($2, $6);}
+    | NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')' collection_initializer    {debug_print("NEW simple_type_name (expr_list) collection_initializer -> expr"); $$ = create_arraynew_expr($2, $5, $8);}
+    | collection_initializer {debug_print("collection_initializer -> expr"); $$ = create_array_literal($1);}
     ;
 
-cast_target: CBOOL_KW
-           | CBYTE_KW
-           | CSBYTE_KW
-           | CUSHORT_KW
-           | CSHORT_KW
-           | CINTEGER_KW
-           | CUINTEGER_KW
-           | CLONG_KW
-           | CULONG_KW
-           | CDATE_KW
-           | CCHAR_KW
-           | CSTRING_KW
-           | CDECIMAL_KW
-           | CSINGLE_KW
-           | CDOUBLE_KW
-           | COBJECT_KW
+cast_target: CBOOL_KW                   {$$ = create_primitive_type(Boolean);}
+           | CBYTE_KW                   {$$ = create_primitive_type(Byte);}
+           | CSBYTE_KW                  {$$ = create_primitive_type(SByte);}
+           | CUSHORT_KW                 {$$ = create_primitive_type(UShort);}
+           | CSHORT_KW                  {$$ = create_primitive_type(Short);}
+           | CINTEGER_KW                {$$ = create_primitive_type(Integer);}
+           | CUINTEGER_KW               {$$ = create_primitive_type(UInteger);}
+           | CLONG_KW                   {$$ = create_primitive_type(Long);}
+           | CULONG_KW                  {$$ = create_primitive_type(ULong);}
+           | CDATE_KW                   {$$ = create_primitive_type(Date);}
+           | CCHAR_KW                   {$$ = create_primitive_type(Char);}
+           | CSTRING_KW                 {$$ = create_primitive_type(String);}
+           | CDECIMAL_KW                {$$ = create_primitive_type(Decimal);}
+           | CSINGLE_KW                 {$$ = create_primitive_type(Single);}
+           | CDOUBLE_KW                 {$$ = create_primitive_type(Double);}
+           | COBJECT_KW                 {$$ = create_ref_type(Object, "Object");}
            ;
 
-collection_initializer: '{' opt_endl expr_list opt_endl '}'
-                      | '{' opt_endl '}'
+collection_initializer: '{' opt_endl expr_list opt_endl '}'         {debug_print("{ opt_endl expr_list opt_endl } -> collection_initializer"); $$ = $3;}
+                      | '{' opt_endl '}'                            {debug_print("{ opt_endl } -> collection_initializer"); $$ = create_expr_list();}
                       ;
 
-member_access_member: ID
-                    | kw
+member_access_member: ID                {debug_print("ID -> member_access_member"); $$ = create_id($1);}
+                    | kw                {debug_print("kw -> member_access_member"); $$ = $1;}
                     ;
 
-expr_list: expr
-         | expr_list ',' opt_endl expr 
+expr_list: expr                             {debug_print("expr -> expr_list"); $$ = create_expr_list();}
+         | expr_list ',' opt_endl expr      {debug_print("expr_list ',' opt_endl expr -> expr_list"); $1.add($4); $$ = $1;}
          ;
 
-stmt: CALL_KW expr endl_list
-    | REDIM_KW redim_clause_list endl_list
-    | ERASE_KW expr_list endl_list
-    | if_stmt 
-    | select_stmt
-    | label_stmt
-    | for_stmt
-    | foreach_stmt
-    | DO_KW endl_list opt_block LOOP_KW endl_list
-    | do_while_stmt
-    | do_until_stmt
-    | while_stmt
-    | var_declaration
-    | expr '=' expr endl_list
-    | expr ADD_ASSIGN expr endl_list
-    | expr SUB_ASSIGN expr endl_list
-    | expr MUL_ASSIGN expr endl_list
-    | expr DIV_ASSIGN expr endl_list
-    | expr FLOORDIV_ASSIGN expr endl_list
-    | expr EXP_ASSIGN expr endl_list
-    | expr STRCAT_ASSIGN expr endl_list
-    | expr LSHIFT_ASSIGN expr endl_list
-    | expr RSHIFT_ASSIGN expr endl_list
-    | RETURN_KW endl_list
-    | RETURN_KW expr endl_list
-    | CONTINUE_KW DO_KW endl_list
-    | CONTINUE_KW FOR_KW endl_list
-    | CONTINUE_KW WHILE_KW endl_list
-    | EXIT_KW DO_KW endl_list
-    | EXIT_KW FOR_KW endl_list
-    | EXIT_KW WHILE_KW endl_list
-    | EXIT_KW SELECT_KW endl_list
-    | STOP_KW endl_list
-    | END_KW endl_list
+stmt: CALL_KW expr endl_list                        {debug_print("CALL_KW expr endl_list -> stmt"); $$ = create_call_stmt($2);}
+    | REDIM_KW redim_clause_list endl_list          {debug_print("REDIM_KW redim_clause_list endl_list -> stmt"); $$ = create_redim($2);}
+    | ERASE_KW expr_list endl_list                  {debug_print("ERASE_KW expr_list endl_list -> stmt"); $$ = create_erase($2);}
+    | if_stmt                                       {$$ = $1;}
+    | select_stmt                                   {$$ = $1;}
+    | label_stmt                                    {$$ = $1;}
+    | for_stmt                                      {$$ = $1;}
+    | foreach_stmt                                  {$$ = $1;}
+    | DO_KW endl_list opt_block LOOP_KW endl_list   {debug_print("DO_KW endl_list opt_block LOOP_KW endl_list"); $$ = create_do_infinite_loop($3);}
+    | do_while_stmt                                 {$$ = $1;}
+    | do_until_stmt                                 {$$ = $1;}
+    | while_stmt                                    {$$ = $1;}
+    | var_declaration                               {$$ = $1;}
+    | expr '=' expr endl_list                       {debug_print("expr '=' expr endl_list -> stmt"); $$ = create_assign($1, $3, Assign);}
+    | expr ADD_ASSIGN expr endl_list                {debug_print("expr ADD_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, AddAssign);}
+    | expr SUB_ASSIGN expr endl_list                {debug_print("expr SUB_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, SubAssign);}
+    | expr MUL_ASSIGN expr endl_list                {debug_print("expr MUL_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, MulAssign);}
+    | expr DIV_ASSIGN expr endl_list                {debug_print("expr DIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, DivAssign);}
+    | expr FLOORDIV_ASSIGN expr endl_list           {debug_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, FloorDivAssign);}
+    | expr EXP_ASSIGN expr endl_list                {debug_print("expr EXP_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, ExpAssign);}
+    | expr STRCAT_ASSIGN expr endl_list             {debug_print("expr STRCAT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $3, StrConcatAssign);}
+    | expr LSHIFT_ASSIGN expr endl_list             {debug_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $3, LshiftAssign);}
+    | expr RSHIFT_ASSIGN expr endl_list             {debug_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, RshiftAssign);}
+    | RETURN_KW endl_list                           {debug_print("RETURN_KW endl_list -> stmt"); $$ = create_return();}
+    | RETURN_KW expr endl_list                      {debug_print("RETURN_KW expr endl_list -> stmt"); $$ = create_return($2);}
+    | CONTINUE_KW DO_KW endl_list                   {debug_print("CONTINUE_KW DO_KW endl_list -> stmt"); $$ = create_continue(ContinueDo);}
+    | CONTINUE_KW FOR_KW endl_list                  {debug_print("CONTINUE_KW FOR_KW endl_list -> stmt"); $$ = create_continue(ContinueFor);}
+    | CONTINUE_KW WHILE_KW endl_list                {debug_print("CONTINUE_KW WHILE_KW endl_list -> stmt"); $$ = create_continue(ContinueWhile);}
+    | EXIT_KW DO_KW endl_list                       {debug_print("EXIT_KW DO_KW endl_list -> stmt"); $$ = create_exit(ExitDo);}
+    | EXIT_KW FOR_KW endl_list                      {debug_print("EXIT_KW FOR_KW endl_list -> stmt"); $$ = create_exit(ExitFor);}
+    | EXIT_KW WHILE_KW endl_list                    {$$ = create_exit(ExitWhile);}
+    | EXIT_KW SELECT_KW endl_list                   {$$ = create_exit(ExitSelect);}
+    | STOP_KW endl_list                             {$$ = create_stop();}
+    | END_KW endl_list                              {$$ = create_end();}
     | GOTO_KW label_name endl_list
     ;
 
-label_name: ID
-          | INT
+label_name: ID                      {debug_print("ID -> label_name"); $$ = create_goto_label($1);}
+          | INT                     {debug_print("INT -> label_name"); $$ = create_goto_label($1);}
           ;
 
-label_stmt: label_name ':'
+label_stmt: label_name ':'          {debug_print("label_name : -> label_stmt"); $$ = $1;}
           ;
 
 redim_clause: ID '(' opt_endl expr_list opt_endl ')'

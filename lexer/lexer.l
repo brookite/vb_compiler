@@ -372,15 +372,15 @@ False { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     if (!DEBUG) yyterminate();
 }
 
-\( { debug_print("Found a separator left parenthesis: %s\n", yytext); }
-\) {debug_print("Found a separator right parenthesis: %s\n", yytext);}
-\{ {debug_print("Found a separator left curly brace: %s\n", yytext); }
-\} { debug_print("Found a separator right curly brace: %s\n", yytext); }
-\? {debug_print("Found a separator question mark: %s\n", yytext); }
-\. {debug_print("Found a separator point: %s\n", yytext); }
-\! {debug_print("Found a separator exclamation mark: %s\n", yytext); }
-\, { debug_print("Found a separator comma: %s\n", yytext); }
-\: {debug_print("Found a separator colon: %s\n", yytext); }
+\( { debug_print("Found a separator left parenthesis: %s\n", yytext); return '(';}
+\) {debug_print("Found a separator right parenthesis: %s\n", yytext); return ')';}
+\{ {debug_print("Found a separator left curly brace: %s\n", yytext); return '{';}
+\} { debug_print("Found a separator right curly brace: %s\n", yytext); return '}';}
+\? {debug_print("Found a separator question mark: %s\n", yytext); return '?';}
+\. {debug_print("Found a separator point: %s\n", yytext); return '.';}
+\! {debug_print("Found a separator exclamation mark: %s\n", yytext); return '!'; }
+\, { debug_print("Found a separator comma: %s\n", yytext); return ','; }
+\: {debug_print("Found a separator colon: %s\n", yytext); return ':'; }
 
 \[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {
     debug_print("Found a identifier: %s\n", yytext);
