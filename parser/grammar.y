@@ -181,7 +181,7 @@ program_node * program = NULL;
     struct_node * Struct;
     type_node * Type;
 
-    // добавь сюда другие типы и пропиши для них и их правил %type
+    
 }
 
 
@@ -196,16 +196,16 @@ program_member: struct_declaration              {debug_print("struct_declaration
               | class_declaration               {debug_print("class_declaration -> program_member"); $$ = $1;}
               ;
 
-endl_list: ENDL
-         | endl_list ENDL
+endl_list: ENDL                                { debug_print("ENDL -> endl_list"); $$ = create_endl_node(); }
+         | endl_list ENDL                      { debug_print("endl_list ENDL -> endl_list"); $$ = add_endl_to_list($1, $2); }
          ;
 
-stmt_endl: ENDL
-         | ':'
+stmt_endl: ENDL                                { debug_print("ENDL -> stmt_endl"); $$ = create_stmt_endl_node(); }
+         | ':'                                 { debug_print("':' -> stmt_endl"); $$ = create_stmt_endl_colon_node(); }
          ;
 
-opt_endl: ENDL
-        | /* empty */
+opt_endl: ENDL                                 { debug_print("ENDL -> opt_endl"); $$ = create_opt_endl_node(); }
+        | /* empty */                          { debug_print("empty -> opt_endl"); $$ = create_empty_node(); }
         ;
 
 kw: ME_KW                               {$$ = create_id("Me");}
@@ -312,7 +312,7 @@ expr: INT                                        {debug_print("INT -> expr"); $$
     | expr '\\' opt_endl expr                     {debug_print("expr \\ opt_endl expr -> expr"); $$ = create_binary($1, $4, FloorDivOp);} 
     | expr '^' opt_endl expr                      {debug_print("expr ^ opt_endl expr -> expr"); $$ = create_binary($1, $4, ExpOp);} 
     | expr '&' opt_endl expr                      {debug_print("expr & opt_endl expr -> expr"); $$ = create_binary($1, $4, StrConcatOp);}  
-    | expr '>' opt_endl expr                      {debug_print("expr > opt_endl expr -> expr"); $$ = create_binary($1, $4, GtOp);}  
+    | expr '>' opt_endl expr                       {debug_print("expr > opt_endl expr -> expr"); $$ = create_binary($1, $4, GtOp);}  
     | expr '<' opt_endl expr                      {debug_print("expr < opt_endl expr -> expr"); $$ = create_binary($1, $4, LtOp);}  
     | expr '=' ENDL expr %prec '='                {debug_print("expr = ENDL expr -> expr"); $$ = create_binary($1, $4, EqOp);}         
     | expr '=' expr                               {debug_print("expr = expr -> expr"); $$ = create_binary($1, $4, EqOp);}   
@@ -424,230 +424,230 @@ label_name: ID                      {debug_print("ID -> label_name"); $$ = creat
 label_stmt: label_name ':'          {debug_print("label_name : -> label_stmt"); $$ = $1;}
           ;
 
-redim_clause: ID '(' opt_endl expr_list opt_endl ')'
+redim_clause: ID '(' opt_endl expr_list opt_endl ')'                 { debug_print("ID '(' opt_endl expr_list opt_endl ')' -> redim_clause"); $$ = create_redim_clause($1, $3, $4, $5); }
             ;
 
-redim_clause_list: redim_clause
-                 | redim_clause_list ',' opt_endl redim_clause
+redim_clause_list: redim_clause                                      { debug_print("redim_clause -> redim_clause_list"); $$ = create_redim_clause_list($1); }
+                 | redim_clause_list ',' opt_endl redim_clause       { debug_print("redim_clause_list ',' opt_endl redim_clause -> redim_clause_list"); $$ = add_to_redim_clause_list($1, $4); }
                  ;
 
-if_stmt: IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list block END_IF endl_list
-	   | IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list
-	   | IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list
-	   | IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list
-       | IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list
-	   | IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list
+if_stmt: IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list block END_IF endl_list                      { debug_print("IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list block END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, $5, $6, $9); }
+	   | IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list                            { debug_print("IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, NULL, $5, $8); }
+	   | IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list                            { debug_print("IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, $5, $6, NULL); }
+	   | IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list                                  { debug_print("IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, NULL, $5, NULL); }
+       | IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list                                              { debug_print("IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, $5, $6, NULL); }
+	   | IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list                                                    { debug_print("IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, NULL, $5, NULL); }
        ;
 
-else_if_stmts: /* empty */
-             | else_if_stmts ELSEIF_KW expr THEN_KW endl_list block
-			 | else_if_stmts ELSEIF_KW expr THEN_KW endl_list
+else_if_stmts: /* empty */                                                     { debug_print("empty -> else_if_stmts"); $$ = create_empty_else_if_stmts(); }
+             | else_if_stmts ELSEIF_KW expr THEN_KW endl_list block            { debug_print("else_if_stmts ELSEIF_KW expr THEN_KW endl_list block -> else_if_stmts"); $$ = add_to_else_if_stmts($1, $3, $6); }
+			 | else_if_stmts ELSEIF_KW expr THEN_KW endl_list                  { debug_print("else_if_stmts ELSEIF_KW expr THEN_KW endl_list -> else_if_stmts"); $$ = add_to_else_if_stmts($1, $3, NULL); }
              ; 
 
-select_stmt: SELECT_KW expr endl_list case_stmts END_SELECT endl_list
-           | SELECT_KW CASE_KW expr endl_list case_stmts END_SELECT endl_list 
+select_stmt: SELECT_KW expr endl_list case_stmts END_SELECT endl_list                    { debug_print("SELECT_KW expr endl_list case_stmts END_SELECT endl_list -> select_stmt"); $$ = create_select_stmt($2, $4); }
+           | SELECT_KW CASE_KW expr endl_list case_stmts END_SELECT endl_list            { debug_print("SELECT_KW CASE_KW expr endl_list case_stmts END_SELECT endl_list -> select_stmt"); $$ = create_select_case_stmt($3, $5); }
            ;
 
-case_condition_branch: CASE_KW expr endl_list block
-					 | CASE_KW expr endl_list
-                     | CASE_KW expr TO_KW expr endl_list block
-					 | CASE_KW expr TO_KW expr endl_list
+case_condition_branch: CASE_KW expr endl_list block                                      { debug_print("CASE_KW expr endl_list block -> case_condition_branch"); $$ = create_case_condition_branch($2, $4); }
+					 | CASE_KW expr endl_list                                            { debug_print("CASE_KW expr endl_list -> case_condition_branch"); $$ = create_case_condition_branch($2, NULL); }
+                     | CASE_KW expr TO_KW expr endl_list block                           { debug_print("CASE_KW expr TO_KW expr endl_list block -> case_condition_branch"); $$ = create_case_range_branch($2, $4, $6); }
+					 | CASE_KW expr TO_KW expr endl_list                                 { debug_print("CASE_KW expr TO_KW expr endl_list -> case_condition_branch"); $$ = create_case_range_branch($2, $4, NULL); }
                      ;
 
-case_condition_branches: case_condition_branch
-                       | case_condition_branches case_condition_branch
+case_condition_branches: case_condition_branch                                   { debug_print("case_condition_branch -> case_condition_branches"); $$ = create_case_condition_branches($1); }
+                       | case_condition_branches case_condition_branch           { debug_print("case_condition_branches case_condition_branch -> case_condition_branches"); $$ = add_case_condition_branch($1, $2); }
                        ;
 
-case_else_stmt: CASE_KW ELSE_KW endl_list opt_block
+case_else_stmt: CASE_KW ELSE_KW endl_list opt_block                              { debug_print("CASE_KW ELSE_KW endl_list opt_block -> case_else_stmt"); $$ = create_case_else_stmt($4); }
               ;
 
-case_stmts: case_condition_branches
-          | case_else_stmt
-          | case_condition_branches case_else_stmt
+case_stmts: case_condition_branches                                              { debug_print("case_condition_branches -> case_stmts"); $$ = create_case_stmts($1); }
+          | case_else_stmt                                                       { debug_print("case_else_stmt -> case_stmts"); $$ = create_case_stmts_else($1); }
+          | case_condition_branches case_else_stmt                               { debug_print("case_condition_branches case_else_stmt -> case_stmts"); $$ = add_case_else_stmt($1, $2); }
           ;
 
-while_stmt: WHILE_KW expr endl_list block END_WHILE endl_list
-          | WHILE_KW expr endl_list END_WHILE endl_list
+while_stmt: WHILE_KW expr endl_list block END_WHILE endl_list                    { debug_print("WHILE_KW expr endl_list block END_WHILE endl_list -> while_stmt"); $$ = create_while_stmt($2, $4); }
+          | WHILE_KW expr endl_list END_WHILE endl_list                          { debug_print("WHILE_KW expr endl_list END_WHILE endl_list -> while_stmt"); $$ = create_empty_while_stmt($2); }
           ;
 
-for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list
-        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list
-        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list
-		| FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list
+for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list                               { debug_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2, $5, $7, $9); }
+        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list                                     { debug_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list -> for_stmt"); $$ = create_simple_for_stmt($2, $5, $7); }
+        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list                  { debug_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); $$ = create_step_for_stmt($2, $5, $7, $9, $11); }
+		| FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list                        { debug_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list -> for_stmt"); $$ = create_simple_step_for_stmt($2, $5, $7, $9); }
         ;
 
-for_loop_variable: ID
-                 | ID AS_KW type_name
+for_loop_variable: ID                                 { debug_print("ID -> for_loop_variable"); $$ = create_variable_node($1); }
+                 | ID AS_KW type_name                 { debug_print("ID AS_KW type_name -> for_loop_variable"); $$ = create_typed_variable_node($1, $3); }
                  ;
 
-foreach_stmt: FOR_KW EACH_KW for_loop_variable opt_endl IN_KW endl_list expr endl_list opt_block NEXT_KW endl_list
-            | FOR_KW EACH_KW for_loop_variable opt_endl IN_KW expr endl_list opt_block NEXT_KW endl_list
+foreach_stmt: FOR_KW EACH_KW for_loop_variable opt_endl IN_KW endl_list expr endl_list opt_block NEXT_KW endl_list            { debug_print("FOR_KW EACH_KW for_loop_variable opt_endl IN_KW endl_list expr endl_list opt_block NEXT_KW endl_list -> foreach_stmt"); $$ = create_foreach_stmt($3, $7, $9); }
+            | FOR_KW EACH_KW for_loop_variable opt_endl IN_KW expr endl_list opt_block NEXT_KW endl_list                      { debug_print("FOR_KW EACH_KW for_loop_variable opt_endl IN_KW expr endl_list opt_block NEXT_KW endl_list -> foreach_stmt"); $$ = create_simple_foreach_stmt($3, $6, $8); }
             ;
 
-do_while_stmt: DO_KW endl_list opt_block LOOP_KW WHILE_KW expr endl_list
-             | DO_KW WHILE_KW expr endl_list opt_block LOOP_KW endl_list
+do_while_stmt: DO_KW endl_list opt_block LOOP_KW WHILE_KW expr endl_list                                                      { debug_print("DO_KW endl_list opt_block LOOP_KW WHILE_KW expr endl_list -> do_while_stmt"); $$ = create_do_while_stmt($3, $6); }
+             | DO_KW WHILE_KW expr endl_list opt_block LOOP_KW endl_list                                                      { debug_print("DO_KW WHILE_KW expr endl_list opt_block LOOP_KW endl_list -> do_while_stmt"); $$ = create_while_do_stmt($3, $5); }
              ;
 
-do_until_stmt: DO_KW endl_list opt_block LOOP_KW UNTIL_KW expr endl_list
-             | DO_KW UNTIL_KW expr endl_list opt_block LOOP_KW endl_list
+do_until_stmt: DO_KW endl_list opt_block LOOP_KW UNTIL_KW expr endl_list                                                      { debug_print("DO_KW endl_list opt_block LOOP_KW UNTIL_KW expr endl_list -> do_until_stmt"); $$ = create_do_until_stmt($3, $6); }
+             | DO_KW UNTIL_KW expr endl_list opt_block LOOP_KW endl_list                                                      { debug_print("DO_KW UNTIL_KW expr endl_list opt_block LOOP_KW endl_list -> do_until_stmt"); $$ = create_until_do_stmt($3, $5); }
              ;
 
-opt_block: /* empty */
-         | block
+opt_block: /* empty */         { debug_print("empty -> opt_block"); $$ = create_empty_block(); }
+         | block               { debug_print("block -> opt_block"); $$ = $1; }
          ;
 
-block: stmt
-     | block stmt
+block: stmt                    { debug_print("stmt -> block"); $$ = create_block($1); }
+     | block stmt              { debug_print("block stmt -> block"); $$ = add_to_block($1, $2); }
      ;
 
-variable_name: ID
-             | ID array_modifier
+variable_name: ID                             { debug_print("ID -> variable_name"); $$ = create_variable_name($1); }
+             | ID array_modifier              { debug_print("ID array_modifier -> variable_name"); $$ = create_array_variable($1, $2); }
              ;
 
-array_modifier: '(' ENDL ')'
-              | '(' ')'
+array_modifier: '(' ENDL ')'                  { debug_print("'(' ENDL ')' -> array_modifier"); $$ = create_array_modifier(); }
+              | '(' ')'                       { debug_print("'(' ')' -> array_modifier"); $$ = create_empty_array_modifier(); }
               ;
 
-var_declarator: variable_name
-              | variable_name AS_KW type_name
-              | variable_name '=' expr
-              | variable_name AS_KW type_name '=' expr
+var_declarator: variable_name                                        { debug_print("variable_name -> var_declarator"); $$ = create_var_declarator($1); }
+              | variable_name AS_KW type_name                        { debug_print("variable_name AS_KW type_name -> var_declarator"); $$ = create_typed_var_declarator($1, $3); }
+              | variable_name '=' expr                               { debug_print("variable_name '=' expr -> var_declarator"); $$ = create_initialized_var_declarator($1, $3); }
+              | variable_name AS_KW type_name '=' expr               { debug_print("variable_name AS_KW type_name '=' expr -> var_declarator"); $$ = create_typed_initialized_var_declarator($1, $3, $5); }
               ;
 
-var_declaration: STATIC_KW var_declarator endl_list
-               | DIM_KW var_declarator endl_list
-               | CONST_KW var_declarator endl_list
+var_declaration: STATIC_KW var_declarator endl_list                  { debug_print("STATIC_KW var_declarator endl_list -> var_declaration"); $$ = create_static_var_declaration($2); }
+               | DIM_KW var_declarator endl_list                     { debug_print("DIM_KW var_declarator endl_list -> var_declaration"); $$ = create_dim_var_declaration($2); }
+               | CONST_KW var_declarator endl_list                   { debug_print("CONST_KW var_declarator endl_list -> var_declaration"); $$ = create_const_var_declaration($2); }
                ;
 
-array_type_name: simple_type_name array_modifier
+array_type_name: simple_type_name array_modifier                     { debug_print("simple_type_name array_modifier -> array_type_name"); $$ = create_array_type($1, $2); }
                ;
 
-simple_type_name: ID
-                | ID '(' opt_endl OF_KW type_list opt_endl ')'
-                | primitive_type
+simple_type_name: ID                                                  { debug_print("ID -> simple_type_name"); $$ = create_simple_type($1); }
+                | ID '(' opt_endl OF_KW type_list opt_endl ')'        { debug_print("ID '(' opt_endl OF_KW type_list opt_endl ')' -> simple_type_name"); $$ = create_generic_type($1, $5); }
+                | primitive_type                                      { debug_print("primitive_type -> simple_type_name"); $$ = $1; }
                 ;
                
-primitive_type: BYTE_KW
-              | SBYTE_KW
-              | USHORT_KW 
-              | SHORT_KW
-              | UINTEGER_KW
-              | INTEGER_KW
-              | ULONG_KW
-              | LONG_KW
-              | BOOLEAN_KW
-              | DATE_KW
-              | CHAR_KW
-              | STRING_KW
-              | DECIMAL_KW
-              | SINGLE_KW
-              | DOUBLE_KW
-              | OBJECT_KW
+primitive_type: BYTE_KW      { debug_print("BYTE_KW -> primitive_type"); $$ = create_primitive_type(Byte); }
+              | SBYTE_KW     { debug_print("SBYTE_KW -> primitive_type"); $$ = create_primitive_type(SByte); }
+              | USHORT_KW    { debug_print("USHORT_KW -> primitive_type"); $$ = create_primitive_type(UShort); }
+              | SHORT_KW     { debug_print("SHORT_KW -> primitive_type"); $$ = create_primitive_type(Short); }
+              | UINTEGER_KW  { debug_print("UINTEGER_KW -> primitive_type"); $$ = create_primitive_type(UInteger); }
+              | INTEGER_KW   { debug_print("INTEGER_KW -> primitive_type"); $$ = create_primitive_type(Integer); }
+              | ULONG_KW     { debug_print("ULONG_KW -> primitive_type"); $$ = create_primitive_type(ULong); }
+              | LONG_KW      { debug_print("LONG_KW -> primitive_type"); $$ = create_primitive_type(Long); }
+              | BOOLEAN_KW   { debug_print("BOOLEAN_KW -> primitive_type"); $$ = create_primitive_type(Boolean); }
+              | DATE_KW      { debug_print("DATE_KW -> primitive_type"); $$ = create_primitive_type(Date); }
+              | CHAR_KW      { debug_print("CHAR_KW -> primitive_type"); $$ = create_primitive_type(Char); }
+              | STRING_KW    { debug_print("STRING_KW -> primitive_type"); $$ = create_primitive_type(String); }
+              | DECIMAL_KW   { debug_print("DECIMAL_KW -> primitive_type"); $$ = create_primitive_type(Decimal); }
+              | SINGLE_KW    { debug_print("SINGLE_KW -> primitive_type"); $$ = create_primitive_type(Single); }
+              | DOUBLE_KW    { debug_print("DOUBLE_KW -> primitive_type"); $$ = create_primitive_type(Double); }
+              | OBJECT_KW    { debug_print("OBJECT_KW -> primitive_type"); $$ = create_primitive_type(Object); }
               ;
 
-type_list: simple_type_name
-         | type_list ',' opt_endl simple_type_name
+type_list: simple_type_name                                   { debug_print("simple_type_name -> type_list"); $$ = create_type_list($1); }
+         | type_list ',' opt_endl simple_type_name            { debug_print("type_list ',' opt_endl simple_type_name -> type_list"); $$ = append_to_type_list($1, $4); }
          ;
 
-id_list: ID
-       | id_list ',' opt_endl ID
+id_list: ID                                                   { debug_print("ID -> id_list"); $$ = create_id_list($1); }
+       | id_list ',' opt_endl ID                              { debug_print("id_list ',' opt_endl ID -> id_list"); $$ = append_to_id_list($1, $4); }
        ;
 
-function_signature: FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name
-                  | FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')'
-                  | FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name
-                  | FUNCTION_KW ID '(' opt_endl ')'
-                  | FUNCTION_KW ID AS_KW type_name
-                  | FUNCTION_KW ID
-                  | FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' AS_KW type_name
-                  | FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')'
-                  | FUNCTION_KW ID generic_param_list '(' opt_endl ')' AS_KW type_name
-                  | FUNCTION_KW ID generic_param_list '(' opt_endl ')'
-                  | FUNCTION_KW ID generic_param_list AS_KW type_name
-                  | FUNCTION_KW ID generic_param_list
+function_signature: FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name                                  { debug_print("FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name -> function_signature"); $$ = create_function_signature($2, $5, $9); }
+                  | FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')'                                                  { debug_print("FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' -> function_signature"); $$ = create_function_signature($2, $5); }
+                  | FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name                                                               { debug_print("FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name -> function_signature"); $$ = create_function_signature_no_params($2, $6); }
+                  | FUNCTION_KW ID '(' opt_endl ')'                                                                               { debug_print("FUNCTION_KW ID '(' opt_endl ')' -> function_signature"); $$ = create_function_signature_no_params($2); }
+                  | FUNCTION_KW ID AS_KW type_name                                                                                { debug_print("FUNCTION_KW ID AS_KW type_name -> function_signature"); $$ = create_function_signature_simple($2, $4); }
+                  | FUNCTION_KW ID                                                                                                { debug_print("FUNCTION_KW ID -> function_signature"); $$ = create_function_signature_simple($2); }
+                  | FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' AS_KW type_name               { debug_print("FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' AS_KW type_name -> function_signature"); $$ = create_generic_function_signature($2, $3, $6, $10); }
+                  | FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')'                               { debug_print("FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' -> function_signature"); $$ = create_generic_function_signature($2, $3, $6); }
+                  | FUNCTION_KW ID generic_param_list '(' opt_endl ')' AS_KW type_name                                            { debug_print("FUNCTION_KW ID generic_param_list '(' opt_endl ')' AS_KW type_name -> function_signature"); $$ = create_generic_function_signature_no_params($2, $3, $8); }
+                  | FUNCTION_KW ID generic_param_list '(' opt_endl ')'                                                            { debug_print("FUNCTION_KW ID generic_param_list '(' opt_endl ')' -> function_signature"); $$ = create_generic_function_signature_no_params($2, $3); }
+                  | FUNCTION_KW ID generic_param_list AS_KW type_name                                                             { debug_print("FUNCTION_KW ID generic_param_list AS_KW type_name -> function_signature"); $$ = create_generic_function_signature_simple($2, $3, $5); }
+                  | FUNCTION_KW ID generic_param_list                                                                             { debug_print("FUNCTION_KW ID generic_param_list -> function_signature"); $$ = create_generic_function_signature_simple($2, $3); }
                   ;
 
-sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'
-             | SUB_KW ID '(' opt_endl ')'
-             | SUB_KW ID
-             | SUB_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')'
-             | SUB_KW ID generic_param_list '(' opt_endl ')'
-             | SUB_KW ID generic_param_list
+sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'                    { debug_print("SUB_KW ID '(' opt_endl function_parameters opt_endl ')' -> sub_signature"); $$ = create_sub_signature($2, $5); }
+             | SUB_KW ID '(' opt_endl ')'                                                 { debug_print("SUB_KW ID '(' opt_endl ')' -> sub_signature"); $$ = create_sub_signature_no_params($2); }
+             | SUB_KW ID                                                                  { debug_print("SUB_KW ID -> sub_signature"); $$ = create_sub_signature_simple($2); }
+             | SUB_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' { debug_print("SUB_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' -> sub_signature"); $$ = create_generic_sub_signature($2, $3, $6); }
+             | SUB_KW ID generic_param_list '(' opt_endl ')'                              { debug_print("SUB_KW ID generic_param_list '(' opt_endl ')' -> sub_signature"); $$ = create_generic_sub_signature_no_params($2, $3); }
+             | SUB_KW ID generic_param_list                                               { debug_print("SUB_KW ID generic_param_list -> sub_signature"); $$ = create_generic_sub_signature_simple($2, $3); }
              ;
 
-constructor_signature: SUB_KW NEW_KW '(' opt_endl function_parameters opt_endl ')'
-                     | SUB_KW NEW_KW '(' opt_endl ')'
-                     | SUB_KW NEW_KW
+constructor_signature: SUB_KW NEW_KW '(' opt_endl function_parameters opt_endl ')'           { debug_print("SUB_KW NEW_KW '(' opt_endl function_parameters opt_endl ')' -> constructor_signature"); $$ = create_constructor_signature($5); }
+                     | SUB_KW NEW_KW '(' opt_endl ')'                                        { debug_print("SUB_KW NEW_KW '(' opt_endl ')' -> constructor_signature"); $$ = create_constructor_signature_no_params(); }
+                     | SUB_KW NEW_KW                                                         { debug_print("SUB_KW NEW_KW -> constructor_signature"); $$ = create_simple_constructor_signature(); }
                      ;
 
-constructor_declaration: opt_procedure_modifiers constructor_signature endl_list block END_SUB endl_list
-			           | opt_procedure_modifiers constructor_signature endl_list END_SUB endl_list
+constructor_declaration: opt_procedure_modifiers constructor_signature endl_list block END_SUB endl_list            { debug_print("opt_procedure_modifiers constructor_signature endl_list block END_SUB endl_list -> constructor_declaration"); $$ = create_constructor_declaration($1, $2, $4); }
+			           | opt_procedure_modifiers constructor_signature endl_list END_SUB endl_list                  { debug_print("opt_procedure_modifiers constructor_signature endl_list END_SUB endl_list -> constructor_declaration"); $$ = create_simple_constructor_declaration($1, $2); }
                        ;
 
-function_declaration: opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list |
-				      opt_procedure_modifiers function_signature endl_list END_FUNCTION endl_list
+function_declaration: opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list     { debug_print("opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list -> function_declaration"); $$ = create_function_declaration($1, $2, $4); }
+                    | opt_procedure_modifiers function_signature endl_list END_FUNCTION endl_list           { debug_print("opt_procedure_modifiers function_signature endl_list END_FUNCTION endl_list -> function_declaration"); $$ = create_simple_function_declaration($1, $2); }
                     ;
 
 
-sub_declaration: opt_procedure_modifiers sub_signature endl_list block END_SUB endl_list
-			   | opt_procedure_modifiers sub_signature endl_list END_SUB endl_list
+sub_declaration: opt_procedure_modifiers sub_signature endl_list block END_SUB endl_list          { debug_print("opt_procedure_modifiers sub_signature endl_list block END_SUB endl_list -> sub_declaration"); $$ = create_sub_declaration($1, $2, $4); }
+			   | opt_procedure_modifiers sub_signature endl_list END_SUB endl_list                { debug_print("opt_procedure_modifiers sub_signature endl_list END_SUB endl_list -> sub_declaration"); $$ = create_simple_sub_declaration($1, $2); }
                ;
 
-opt_procedure_modifiers: SHARED_KW
-                   | /* empty */
+opt_procedure_modifiers: SHARED_KW                  { debug_print("SHARED_KW -> opt_procedure_modifiers"); $$ = create_shared_modifier(); }
+                   | /* empty */                    { debug_print("empty -> opt_procedure_modifiers"); $$ = create_empty_modifier(); }
                    ;
 
-function_parameters: function_parameter
-                   | function_parameters ',' function_parameter
+function_parameters: function_parameter                               { debug_print("function_parameter -> function_parameters"); $$ = create_function_parameters($1); }
+                   | function_parameters ',' function_parameter       { debug_print("function_parameters ',' function_parameter -> function_parameters"); $$ = append_to_function_parameters($1, $3); }
                    ;
 
-function_parameter: variable_name AS_KW type_name '=' expr
+function_parameter: variable_name AS_KW type_name '=' expr                     { debug_print("variable_name AS_KW type_name '=' expr -> function_parameter"); $$ = create_function_parameter($1, $3, $5); }
                   ;
 
 
-class_declaration: CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW
-                 | CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW
-                 | CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW
-                 | CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW
+class_declaration: CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW                          { debug_print("CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = create_class_declaration($2, $5, $7); }
+                 | CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW                                                   { debug_print("CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = create_class_declaration_no_inheritance($2, $4); }
+                 | CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW       { debug_print("CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = create_generic_class_declaration($2, $3, $6, $8); }
+                 | CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW                                { debug_print("CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = create_generic_class_declaration_no_inheritance($2, $3, $5); }
                  ;
 
-struct_declaration: STRUCT_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW STRUCT_KW
-                  | STRUCT_KW ID generic_param_list endl_list opt_structure_body END_KW STRUCT_KW
+struct_declaration: STRUCT_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW STRUCT_KW              { debug_print("STRUCT_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW STRUCT_KW -> struct_declaration"); $$ = create_struct_declaration($2, $3, $6, $8); }
+                  | STRUCT_KW ID generic_param_list endl_list opt_structure_body END_KW STRUCT_KW                                       { debug_print("STRUCT_KW ID generic_param_list endl_list opt_structure_body END_KW STRUCT_KW -> struct_declaration"); $$ = create_struct_declaration_no_inheritance($2, $3, $5); }
                   ;
 
                 
-generic_param_list: ID '(' opt_endl OF_KW id_list opt_endl ')';
+generic_param_list: ID '(' opt_endl OF_KW id_list opt_endl ')'                          { debug_print("ID '(' opt_endl OF_KW id_list opt_endl ')' -> generic_param_list"); $$ = create_generic_param_list($1, $5); };
 
 
-opt_structure_body: /* empty */
-                  | structure_body
+opt_structure_body: /* empty */          { debug_print("empty -> opt_structure_body"); $$ = create_empty_structure_body(); }
+                  | structure_body       { debug_print("structure_body -> opt_structure_body"); $$ = $1; }
                   ;
 
-structure_body: structure_member
-              | structure_body structure_member
+structure_body: structure_member                          { debug_print("structure_member -> structure_body"); $$ = create_structure_body($1); }
+              | structure_body structure_member           { debug_print("structure_body structure_member -> structure_body"); $$ = append_to_structure_body($1, $2); }
               ;
 
-structure_member: function_declaration
-                | sub_declaration
-                | field_declaration
-                | const_declaration
-                | constructor_declaration
+structure_member: function_declaration                   { debug_print("function_declaration -> structure_member"); $$ = $1; }
+                | sub_declaration                        { debug_print("sub_declaration -> structure_member"); $$ = $1; }
+                | field_declaration                      { debug_print("field_declaration -> structure_member"); $$ = $1; }
+                | const_declaration                      { debug_print("const_declaration -> structure_member"); $$ = $1; }
+                | constructor_declaration                { debug_print("constructor_declaration -> structure_member"); $$ = $1; }
                 ;
 
-const_declaration: CONST_KW var_declarator endl_list
+const_declaration: CONST_KW var_declarator endl_list       { debug_print("CONST_KW var_declarator endl_list -> const_declaration"); $$ = create_const_declaration($2); }
                  ;
 
-field_declaration: field_modifiers var_declarator endl_list
+field_declaration: field_modifiers var_declarator endl_list         { debug_print("field_modifiers var_declarator endl_list -> field_declaration"); $$ = create_field_declaration($1, $2); }
                  ;
 
 
-field_modifiers: field_var_modifier
-                   | field_modifiers field_var_modifier
+field_modifiers: field_var_modifier                          { debug_print("field_var_modifier -> field_modifiers"); $$ = create_field_modifiers($1); }
+                   | field_modifiers field_var_modifier      { debug_print("field_modifiers field_var_modifier -> field_modifiers"); $$ = append_field_modifier($1, $2); }
                    ;
 
-field_var_modifier: DIM_KW
-                  | READONLY_KW
-                  | SHARED_KW
+field_var_modifier: DIM_KW            { debug_print("DIM_KW -> field_var_modifier"); $$ = create_dim_modifier(); }
+                  | READONLY_KW       { debug_print("READONLY_KW -> field_var_modifier"); $$ = create_readonly_modifier(); }
+                  | SHARED_KW         { debug_print("SHARED_KW -> field_var_modifier"); $$ = create_shared_modifier(); }
                   ;
 
 %%
