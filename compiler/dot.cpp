@@ -42,7 +42,6 @@ void DotWriter::addNodeLabel(node* node) {
 	label(node->id, node->getName());
 }
 
-
 void DotWriter::linkNodes(node* node1, node* node2, std::string label) {
 	if (node1 == NULL || node2 == NULL) return;
 	link(node1->id, node2->id, label);
@@ -66,7 +65,34 @@ void DotWriter::link(size_t id1, size_t id2, std::string label) {
 	}
 }
 
+void DotWriter::close() {
+	for (std::ostream* s : outputs) {
+		s->flush();
+	}
+	stringOutput->flush();
+}
 
 std::string DotWriter::write() {
 	return stringOutput->str();
+}
+
+void outputDot(node* node, std::string filename) {
+	if (node != NULL) {
+		DotWriter writer;
+		char cmd[256];
+		sprintf(cmd, "dot -Tpng -o %s", filename.c_str());
+
+		FILE* pipe = _popen(cmd, "w");
+		if (!pipe) {
+			std::cerr << "Failed to open pipe to dot.\n";
+			return;
+		}
+		node->dot(&writer);
+		std::string dot_data = writer.write();
+
+		fwrite(dot_data.c_str(), sizeof(char), dot_data.size(), pipe);
+		_pclose(pipe);
+		writer.close();
+		system(filename.c_str()); // open png in default application
+	}
 }

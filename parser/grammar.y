@@ -7,6 +7,7 @@
 %{
 #include <string>
 #include "grammar_handler.cpp"
+#include "../compiler/dot.hpp"
 
 extern int yylineno;
 extern FILE* yyin;
@@ -19,7 +20,7 @@ void yyerror(char const* s) {
     exit(1);
 }
 
-bool DEBUG = true;
+bool DEBUG = false;
 program_node * program = NULL;
 
 %}
@@ -410,6 +411,8 @@ expr_list: expr                             {debug_print("expr -> expr_list"); $
          ;
 
 stmt: CALL_KW expr endl_list                        {debug_print("CALL_KW expr endl_list -> stmt"); $$ = create_call_stmt($2);}
+    | expr '(' opt_endl expr_list opt_endl ')' endl_list        {debug_print("expr(expr_list) -> stmt"); $$ = create_call_stmt($1, $4);} 
+	| expr '(' opt_endl ')'  endl_list                          {debug_print("expr() -> stmt"); $$ = create_call_stmt($1, create_expr_list());} 
     | REDIM_KW redim_clause_list endl_list          {debug_print("REDIM_KW redim_clause_list endl_list -> stmt"); $$ = create_redim($2);}
     | ERASE_KW expr_list endl_list                  {debug_print("ERASE_KW expr_list endl_list -> stmt"); $$ = create_erase($2);}
     | if_stmt                                       {$$ = $1;}
@@ -684,9 +687,30 @@ field_var_modifier: DIM_KW            { debug_print("DIM_KW -> field_var_modifie
 
 %%
 
+void runParserTests() {
+    fs::create_directories("parser/tests");
+    fs::create_directories("parser/tests/output");
+    std::vector<std::string> test_files = find_files("parser/tests", ".vb");
+    for (std::string testpath : test_files) {
+         printf("Testing this file: %s\n\n", testpath.c_str());
+         fs::path file_path = testpath;
+         fopen_s(&yyin, testpath.c_str(), "r");
+         yyparse();
+         outputDot(program, "parser/tests/output/" + file_path.stem().string() + ".png");
+    }
+}
+
 int main(int argc, char** argv) {
     if (argc > 1) {
+        if (strcmp(argv[1], "--debug") == 0) {
+            DEBUG = true;
+            runParserTests();
+            return 0;
+        }
         fopen_s(&yyin, argv[1], "r");
+        if (argc > 2 && strcmp(argv[2], "--debug") == 0) {
+            DEBUG = true;
+        }
         yyparse();
     }
     else {

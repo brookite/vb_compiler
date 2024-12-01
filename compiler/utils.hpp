@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <cstddef>
 #include <initializer_list>
+#include <filesystem>
+
 #pragma warning(disable:4996)
 
 extern bool DEBUG;
@@ -12,8 +14,12 @@ extern bool DEBUG;
 void debug_print(const char* format, ...);
 void internal_error(const char* msg);
 
+namespace fs = std::filesystem;
+
 size_t getNewId();
+bool endsWith(const std::string& str, const std::string& suffix);
 size_t lastId();
+std::vector<std::string> find_files(const std::string& directory, const std::string& extension);
 
 struct Date {
     int day = 0;

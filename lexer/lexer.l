@@ -12,8 +12,6 @@
     #include "../parser/grammar.tab.h"
     #define YY_DECL int yylex()
 
-
-    bool endsWith(const std::string & str, const std::string & suffix);
     void removeUnderline(std::string * str);
     void removeUnderline(char * str);
 
@@ -422,11 +420,6 @@ void removeUnderline(char* str) {
 }
 
 
-bool endsWith(const std::string& str, const std::string& suffix)
-{
-    return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
-}
-
 void printDateTimeLiteral(DateTime & datetime) {
     if (datetime.date != nullptr) {
         debug_print("Month: %d\n", datetime.date->month);
@@ -450,7 +443,7 @@ void printDateTimeLiteral(DateTime & datetime) {
     }
 }
 
-void runTests() {
+void runLexerTests() {
     DEBUG = true;
     const char* files[] = {
         "lexer/tests/lexer_comment_test.vb",

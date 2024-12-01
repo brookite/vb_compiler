@@ -59,7 +59,11 @@ public:
 	}
 
 	std::string write();
+	void close();
+
+	std::vector<std::ostream*> outputs;
 protected:
-	std::vector<std::ostream *> outputs;
 	std::stringstream * stringOutput;
 };
+
+void outputDot(node* node, std::string filename);
