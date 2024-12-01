@@ -9,6 +9,10 @@
 extern bool DEBUG;
 
 void debug_print(const char* format, ...);
+void internal_error(const char* msg);
+
+size_t getNewId();
+size_t lastId();
 
 struct Date {
     int day = 0;
@@ -38,33 +42,107 @@ class list {
 public:
     const size_t id;
 
-    list();
-    list(std::initializer_list<T> init_list);
-    list(const list<T>& other);
-    list<T>& operator=(const list<T>& other);
+    list() : id(getNewId()) {}
+    list(std::initializer_list<T> init_list) : id(getNewId()), data(init_list) {}
+    list(const list<T>& other) : id(other.id), data(other.data) {}
 
-    void add(const T& element);
-    void add(size_t index, const T& element);
-    T get(size_t index) const;
-    void set(size_t index, const T& element);
-    void remove(size_t index);
-    void clear();
-    int indexOf(const T& item) const;
-    bool contains(const T& item) const;
+    list<T>& operator=(const list<T>& other) {
+        if (this == &other) {
+            return *this;
+        }
 
-    size_t size() const;
-    bool isEmpty() const;
+        id = other.id;
+        data = other.data;
 
-    T first() const;
-    T last() const;
+        return *this;
+    }
 
-    typename std::vector<T>::iterator begin();
-    typename std::vector<T>::iterator end();
-    typename std::vector<T>::const_iterator begin() const;
-    typename std::vector<T>::const_iterator end() const;
+    void add(const T& element) {
+        data.push_back(element);
+    }
 
-    T& operator[](size_t index);            
-    const T& operator[](size_t index) const;
+    void add(size_t index, const T& element) {
+        if (index > data.size()) {
+            throw std::out_of_range("Index out of range");
+        }
+        data.insert(data.begin() + index, element);
+    }
+
+    T get(size_t index) const {
+        if (index >= data.size()) {
+            throw std::out_of_range("Index out of range");
+        }
+        return data[index];
+    }
+
+    void set(size_t index, const T& element) {
+        if (index >= data.size()) {
+            throw std::out_of_range("Index out of range");
+        }
+        data[index] = element;
+    }
+
+    void remove(size_t index) {
+        if (index >= data.size()) {
+            throw std::out_of_range("Index out of range");
+        }
+        data.erase(data.begin() + index);
+    }
+
+    void clear() {
+        data.clear();
+    }
+
+    int indexOf(const T& item) const {
+        auto it = std::find(data.begin(), data.end(), item);
+        return (it != data.end()) ? std::distance(data.begin(), it) : -1;
+    }
+
+    bool contains(const T& item) const {
+        return std::find(data.begin(), data.end(), item) != data.end();
+    }
+
+    size_t size() const {
+        return data.size();
+    }
+
+    bool isEmpty() const {
+        return data.empty();
+    }
+
+    T first() const {
+        return get(0);
+    }
+
+    T last() const {
+        return get(size() - 1);
+    }
+
+    typename std::vector<T>::iterator begin() {
+        return data.begin();
+    }
+
+    typename std::vector<T>::iterator end() {
+        return data.end();
+    }
+
+    typename std::vector<T>::const_iterator begin() const {
+        return data.begin();
+    }
+
+    typename std::vector<T>::const_iterator end() const {
+        return data.end();
+    }
+
+    T& operator[](size_t index) {
+        if (index >= data.size()) throw std::out_of_range("Index out of range");
+        return data[index];
+    }
+
+    const T& operator[](size_t index) const {
+        if (index >= data.size()) throw std::out_of_range("Index out of range");
+        return data[index];
+    }
 
 private:
     std::vector<T> data;

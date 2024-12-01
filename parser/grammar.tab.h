@@ -189,7 +189,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 157 "grammar.y"
+#line 182 "grammar.y"
 
     long long int Int;
     std::string * Str;
@@ -199,10 +199,33 @@ union YYSTYPE
     std::string * Id;
     char Char;
 
-    expr_node * Expr;
-    // добавь сюда другие типы и пропиши для них и их правил %type
+    node * Unknown;
 
-#line 206 "grammar.tab.h"
+    expr_node * Expr;
+    stmt_node * Stmt;
+    struct_node * Struct;
+    type_node * Type;
+    program_node * EntryPoint;
+    typed_value * Var;
+
+    block * Block;
+    procedure_node * Procedure;
+    constructor_node * Constructor;
+    field_node * Field;
+    redim_clause_node * RedimNode;
+    goto_label* Label;
+
+    list<node *>* UnknownBody;
+    list<expr_node *> * ExprList;
+    list<redim_clause_node*>* Redim;
+    list<field_modifier>* FieldModifiers;
+    list<std::string>* IdList;
+    list<type_node *> * TypeList;
+    list<typed_value*>* Vars;
+
+    field_modifier FieldMod;
+
+#line 229 "grammar.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
