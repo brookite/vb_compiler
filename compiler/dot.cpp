@@ -6,34 +6,48 @@ DotWriter::DotWriter() {
 	this->stringOutput = sstream;
 }
 
-void DotWriter::addLine(std::string line) {
+void DotWriter::appendOutput(std::string line) {
 	for (std::ostream * out : outputs) {
 		*out << line << std::endl;
 	}
 }
 
+void DotWriter::addStringList(list<std::string>* strings, bool add_indexes, bool ensure_nonempty) {
+	if (strings->isEmpty() && ensure_nonempty) return;
+	for (int i = 0; i < strings->size(); i++) {
+		size_t id = addStringNode(strings->get(i));
+		link(strings->id, id, add_indexes ? std::to_string(i) : "");
+	}
+}
+
+size_t DotWriter::addStringNode(std::string string) {
+	size_t id = getNewId();
+	label(id, string);
+	return id;
+}
+
+size_t DotWriter::addStringNode(int val) {
+	size_t id = getNewId();
+	label(id, std::to_string(val));
+	return id;
+}
+
 void DotWriter::addNode(node* node) {
+	if (node == NULL) return;
 	label(node->id, node->getName());
 	node->dot(this);
 }
 
-template <typename T>
-void DotWriter::addList(list<T*>* list) {
-	label(list->id, "list");
-	for (int i = 0; i < list.size(); i++) {
-		addNode(list[i]);
-		linkNodes(list->id, list[i]->id, std::string(i));
-	}
+void DotWriter::addNodeLabel(node* node) {
+	label(node->id, node->getName());
 }
 
+
 void DotWriter::linkNodes(node* node1, node* node2, std::string label) {
+	if (node1 == NULL || node2 == NULL) return;
 	link(node1->id, node2->id, label);
 }
 
-template <typename T>
-void DotWriter::linkList(node* node1, list<T*>* list, std::string label) {
-	link(node1->id, list->id, label);
-}
 
 void DotWriter::label(size_t id, std::string label) {
 	for (std::ostream* out : outputs) {
@@ -52,13 +66,6 @@ void DotWriter::link(size_t id1, size_t id2, std::string label) {
 	}
 }
 
-template <typename T>
-DotWriter& DotWriter::operator<<(const T & value) {
-	for (std::ostream* out : outputs) {
-		*out << value;
-	}
-	return *this;
-}
 
 std::string DotWriter::write() {
 	return stringOutput->str();

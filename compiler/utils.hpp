@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <cstddef>
 #include <initializer_list>
+#pragma warning(disable:4996)
 
 extern bool DEBUG;
 
@@ -34,6 +35,22 @@ struct Time {
 struct DateTime {
     Date* date = nullptr;
     Time* time = nullptr;
+
+    std::string str() {
+        char string[128];
+        const char* format = "";
+        if (time->format == AM) {
+            format = "AM";
+        }
+        else {
+            format = "PM";
+        }
+        sprintf(string, "%0d.%0d.%d %0d:%0d:%d %s", date->day, date->month, date->year,
+            time->hour, time->minute, time->second,
+            format
+        );
+        return std::string(string);
+    }
 };
 
 

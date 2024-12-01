@@ -156,14 +156,6 @@ expr_node* create_new_expr(type_node* type, list<expr_node*>* expr_list) {
 	return node;
 }
 
-expr_node* create_new_expr(type_node* type, list<expr_node*>* expr_list, list<expr_node*>* collection_initializer) {
-	expr_node* node = new expr_node(expr_type::New);
-	node->datatype = type;
-	node->arg_list = expr_list;
-	node->collection = collection_initializer;
-	return node;
-}
-
 expr_node* create_array_literal(list<expr_node*>* expr_list) {
 	expr_node* node = new expr_node(expr_type::Collection);
 	node->arg_list = expr_list;
@@ -216,9 +208,10 @@ stmt_node* create_for_stmt(type_node* type, std::string id,
 
 	stmt_node* node = new stmt_node(stmt_type::For);
 	node->id_type = type;
-	node->id = id;
+	node->Id = id;
 	node->to_expr = to_expr;
 	node->step_node = step;
+	node->target_expr = value;
 	node->block = block;
 	return node;
 }
@@ -226,7 +219,7 @@ stmt_node* create_for_stmt(type_node* type, std::string id,
 stmt_node* create_foreach_stmt(type_node* type, std::string id, expr_node* expr, block* block) {
 	stmt_node* node = new stmt_node(stmt_type::ForEach);
 	node->id_type = type;
-	node->id = id;
+	node->Id = id;
 	node->container_expr = expr;
 	node->block = block;
 	return node;
@@ -354,7 +347,7 @@ expr_node* create_arraynew_expr(type_node* type, list<expr_node*>* size, list<ex
 
 redim_clause_node* create_redim_clause(std::string * id, list<expr_node*>* expr_list) {
     redim_clause_node* node = new redim_clause_node();
-	node->id = create_id(id);
+	node->Id = *id;
     node->arg = expr_list;
     return node;
 }

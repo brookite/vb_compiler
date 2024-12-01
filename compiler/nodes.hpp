@@ -31,7 +31,8 @@ enum class expr_type {
 	UnaryMinusOp, UnaryPlusOp, NotOp,
 	MemberAccess, MyClassMemberAccess,
 	MyBaseMemberAccess, CallOrIndex, Cast,
-	If, New, Collection, ArrayNew
+	If, New, Collection, ArrayNew,
+	Index, Call // for semantic analysis
 };
 
 enum class stmt_type {
@@ -77,7 +78,7 @@ struct type_node : node {
 	}
 
 	virtual void dot(DotWriter* writer);
-	virtual std::string getName() { return "type"; }
+	virtual std::string getName();
 };
 
 struct expr_node : public node {
@@ -117,7 +118,7 @@ struct expr_node : public node {
 	// Cast expr: always use datatype field and argument field for expr
 
 	virtual void dot(DotWriter* writer);
-	virtual std::string getName() { return "expr"; }
+	virtual std::string getName();
 };
 
 struct goto_label : node {
@@ -145,7 +146,7 @@ struct typed_value : node {
 };
 
 struct redim_clause_node : node {
-	expr_node* id = NULL;
+	std::string Id;
 	list<expr_node*>* arg = new list<expr_node*>();
 
 	virtual void dot(DotWriter* writer);
@@ -182,7 +183,7 @@ struct stmt_node : node {
 
 	//For stmt
 	type_node* id_type = NULL;
-	std::string id;
+	std::string Id;
 	expr_node* step_node = NULL;
 	expr_node* to_expr = NULL;
 	expr_node* container_expr = NULL; // for-each
@@ -195,7 +196,7 @@ struct stmt_node : node {
 	// For select use condition_nodes as cases, in case stmt use condition and block
 
 	virtual void dot(DotWriter* writer);
-	virtual std::string getName() { return "stmt"; }
+	virtual std::string getName();
 };
 
 
@@ -212,7 +213,12 @@ struct procedure_node: node {
 
 	virtual void dot(DotWriter* writer);
 	bool isProcedure() { return returnType == NULL; }
-	virtual std::string getName() { return returnType == NULL ? "sub" : "func"; }
+
+	virtual std::string getName() { 
+		std::string ret = returnType == NULL ? "sub" : "func"; 
+		if (isStatic) ret = "static_" + ret;
+		return ret;
+	}
 };
 
 struct constructor_node : node {
