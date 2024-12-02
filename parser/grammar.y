@@ -17,7 +17,7 @@ int yyparse();
 int yylex();
 
 void yyerror(char const* s) {
-    fprintf(stderr, "Error: %s on line %d, text: %s\n", s, yylineno, yytext);
+    fprintf(stderr, "SyntaxError: %s on line %d, text: %s\n", s, yylineno, yytext);
     exit(1);
 }
 
