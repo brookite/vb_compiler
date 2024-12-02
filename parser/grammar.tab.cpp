@@ -85,11 +85,12 @@ void yyerror(char const* s) {
     exit(1);
 }
 
+bool PARSER_DEBUG = false;
 bool DEBUG = false;
 program_node * program = NULL;
 
 
-#line 93 "grammar.tab.cpp"
+#line 94 "grammar.tab.cpp"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -713,39 +714,39 @@ static const yytype_uint8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   213,   213,   214,   217,   220,   221,   224,   225,   228,
-     229,   232,   233,   234,   235,   236,   237,   238,   239,   240,
-     241,   242,   243,   244,   245,   246,   247,   248,   249,   250,
-     251,   252,   253,   254,   255,   256,   257,   258,   259,   260,
-     261,   262,   263,   264,   265,   266,   267,   268,   269,   270,
-     271,   272,   273,   274,   275,   276,   277,   278,   279,   280,
-     281,   282,   283,   284,   285,   286,   287,   288,   289,   290,
-     291,   292,   293,   294,   295,   296,   297,   298,   299,   300,
-     301,   302,   303,   304,   305,   306,   307,   308,   309,   310,
-     311,   312,   315,   316,   319,   320,   321,   322,   323,   324,
-     325,   326,   327,   328,   329,   330,   331,   332,   333,   334,
-     335,   336,   337,   338,   339,   340,   341,   342,   343,   344,
-     345,   346,   347,   348,   349,   350,   351,   352,   353,   354,
-     355,   356,   357,   358,   359,   360,   361,   362,   363,   364,
-     365,   366,   367,   368,   369,   370,   373,   374,   375,   376,
-     377,   378,   379,   380,   381,   382,   383,   384,   385,   386,
-     387,   388,   391,   392,   395,   396,   399,   400,   403,   404,
-     405,   406,   407,   408,   409,   410,   411,   412,   413,   414,
-     415,   416,   417,   418,   419,   420,   421,   422,   423,   424,
-     425,   426,   427,   428,   429,   430,   431,   432,   433,   434,
-     435,   436,   439,   442,   443,   446,   447,   448,   449,   450,
-     451,   454,   455,   456,   459,   460,   463,   464,   465,   466,
-     469,   470,   473,   476,   477,   478,   481,   482,   485,   486,
-     487,   488,   491,   492,   495,   496,   499,   500,   503,   504,
-     507,   508,   511,   512,   515,   516,   519,   520,   523,   527,
-     528,   529,   530,   533,   534,   537,   540,   541,   542,   545,
-     546,   547,   548,   549,   550,   551,   552,   553,   554,   555,
-     556,   557,   558,   559,   560,   563,   564,   567,   568,   571,
-     572,   573,   574,   575,   576,   577,   578,   579,   580,   581,
-     582,   585,   586,   587,   588,   589,   590,   593,   594,   597,
-     598,   601,   602,   605,   606,   609,   610,   611,   614,   615,
-     616,   617,   620,   623,   624,   627,   628,   631,   632,   633,
-     636
+       0,   214,   214,   215,   218,   221,   222,   225,   226,   229,
+     230,   233,   234,   235,   236,   237,   238,   239,   240,   241,
+     242,   243,   244,   245,   246,   247,   248,   249,   250,   251,
+     252,   253,   254,   255,   256,   257,   258,   259,   260,   261,
+     262,   263,   264,   265,   266,   267,   268,   269,   270,   271,
+     272,   273,   274,   275,   276,   277,   278,   279,   280,   281,
+     282,   283,   284,   285,   286,   287,   288,   289,   290,   291,
+     292,   293,   294,   295,   296,   297,   298,   299,   300,   301,
+     302,   303,   304,   305,   306,   307,   308,   309,   310,   311,
+     312,   313,   316,   317,   320,   321,   322,   323,   324,   325,
+     326,   327,   328,   329,   330,   331,   332,   333,   334,   335,
+     336,   337,   338,   339,   340,   341,   342,   343,   344,   345,
+     346,   347,   348,   349,   350,   351,   352,   353,   354,   355,
+     356,   357,   358,   359,   360,   361,   362,   363,   364,   365,
+     366,   367,   368,   369,   370,   371,   374,   375,   376,   377,
+     378,   379,   380,   381,   382,   383,   384,   385,   386,   387,
+     388,   389,   392,   393,   396,   397,   400,   401,   404,   405,
+     406,   407,   408,   409,   410,   411,   412,   413,   414,   415,
+     416,   417,   418,   419,   420,   421,   422,   423,   424,   425,
+     426,   427,   428,   429,   430,   431,   432,   433,   434,   435,
+     436,   437,   440,   443,   444,   447,   448,   449,   450,   451,
+     452,   455,   456,   457,   460,   461,   464,   465,   466,   467,
+     470,   471,   474,   477,   478,   479,   482,   483,   486,   487,
+     488,   489,   492,   493,   496,   497,   500,   501,   504,   505,
+     508,   509,   512,   513,   516,   517,   520,   521,   524,   528,
+     529,   530,   531,   534,   535,   538,   541,   542,   543,   546,
+     547,   548,   549,   550,   551,   552,   553,   554,   555,   556,
+     557,   558,   559,   560,   561,   564,   565,   568,   569,   572,
+     573,   574,   575,   576,   577,   578,   579,   580,   581,   582,
+     583,   586,   587,   588,   589,   590,   591,   594,   595,   598,
+     599,   602,   603,   606,   607,   610,   611,   612,   615,   616,
+     617,   618,   621,   624,   625,   628,   629,   632,   633,   634,
+     637
 };
 #endif
 
@@ -2743,1915 +2744,1915 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: program_member  */
-#line 213 "grammar.y"
-                                            {debug_print("program_member -> program"); program = create_program(); program->nodes->add((yyvsp[0].Struct)); (yyval.EntryPoint) = program;}
-#line 2749 "grammar.tab.cpp"
+#line 214 "grammar.y"
+                                            {parser_print("program_member -> program"); program = create_program(); program->nodes->add((yyvsp[0].Struct)); (yyval.EntryPoint) = program;}
+#line 2750 "grammar.tab.cpp"
     break;
 
   case 3: /* program: program program_member  */
-#line 214 "grammar.y"
-                                            {debug_print("program program_member -> program"); program->nodes->add((yyvsp[0].Struct)); (yyval.EntryPoint) = program;}
-#line 2755 "grammar.tab.cpp"
+#line 215 "grammar.y"
+                                            {parser_print("program program_member -> program"); program->nodes->add((yyvsp[0].Struct)); (yyval.EntryPoint) = program;}
+#line 2756 "grammar.tab.cpp"
     break;
 
   case 4: /* program_member: class_declaration  */
-#line 217 "grammar.y"
-                                                {debug_print("class_declaration -> program_member"); (yyval.Struct) = (yyvsp[0].Struct);}
-#line 2761 "grammar.tab.cpp"
+#line 218 "grammar.y"
+                                                {parser_print("class_declaration -> program_member"); (yyval.Struct) = (yyvsp[0].Struct);}
+#line 2762 "grammar.tab.cpp"
     break;
 
   case 5: /* endl_list: ENDL  */
-#line 220 "grammar.y"
-                                               { debug_print("ENDL -> endl_list");}
-#line 2767 "grammar.tab.cpp"
+#line 221 "grammar.y"
+                                               { parser_print("ENDL -> endl_list");}
+#line 2768 "grammar.tab.cpp"
     break;
 
   case 6: /* endl_list: endl_list ENDL  */
-#line 221 "grammar.y"
-                                               { debug_print("endl_list ENDL -> endl_list");}
-#line 2773 "grammar.tab.cpp"
+#line 222 "grammar.y"
+                                               { parser_print("endl_list ENDL -> endl_list");}
+#line 2774 "grammar.tab.cpp"
     break;
 
   case 7: /* stmt_endl: ENDL  */
-#line 224 "grammar.y"
-                                               { debug_print("ENDL -> stmt_endl");}
-#line 2779 "grammar.tab.cpp"
+#line 225 "grammar.y"
+                                               { parser_print("ENDL -> stmt_endl");}
+#line 2780 "grammar.tab.cpp"
     break;
 
   case 8: /* stmt_endl: ':'  */
-#line 225 "grammar.y"
-                                               { debug_print("':' -> stmt_endl");}
-#line 2785 "grammar.tab.cpp"
+#line 226 "grammar.y"
+                                               { parser_print("':' -> stmt_endl");}
+#line 2786 "grammar.tab.cpp"
     break;
 
   case 9: /* opt_endl: ENDL  */
-#line 228 "grammar.y"
-                                               { debug_print("ENDL -> opt_endl");}
-#line 2791 "grammar.tab.cpp"
+#line 229 "grammar.y"
+                                               { parser_print("ENDL -> opt_endl");}
+#line 2792 "grammar.tab.cpp"
     break;
 
   case 10: /* opt_endl: %empty  */
-#line 229 "grammar.y"
-                                               { debug_print("empty -> opt_endl"); }
-#line 2797 "grammar.tab.cpp"
+#line 230 "grammar.y"
+                                               { parser_print("empty -> opt_endl"); }
+#line 2798 "grammar.tab.cpp"
     break;
 
   case 11: /* kw: ME_KW  */
-#line 232 "grammar.y"
+#line 233 "grammar.y"
                                         {(yyval.Expr) = create_id("Me");}
-#line 2803 "grammar.tab.cpp"
+#line 2804 "grammar.tab.cpp"
     break;
 
   case 12: /* kw: IF_KW  */
-#line 233 "grammar.y"
+#line 234 "grammar.y"
                                         {(yyval.Expr) = create_id("If");}
-#line 2809 "grammar.tab.cpp"
+#line 2810 "grammar.tab.cpp"
     break;
 
   case 13: /* kw: MYBASE_KW  */
-#line 234 "grammar.y"
+#line 235 "grammar.y"
                                         {(yyval.Expr) = create_id("MyBase");}
-#line 2815 "grammar.tab.cpp"
+#line 2816 "grammar.tab.cpp"
     break;
 
   case 14: /* kw: MYCLASS_KW  */
-#line 235 "grammar.y"
+#line 236 "grammar.y"
                                         {(yyval.Expr) = create_id("MyClass");}
-#line 2821 "grammar.tab.cpp"
+#line 2822 "grammar.tab.cpp"
     break;
 
   case 15: /* kw: NEW_KW  */
-#line 236 "grammar.y"
+#line 237 "grammar.y"
                                         {(yyval.Expr) = create_id("New");}
-#line 2827 "grammar.tab.cpp"
+#line 2828 "grammar.tab.cpp"
     break;
 
   case 16: /* kw: REDIM_KW  */
-#line 237 "grammar.y"
+#line 238 "grammar.y"
                                         {(yyval.Expr) = create_id("ReDim");}
-#line 2833 "grammar.tab.cpp"
+#line 2834 "grammar.tab.cpp"
     break;
 
   case 17: /* kw: THEN_KW  */
-#line 238 "grammar.y"
+#line 239 "grammar.y"
                                         {(yyval.Expr) = create_id("Then");}
-#line 2839 "grammar.tab.cpp"
+#line 2840 "grammar.tab.cpp"
     break;
 
   case 18: /* kw: END_KW  */
-#line 239 "grammar.y"
+#line 240 "grammar.y"
                                         {(yyval.Expr) = create_id("End");}
-#line 2845 "grammar.tab.cpp"
+#line 2846 "grammar.tab.cpp"
     break;
 
   case 19: /* kw: ELSE_KW  */
-#line 240 "grammar.y"
+#line 241 "grammar.y"
                                         {(yyval.Expr) = create_id("Else");}
-#line 2851 "grammar.tab.cpp"
+#line 2852 "grammar.tab.cpp"
     break;
 
   case 20: /* kw: ELSEIF_KW  */
-#line 241 "grammar.y"
+#line 242 "grammar.y"
                                         {(yyval.Expr) = create_id("ElseIf");}
-#line 2857 "grammar.tab.cpp"
+#line 2858 "grammar.tab.cpp"
     break;
 
   case 21: /* kw: SELECT_KW  */
-#line 242 "grammar.y"
+#line 243 "grammar.y"
                                         {(yyval.Expr) = create_id("Select");}
-#line 2863 "grammar.tab.cpp"
+#line 2864 "grammar.tab.cpp"
     break;
 
   case 22: /* kw: CASE_KW  */
-#line 243 "grammar.y"
+#line 244 "grammar.y"
                                         {(yyval.Expr) = create_id("Case");}
-#line 2869 "grammar.tab.cpp"
+#line 2870 "grammar.tab.cpp"
     break;
 
   case 23: /* kw: TO_KW  */
-#line 244 "grammar.y"
+#line 245 "grammar.y"
                                         {(yyval.Expr) = create_id("To");}
-#line 2875 "grammar.tab.cpp"
+#line 2876 "grammar.tab.cpp"
     break;
 
   case 24: /* kw: FOR_KW  */
-#line 245 "grammar.y"
+#line 246 "grammar.y"
                                         {(yyval.Expr) = create_id("For");}
-#line 2881 "grammar.tab.cpp"
+#line 2882 "grammar.tab.cpp"
     break;
 
   case 25: /* kw: EACH_KW  */
-#line 246 "grammar.y"
+#line 247 "grammar.y"
                                         {(yyval.Expr) = create_id("Each");}
-#line 2887 "grammar.tab.cpp"
+#line 2888 "grammar.tab.cpp"
     break;
 
   case 26: /* kw: WHILE_KW  */
-#line 247 "grammar.y"
+#line 248 "grammar.y"
                                         {(yyval.Expr) = create_id("While");}
-#line 2893 "grammar.tab.cpp"
+#line 2894 "grammar.tab.cpp"
     break;
 
   case 27: /* kw: NEXT_KW  */
-#line 248 "grammar.y"
+#line 249 "grammar.y"
                                         {(yyval.Expr) = create_id("Next");}
-#line 2899 "grammar.tab.cpp"
+#line 2900 "grammar.tab.cpp"
     break;
 
   case 28: /* kw: IN_KW  */
-#line 249 "grammar.y"
+#line 250 "grammar.y"
                                         {(yyval.Expr) = create_id("In");}
-#line 2905 "grammar.tab.cpp"
+#line 2906 "grammar.tab.cpp"
     break;
 
   case 29: /* kw: UNTIL_KW  */
-#line 250 "grammar.y"
+#line 251 "grammar.y"
                                         {(yyval.Expr) = create_id("Until");}
-#line 2911 "grammar.tab.cpp"
+#line 2912 "grammar.tab.cpp"
     break;
 
   case 30: /* kw: LOOP_KW  */
-#line 251 "grammar.y"
+#line 252 "grammar.y"
                                         {(yyval.Expr) = create_id("Loop");}
-#line 2917 "grammar.tab.cpp"
+#line 2918 "grammar.tab.cpp"
     break;
 
   case 31: /* kw: DO_KW  */
-#line 252 "grammar.y"
+#line 253 "grammar.y"
                                         {(yyval.Expr) = create_id("Do");}
-#line 2923 "grammar.tab.cpp"
+#line 2924 "grammar.tab.cpp"
     break;
 
   case 32: /* kw: STEP_KW  */
-#line 253 "grammar.y"
+#line 254 "grammar.y"
                                         {(yyval.Expr) = create_id("Step");}
-#line 2929 "grammar.tab.cpp"
+#line 2930 "grammar.tab.cpp"
     break;
 
   case 33: /* kw: AS_KW  */
-#line 254 "grammar.y"
+#line 255 "grammar.y"
                                         {(yyval.Expr) = create_id("As");}
-#line 2935 "grammar.tab.cpp"
+#line 2936 "grammar.tab.cpp"
     break;
 
   case 34: /* kw: CALL_KW  */
-#line 255 "grammar.y"
+#line 256 "grammar.y"
                                         {(yyval.Expr) = create_id("Call");}
-#line 2941 "grammar.tab.cpp"
+#line 2942 "grammar.tab.cpp"
     break;
 
   case 35: /* kw: GOTO_KW  */
-#line 256 "grammar.y"
+#line 257 "grammar.y"
                                         {(yyval.Expr) = create_id("GoTo");}
-#line 2947 "grammar.tab.cpp"
+#line 2948 "grammar.tab.cpp"
     break;
 
   case 36: /* kw: CONTINUE_KW  */
-#line 257 "grammar.y"
+#line 258 "grammar.y"
                                         {(yyval.Expr) = create_id("Continue");}
-#line 2953 "grammar.tab.cpp"
+#line 2954 "grammar.tab.cpp"
     break;
 
   case 37: /* kw: EXIT_KW  */
-#line 258 "grammar.y"
+#line 259 "grammar.y"
                                         {(yyval.Expr) = create_id("Exit");}
-#line 2959 "grammar.tab.cpp"
+#line 2960 "grammar.tab.cpp"
     break;
 
   case 38: /* kw: STOP_KW  */
-#line 259 "grammar.y"
+#line 260 "grammar.y"
                                         {(yyval.Expr) = create_id("Stop");}
-#line 2965 "grammar.tab.cpp"
+#line 2966 "grammar.tab.cpp"
     break;
 
   case 39: /* kw: RETURN_KW  */
-#line 260 "grammar.y"
+#line 261 "grammar.y"
                                         {(yyval.Expr) = create_id("Return");}
-#line 2971 "grammar.tab.cpp"
+#line 2972 "grammar.tab.cpp"
     break;
 
   case 40: /* kw: BYTE_KW  */
-#line 261 "grammar.y"
+#line 262 "grammar.y"
                                         {(yyval.Expr) = create_id("Byte");}
-#line 2977 "grammar.tab.cpp"
+#line 2978 "grammar.tab.cpp"
     break;
 
   case 41: /* kw: SBYTE_KW  */
-#line 262 "grammar.y"
+#line 263 "grammar.y"
                                         {(yyval.Expr) = create_id("SByte");}
-#line 2983 "grammar.tab.cpp"
+#line 2984 "grammar.tab.cpp"
     break;
 
   case 42: /* kw: USHORT_KW  */
-#line 263 "grammar.y"
+#line 264 "grammar.y"
                                         {(yyval.Expr) = create_id("UShort");}
-#line 2989 "grammar.tab.cpp"
+#line 2990 "grammar.tab.cpp"
     break;
 
   case 43: /* kw: SHORT_KW  */
-#line 264 "grammar.y"
+#line 265 "grammar.y"
                                         {(yyval.Expr) = create_id("Short");}
-#line 2995 "grammar.tab.cpp"
+#line 2996 "grammar.tab.cpp"
     break;
 
   case 44: /* kw: UINTEGER_KW  */
-#line 265 "grammar.y"
+#line 266 "grammar.y"
                                         {(yyval.Expr) = create_id("UInteger");}
-#line 3001 "grammar.tab.cpp"
+#line 3002 "grammar.tab.cpp"
     break;
 
   case 45: /* kw: INTEGER_KW  */
-#line 266 "grammar.y"
+#line 267 "grammar.y"
                                         {(yyval.Expr) = create_id("Integer");}
-#line 3007 "grammar.tab.cpp"
+#line 3008 "grammar.tab.cpp"
     break;
 
   case 46: /* kw: ULONG_KW  */
-#line 267 "grammar.y"
+#line 268 "grammar.y"
                                         {(yyval.Expr) = create_id("ULong");}
-#line 3013 "grammar.tab.cpp"
+#line 3014 "grammar.tab.cpp"
     break;
 
   case 47: /* kw: LONG_KW  */
-#line 268 "grammar.y"
+#line 269 "grammar.y"
                                         {(yyval.Expr) = create_id("Long");}
-#line 3019 "grammar.tab.cpp"
+#line 3020 "grammar.tab.cpp"
     break;
 
   case 48: /* kw: BOOLEAN_KW  */
-#line 269 "grammar.y"
+#line 270 "grammar.y"
                                         {(yyval.Expr) = create_id("Boolean");}
-#line 3025 "grammar.tab.cpp"
+#line 3026 "grammar.tab.cpp"
     break;
 
   case 49: /* kw: DATE_KW  */
-#line 270 "grammar.y"
+#line 271 "grammar.y"
                                         {(yyval.Expr) = create_id("Date");}
-#line 3031 "grammar.tab.cpp"
+#line 3032 "grammar.tab.cpp"
     break;
 
   case 50: /* kw: CHAR_KW  */
-#line 271 "grammar.y"
+#line 272 "grammar.y"
                                         {(yyval.Expr) = create_id("Char");}
-#line 3037 "grammar.tab.cpp"
+#line 3038 "grammar.tab.cpp"
     break;
 
   case 51: /* kw: STRING_KW  */
-#line 272 "grammar.y"
+#line 273 "grammar.y"
                                         {(yyval.Expr) = create_id("String");}
-#line 3043 "grammar.tab.cpp"
+#line 3044 "grammar.tab.cpp"
     break;
 
   case 52: /* kw: DECIMAL_KW  */
-#line 273 "grammar.y"
+#line 274 "grammar.y"
                                         {(yyval.Expr) = create_id("Decimal");}
-#line 3049 "grammar.tab.cpp"
+#line 3050 "grammar.tab.cpp"
     break;
 
   case 53: /* kw: SINGLE_KW  */
-#line 274 "grammar.y"
+#line 275 "grammar.y"
                                         {(yyval.Expr) = create_id("Single");}
-#line 3055 "grammar.tab.cpp"
+#line 3056 "grammar.tab.cpp"
     break;
 
   case 54: /* kw: DOUBLE_KW  */
-#line 275 "grammar.y"
+#line 276 "grammar.y"
                                         {(yyval.Expr) = create_id("Double");}
-#line 3061 "grammar.tab.cpp"
+#line 3062 "grammar.tab.cpp"
     break;
 
   case 55: /* kw: OBJECT_KW  */
-#line 276 "grammar.y"
+#line 277 "grammar.y"
                                         {(yyval.Expr) = create_id("Object");}
-#line 3067 "grammar.tab.cpp"
+#line 3068 "grammar.tab.cpp"
     break;
 
   case 56: /* kw: DIM_KW  */
-#line 277 "grammar.y"
+#line 278 "grammar.y"
                                         {(yyval.Expr) = create_id("Dim");}
-#line 3073 "grammar.tab.cpp"
+#line 3074 "grammar.tab.cpp"
     break;
 
   case 57: /* kw: CONST_KW  */
-#line 278 "grammar.y"
+#line 279 "grammar.y"
                                         {(yyval.Expr) = create_id("Const");}
-#line 3079 "grammar.tab.cpp"
+#line 3080 "grammar.tab.cpp"
     break;
 
   case 58: /* kw: STATIC_KW  */
-#line 279 "grammar.y"
+#line 280 "grammar.y"
                                         {(yyval.Expr) = create_id("Static");}
-#line 3085 "grammar.tab.cpp"
+#line 3086 "grammar.tab.cpp"
     break;
 
   case 59: /* kw: OF_KW  */
-#line 280 "grammar.y"
+#line 281 "grammar.y"
                                         {(yyval.Expr) = create_id("Of");}
-#line 3091 "grammar.tab.cpp"
+#line 3092 "grammar.tab.cpp"
     break;
 
   case 60: /* kw: FUNCTION_KW  */
-#line 281 "grammar.y"
+#line 282 "grammar.y"
                                         {(yyval.Expr) = create_id("Function");}
-#line 3097 "grammar.tab.cpp"
+#line 3098 "grammar.tab.cpp"
     break;
 
   case 61: /* kw: SUB_KW  */
-#line 282 "grammar.y"
+#line 283 "grammar.y"
                                         {(yyval.Expr) = create_id("Sub");}
-#line 3103 "grammar.tab.cpp"
+#line 3104 "grammar.tab.cpp"
     break;
 
   case 62: /* kw: BYREF_KW  */
-#line 283 "grammar.y"
+#line 284 "grammar.y"
                                         {(yyval.Expr) = create_id("ByRef");}
-#line 3109 "grammar.tab.cpp"
+#line 3110 "grammar.tab.cpp"
     break;
 
   case 63: /* kw: BYVAL_KW  */
-#line 284 "grammar.y"
+#line 285 "grammar.y"
                                         {(yyval.Expr) = create_id("ByVal");}
-#line 3115 "grammar.tab.cpp"
+#line 3116 "grammar.tab.cpp"
     break;
 
   case 64: /* kw: PARAMARRAY_KW  */
-#line 285 "grammar.y"
+#line 286 "grammar.y"
                                         {(yyval.Expr) = create_id("ParamArray");}
-#line 3121 "grammar.tab.cpp"
+#line 3122 "grammar.tab.cpp"
     break;
 
   case 65: /* kw: OPTIONAL_KW  */
-#line 286 "grammar.y"
+#line 287 "grammar.y"
                                         {(yyval.Expr) = create_id("Optional");}
-#line 3127 "grammar.tab.cpp"
+#line 3128 "grammar.tab.cpp"
     break;
 
   case 66: /* kw: PUBLIC_KW  */
-#line 287 "grammar.y"
+#line 288 "grammar.y"
                                         {(yyval.Expr) = create_id("Public");}
-#line 3133 "grammar.tab.cpp"
+#line 3134 "grammar.tab.cpp"
     break;
 
   case 67: /* kw: PRIVATE_KW  */
-#line 288 "grammar.y"
+#line 289 "grammar.y"
                                         {(yyval.Expr) = create_id("Private");}
-#line 3139 "grammar.tab.cpp"
+#line 3140 "grammar.tab.cpp"
     break;
 
   case 68: /* kw: PROTECTED_KW  */
-#line 289 "grammar.y"
+#line 290 "grammar.y"
                                         {(yyval.Expr) = create_id("Protected");}
-#line 3145 "grammar.tab.cpp"
+#line 3146 "grammar.tab.cpp"
     break;
 
   case 69: /* kw: SHARED_KW  */
-#line 290 "grammar.y"
+#line 291 "grammar.y"
                                         {(yyval.Expr) = create_id("Shared");}
-#line 3151 "grammar.tab.cpp"
+#line 3152 "grammar.tab.cpp"
     break;
 
   case 70: /* kw: CLASS_KW  */
-#line 291 "grammar.y"
+#line 292 "grammar.y"
                                         {(yyval.Expr) = create_id("Class");}
-#line 3157 "grammar.tab.cpp"
+#line 3158 "grammar.tab.cpp"
     break;
 
   case 71: /* kw: STRUCT_KW  */
-#line 292 "grammar.y"
+#line 293 "grammar.y"
                                         {(yyval.Expr) = create_id("Struct");}
-#line 3163 "grammar.tab.cpp"
+#line 3164 "grammar.tab.cpp"
     break;
 
   case 72: /* kw: INHERITS_KW  */
-#line 293 "grammar.y"
+#line 294 "grammar.y"
                                         {(yyval.Expr) = create_id("Inherits");}
-#line 3169 "grammar.tab.cpp"
+#line 3170 "grammar.tab.cpp"
     break;
 
   case 73: /* kw: READONLY_KW  */
-#line 294 "grammar.y"
+#line 295 "grammar.y"
                                         {(yyval.Expr) = create_id("Readonly");}
-#line 3175 "grammar.tab.cpp"
+#line 3176 "grammar.tab.cpp"
     break;
 
   case 74: /* kw: ERASE_KW  */
-#line 295 "grammar.y"
+#line 296 "grammar.y"
                                         {(yyval.Expr) = create_id("Erase");}
-#line 3181 "grammar.tab.cpp"
+#line 3182 "grammar.tab.cpp"
     break;
 
   case 75: /* kw: CBOOL_KW  */
-#line 296 "grammar.y"
+#line 297 "grammar.y"
                                         {(yyval.Expr) = create_id("CBool");}
-#line 3187 "grammar.tab.cpp"
+#line 3188 "grammar.tab.cpp"
     break;
 
   case 76: /* kw: CBYTE_KW  */
-#line 297 "grammar.y"
+#line 298 "grammar.y"
                                         {(yyval.Expr) = create_id("CByte");}
-#line 3193 "grammar.tab.cpp"
+#line 3194 "grammar.tab.cpp"
     break;
 
   case 77: /* kw: CSBYTE_KW  */
-#line 298 "grammar.y"
+#line 299 "grammar.y"
                                         {(yyval.Expr) = create_id("CSByte");}
-#line 3199 "grammar.tab.cpp"
+#line 3200 "grammar.tab.cpp"
     break;
 
   case 78: /* kw: CUSHORT_KW  */
-#line 299 "grammar.y"
+#line 300 "grammar.y"
                                         {(yyval.Expr) = create_id("CUShort");}
-#line 3205 "grammar.tab.cpp"
+#line 3206 "grammar.tab.cpp"
     break;
 
   case 79: /* kw: CSHORT_KW  */
-#line 300 "grammar.y"
+#line 301 "grammar.y"
                                         {(yyval.Expr) = create_id("CShort");}
-#line 3211 "grammar.tab.cpp"
+#line 3212 "grammar.tab.cpp"
     break;
 
   case 80: /* kw: CINTEGER_KW  */
-#line 301 "grammar.y"
+#line 302 "grammar.y"
                                         {(yyval.Expr) = create_id("CInteger");}
-#line 3217 "grammar.tab.cpp"
+#line 3218 "grammar.tab.cpp"
     break;
 
   case 81: /* kw: CUINTEGER_KW  */
-#line 302 "grammar.y"
+#line 303 "grammar.y"
                                         {(yyval.Expr) = create_id("CUInteger");}
-#line 3223 "grammar.tab.cpp"
+#line 3224 "grammar.tab.cpp"
     break;
 
   case 82: /* kw: CLONG_KW  */
-#line 303 "grammar.y"
+#line 304 "grammar.y"
                                         {(yyval.Expr) = create_id("CLong");}
-#line 3229 "grammar.tab.cpp"
+#line 3230 "grammar.tab.cpp"
     break;
 
   case 83: /* kw: CULONG_KW  */
-#line 304 "grammar.y"
+#line 305 "grammar.y"
                                         {(yyval.Expr) = create_id("CULong");}
-#line 3235 "grammar.tab.cpp"
+#line 3236 "grammar.tab.cpp"
     break;
 
   case 84: /* kw: CDATE_KW  */
-#line 305 "grammar.y"
+#line 306 "grammar.y"
                                         {(yyval.Expr) = create_id("CDate");}
-#line 3241 "grammar.tab.cpp"
+#line 3242 "grammar.tab.cpp"
     break;
 
   case 85: /* kw: CCHAR_KW  */
-#line 306 "grammar.y"
+#line 307 "grammar.y"
                                         {(yyval.Expr) = create_id("CChar");}
-#line 3247 "grammar.tab.cpp"
+#line 3248 "grammar.tab.cpp"
     break;
 
   case 86: /* kw: CSTRING_KW  */
-#line 307 "grammar.y"
+#line 308 "grammar.y"
                                         {(yyval.Expr) = create_id("CString");}
-#line 3253 "grammar.tab.cpp"
+#line 3254 "grammar.tab.cpp"
     break;
 
   case 87: /* kw: CDECIMAL_KW  */
-#line 308 "grammar.y"
+#line 309 "grammar.y"
                                         {(yyval.Expr) = create_id("CDecimal");}
-#line 3259 "grammar.tab.cpp"
+#line 3260 "grammar.tab.cpp"
     break;
 
   case 88: /* kw: CSINGLE_KW  */
-#line 309 "grammar.y"
+#line 310 "grammar.y"
                                         {(yyval.Expr) = create_id("CSingle");}
-#line 3265 "grammar.tab.cpp"
+#line 3266 "grammar.tab.cpp"
     break;
 
   case 89: /* kw: CDOUBLE_KW  */
-#line 310 "grammar.y"
+#line 311 "grammar.y"
                                         {(yyval.Expr) = create_id("CDouble");}
-#line 3271 "grammar.tab.cpp"
+#line 3272 "grammar.tab.cpp"
     break;
 
   case 90: /* kw: COBJECT_KW  */
-#line 311 "grammar.y"
+#line 312 "grammar.y"
                                         {(yyval.Expr) = create_id("CObject");}
-#line 3277 "grammar.tab.cpp"
+#line 3278 "grammar.tab.cpp"
     break;
 
   case 91: /* kw: CTYPE_KW  */
-#line 312 "grammar.y"
+#line 313 "grammar.y"
                                         {(yyval.Expr) = create_id("CType");}
-#line 3283 "grammar.tab.cpp"
+#line 3284 "grammar.tab.cpp"
     break;
 
   case 92: /* type_name: simple_type_name  */
-#line 315 "grammar.y"
+#line 316 "grammar.y"
                                     {(yyval.Type) = (yyvsp[0].Type);}
-#line 3289 "grammar.tab.cpp"
+#line 3290 "grammar.tab.cpp"
     break;
 
   case 93: /* type_name: array_type_name  */
-#line 316 "grammar.y"
+#line 317 "grammar.y"
                                     {(yyval.Type) = (yyvsp[0].Type);}
-#line 3295 "grammar.tab.cpp"
+#line 3296 "grammar.tab.cpp"
     break;
 
   case 94: /* expr: INT  */
-#line 319 "grammar.y"
-                                                 {debug_print("INT -> expr"); (yyval.Expr) = create_int((yyvsp[0].Int));}
-#line 3301 "grammar.tab.cpp"
+#line 320 "grammar.y"
+                                                 {parser_print("INT -> expr"); (yyval.Expr) = create_int((yyvsp[0].Int));}
+#line 3302 "grammar.tab.cpp"
     break;
 
   case 95: /* expr: STR  */
-#line 320 "grammar.y"
-                                                 {debug_print("STR-> expr"); (yyval.Expr) = create_string((yyvsp[0].Str));}
-#line 3307 "grammar.tab.cpp"
+#line 321 "grammar.y"
+                                                 {parser_print("STR-> expr"); (yyval.Expr) = create_string((yyvsp[0].Str));}
+#line 3308 "grammar.tab.cpp"
     break;
 
   case 96: /* expr: ID  */
-#line 321 "grammar.y"
-                                                 {debug_print("ID -> expr"); (yyval.Expr) = create_id((yyvsp[0].Id));}
-#line 3313 "grammar.tab.cpp"
+#line 322 "grammar.y"
+                                                 {parser_print("ID -> expr"); (yyval.Expr) = create_id((yyvsp[0].Id));}
+#line 3314 "grammar.tab.cpp"
     break;
 
   case 97: /* expr: FLOAT  */
-#line 322 "grammar.y"
-                                                 {debug_print("FLOAT -> expr"); (yyval.Expr) = create_float((yyvsp[0].Float));}
-#line 3319 "grammar.tab.cpp"
+#line 323 "grammar.y"
+                                                 {parser_print("FLOAT -> expr"); (yyval.Expr) = create_float((yyvsp[0].Float));}
+#line 3320 "grammar.tab.cpp"
     break;
 
   case 98: /* expr: BOOL  */
-#line 323 "grammar.y"
-                                                 {debug_print("BOOL -> expr"); (yyval.Expr) = create_bool((yyvsp[0].Bool));}
-#line 3325 "grammar.tab.cpp"
+#line 324 "grammar.y"
+                                                 {parser_print("BOOL -> expr"); (yyval.Expr) = create_bool((yyvsp[0].Bool));}
+#line 3326 "grammar.tab.cpp"
     break;
 
   case 99: /* expr: DATETIME  */
-#line 324 "grammar.y"
-                                                 {debug_print("DATETIME -> expr"); (yyval.Expr) = create_datetime((yyvsp[0].DateTime));}
-#line 3331 "grammar.tab.cpp"
+#line 325 "grammar.y"
+                                                 {parser_print("DATETIME -> expr"); (yyval.Expr) = create_datetime((yyvsp[0].DateTime));}
+#line 3332 "grammar.tab.cpp"
     break;
 
   case 100: /* expr: CHAR  */
-#line 325 "grammar.y"
-                                                 {debug_print("CHAR -> expr"); (yyval.Expr) = create_char((yyvsp[0].Char));}
-#line 3337 "grammar.tab.cpp"
+#line 326 "grammar.y"
+                                                 {parser_print("CHAR -> expr"); (yyval.Expr) = create_char((yyvsp[0].Char));}
+#line 3338 "grammar.tab.cpp"
     break;
 
   case 101: /* expr: NOTHING  */
-#line 326 "grammar.y"
-                                                 {debug_print("NOTHING -> expr"); (yyval.Expr) = create_nothing();}
-#line 3343 "grammar.tab.cpp"
+#line 327 "grammar.y"
+                                                 {parser_print("NOTHING -> expr"); (yyval.Expr) = create_nothing();}
+#line 3344 "grammar.tab.cpp"
     break;
 
   case 102: /* expr: ME_KW  */
-#line 327 "grammar.y"
-                                                 {debug_print("ME_KW -> expr"); (yyval.Expr) = create_me();}
-#line 3349 "grammar.tab.cpp"
+#line 328 "grammar.y"
+                                                 {parser_print("ME_KW -> expr"); (yyval.Expr) = create_me();}
+#line 3350 "grammar.tab.cpp"
     break;
 
   case 103: /* expr: '(' opt_endl expr opt_endl ')'  */
-#line 328 "grammar.y"
+#line 329 "grammar.y"
                                                  {(yyval.Expr) = (yyvsp[-2].Expr);}
-#line 3355 "grammar.tab.cpp"
+#line 3356 "grammar.tab.cpp"
     break;
 
   case 104: /* expr: expr '+' opt_endl expr  */
-#line 329 "grammar.y"
-                                                 {debug_print("expr + opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::AddOp);}
-#line 3361 "grammar.tab.cpp"
+#line 330 "grammar.y"
+                                                 {parser_print("expr + opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::AddOp);}
+#line 3362 "grammar.tab.cpp"
     break;
 
   case 105: /* expr: expr '-' opt_endl expr  */
-#line 330 "grammar.y"
-                                                 {debug_print("expr - opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::SubOp);}
-#line 3367 "grammar.tab.cpp"
+#line 331 "grammar.y"
+                                                 {parser_print("expr - opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::SubOp);}
+#line 3368 "grammar.tab.cpp"
     break;
 
   case 106: /* expr: expr '*' opt_endl expr  */
-#line 331 "grammar.y"
-                                                 {debug_print("expr * opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::MulOp);}
-#line 3373 "grammar.tab.cpp"
+#line 332 "grammar.y"
+                                                 {parser_print("expr * opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::MulOp);}
+#line 3374 "grammar.tab.cpp"
     break;
 
   case 107: /* expr: expr '/' opt_endl expr  */
-#line 332 "grammar.y"
-                                                 {debug_print("expr / opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::DivOp);}
-#line 3379 "grammar.tab.cpp"
+#line 333 "grammar.y"
+                                                 {parser_print("expr / opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::DivOp);}
+#line 3380 "grammar.tab.cpp"
     break;
 
   case 108: /* expr: expr '\\' opt_endl expr  */
-#line 333 "grammar.y"
-                                                  {debug_print("expr \\ opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::FloorDivOp);}
-#line 3385 "grammar.tab.cpp"
+#line 334 "grammar.y"
+                                                  {parser_print("expr \\ opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::FloorDivOp);}
+#line 3386 "grammar.tab.cpp"
     break;
 
   case 109: /* expr: expr '^' opt_endl expr  */
-#line 334 "grammar.y"
-                                                  {debug_print("expr ^ opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::ExpOp);}
-#line 3391 "grammar.tab.cpp"
+#line 335 "grammar.y"
+                                                  {parser_print("expr ^ opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::ExpOp);}
+#line 3392 "grammar.tab.cpp"
     break;
 
   case 110: /* expr: expr '&' opt_endl expr  */
-#line 335 "grammar.y"
-                                                  {debug_print("expr & opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::StrConcatOp);}
-#line 3397 "grammar.tab.cpp"
+#line 336 "grammar.y"
+                                                  {parser_print("expr & opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::StrConcatOp);}
+#line 3398 "grammar.tab.cpp"
     break;
 
   case 111: /* expr: expr '>' opt_endl expr  */
-#line 336 "grammar.y"
-                                                  {debug_print("expr > opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::GtOp);}
-#line 3403 "grammar.tab.cpp"
+#line 337 "grammar.y"
+                                                  {parser_print("expr > opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::GtOp);}
+#line 3404 "grammar.tab.cpp"
     break;
 
   case 112: /* expr: expr '<' opt_endl expr  */
-#line 337 "grammar.y"
-                                                  {debug_print("expr < opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::LtOp);}
-#line 3409 "grammar.tab.cpp"
+#line 338 "grammar.y"
+                                                  {parser_print("expr < opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::LtOp);}
+#line 3410 "grammar.tab.cpp"
     break;
 
   case 113: /* expr: expr '=' ENDL expr  */
-#line 338 "grammar.y"
-                                                  {debug_print("expr = ENDL expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::EqOp);}
-#line 3415 "grammar.tab.cpp"
+#line 339 "grammar.y"
+                                                  {parser_print("expr = ENDL expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::EqOp);}
+#line 3416 "grammar.tab.cpp"
     break;
 
   case 114: /* expr: expr '=' expr  */
-#line 339 "grammar.y"
-                                                  {debug_print("expr = expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-2].Expr), (yyvsp[0].Expr), expr_type::EqOp);}
-#line 3421 "grammar.tab.cpp"
+#line 340 "grammar.y"
+                                                  {parser_print("expr = expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-2].Expr), (yyvsp[0].Expr), expr_type::EqOp);}
+#line 3422 "grammar.tab.cpp"
     break;
 
   case 115: /* expr: expr NEQ opt_endl expr  */
-#line 340 "grammar.y"
-                                                  {debug_print("expr NEQ expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::NeqOp);}
-#line 3427 "grammar.tab.cpp"
+#line 341 "grammar.y"
+                                                  {parser_print("expr NEQ expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::NeqOp);}
+#line 3428 "grammar.tab.cpp"
     break;
 
   case 116: /* expr: expr LEQ opt_endl expr  */
-#line 341 "grammar.y"
-                                                  {debug_print("expr LEQ expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::LeqOp);}
-#line 3433 "grammar.tab.cpp"
+#line 342 "grammar.y"
+                                                  {parser_print("expr LEQ expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::LeqOp);}
+#line 3434 "grammar.tab.cpp"
     break;
 
   case 117: /* expr: expr GEQ opt_endl expr  */
-#line 342 "grammar.y"
-                                                  {debug_print("expr GEQ expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::GeqOp);}
-#line 3439 "grammar.tab.cpp"
+#line 343 "grammar.y"
+                                                  {parser_print("expr GEQ expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::GeqOp);}
+#line 3440 "grammar.tab.cpp"
     break;
 
   case 118: /* expr: expr AND opt_endl expr  */
-#line 343 "grammar.y"
-                                                  {debug_print("expr AND expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::AndOp);}
-#line 3445 "grammar.tab.cpp"
+#line 344 "grammar.y"
+                                                  {parser_print("expr AND expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::AndOp);}
+#line 3446 "grammar.tab.cpp"
     break;
 
   case 119: /* expr: expr AND_ALSO opt_endl expr  */
-#line 344 "grammar.y"
-                                                  {debug_print("expr AND_ALSO expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::AndAlsoOp);}
-#line 3451 "grammar.tab.cpp"
+#line 345 "grammar.y"
+                                                  {parser_print("expr AND_ALSO expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::AndAlsoOp);}
+#line 3452 "grammar.tab.cpp"
     break;
 
   case 120: /* expr: expr OR_ELSE opt_endl expr  */
-#line 345 "grammar.y"
-                                                  {debug_print("expr OR_ELSE expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::OrElseOp);}
-#line 3457 "grammar.tab.cpp"
+#line 346 "grammar.y"
+                                                  {parser_print("expr OR_ELSE expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::OrElseOp);}
+#line 3458 "grammar.tab.cpp"
     break;
 
   case 121: /* expr: expr OR opt_endl expr  */
-#line 346 "grammar.y"
-                                                  {debug_print("expr OR expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::OrOp);}
-#line 3463 "grammar.tab.cpp"
+#line 347 "grammar.y"
+                                                  {parser_print("expr OR expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::OrOp);}
+#line 3464 "grammar.tab.cpp"
     break;
 
   case 122: /* expr: expr XOR opt_endl expr  */
-#line 347 "grammar.y"
-                                                  {debug_print("expr XOR expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::XorOp);}
-#line 3469 "grammar.tab.cpp"
+#line 348 "grammar.y"
+                                                  {parser_print("expr XOR expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::XorOp);}
+#line 3470 "grammar.tab.cpp"
     break;
 
   case 123: /* expr: expr MOD opt_endl expr  */
-#line 348 "grammar.y"
-                                                  {debug_print("expr MOD expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::ModOp);}
-#line 3475 "grammar.tab.cpp"
+#line 349 "grammar.y"
+                                                  {parser_print("expr MOD expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::ModOp);}
+#line 3476 "grammar.tab.cpp"
     break;
 
   case 124: /* expr: expr LSHIFT opt_endl expr  */
-#line 349 "grammar.y"
-                                                  {debug_print("expr LSHIFT expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::LshiftOp);}
-#line 3481 "grammar.tab.cpp"
+#line 350 "grammar.y"
+                                                  {parser_print("expr LSHIFT expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::LshiftOp);}
+#line 3482 "grammar.tab.cpp"
     break;
 
   case 125: /* expr: expr RSHIFT opt_endl expr  */
-#line 350 "grammar.y"
-                                                  {debug_print("expr RSHIFT expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::RshiftOp);}
-#line 3487 "grammar.tab.cpp"
+#line 351 "grammar.y"
+                                                  {parser_print("expr RSHIFT expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::RshiftOp);}
+#line 3488 "grammar.tab.cpp"
     break;
 
   case 126: /* expr: '+' expr  */
-#line 351 "grammar.y"
-                                                  {debug_print("+ expr -> expr"); (yyval.Expr) = create_unary((yyvsp[0].Expr), expr_type::UnaryPlusOp);}
-#line 3493 "grammar.tab.cpp"
+#line 352 "grammar.y"
+                                                  {parser_print("+ expr -> expr"); (yyval.Expr) = create_unary((yyvsp[0].Expr), expr_type::UnaryPlusOp);}
+#line 3494 "grammar.tab.cpp"
     break;
 
   case 127: /* expr: '-' expr  */
-#line 352 "grammar.y"
-                                                  {debug_print("- expr -> expr"); (yyval.Expr) = create_unary((yyvsp[0].Expr), expr_type::UnaryMinusOp);}
-#line 3499 "grammar.tab.cpp"
+#line 353 "grammar.y"
+                                                  {parser_print("- expr -> expr"); (yyval.Expr) = create_unary((yyvsp[0].Expr), expr_type::UnaryMinusOp);}
+#line 3500 "grammar.tab.cpp"
     break;
 
   case 128: /* expr: NOT expr  */
-#line 353 "grammar.y"
-                                                  {debug_print("Not expr"); (yyval.Expr) = create_unary((yyvsp[0].Expr), expr_type::NotOp);}
-#line 3505 "grammar.tab.cpp"
+#line 354 "grammar.y"
+                                                  {parser_print("Not expr"); (yyval.Expr) = create_unary((yyvsp[0].Expr), expr_type::NotOp);}
+#line 3506 "grammar.tab.cpp"
     break;
 
   case 129: /* expr: expr IS opt_endl expr  */
-#line 354 "grammar.y"
-                                                  {debug_print("expr Is opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::IsOp);}
-#line 3511 "grammar.tab.cpp"
+#line 355 "grammar.y"
+                                                  {parser_print("expr Is opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::IsOp);}
+#line 3512 "grammar.tab.cpp"
     break;
 
   case 130: /* expr: expr ISNOT opt_endl expr  */
-#line 355 "grammar.y"
-                                                  {debug_print("expr IsNot opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::IsNotOp);}
-#line 3517 "grammar.tab.cpp"
+#line 356 "grammar.y"
+                                                  {parser_print("expr IsNot opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::IsNotOp);}
+#line 3518 "grammar.tab.cpp"
     break;
 
   case 131: /* expr: expr '(' opt_endl expr_list opt_endl ')'  */
-#line 356 "grammar.y"
-                                                  {debug_print("expr(expr_list) -> expr"); (yyval.Expr) = create_call_expr((yyvsp[-5].Expr), (yyvsp[-2].ExprList));}
-#line 3523 "grammar.tab.cpp"
+#line 357 "grammar.y"
+                                                  {parser_print("expr(expr_list) -> expr"); (yyval.Expr) = create_call_expr((yyvsp[-5].Expr), (yyvsp[-2].ExprList));}
+#line 3524 "grammar.tab.cpp"
     break;
 
   case 132: /* expr: expr '(' opt_endl ')'  */
-#line 357 "grammar.y"
-                                                      {debug_print("expr() -> expr"); (yyval.Expr) = create_call_expr((yyvsp[-3].Expr));}
-#line 3529 "grammar.tab.cpp"
+#line 358 "grammar.y"
+                                                      {parser_print("expr() -> expr"); (yyval.Expr) = create_call_expr((yyvsp[-3].Expr));}
+#line 3530 "grammar.tab.cpp"
     break;
 
   case 133: /* expr: cast_target '(' opt_endl expr opt_endl ')'  */
-#line 358 "grammar.y"
-                                                  {debug_print("cast_target (expr) -> expr"); (yyval.Expr) = create_cast((yyvsp[-5].Type), (yyvsp[-2].Expr));}
-#line 3535 "grammar.tab.cpp"
+#line 359 "grammar.y"
+                                                  {parser_print("cast_target (expr) -> expr"); (yyval.Expr) = create_cast((yyvsp[-5].Type), (yyvsp[-2].Expr));}
+#line 3536 "grammar.tab.cpp"
     break;
 
   case 134: /* expr: CTYPE_KW '(' opt_endl expr ',' opt_endl type_name opt_endl ')'  */
-#line 359 "grammar.y"
-                                                                                    {debug_print("cast_target (expr) -> expr"); (yyval.Expr) = create_cast((yyvsp[-2].Type), (yyvsp[-5].Expr));}
-#line 3541 "grammar.tab.cpp"
+#line 360 "grammar.y"
+                                                                                    {parser_print("cast_target (expr) -> expr"); (yyval.Expr) = create_cast((yyvsp[-2].Type), (yyvsp[-5].Expr));}
+#line 3542 "grammar.tab.cpp"
     break;
 
   case 135: /* expr: IF_KW '(' opt_endl expr ',' opt_endl expr ',' opt_endl expr opt_endl ')'  */
-#line 360 "grammar.y"
-                                                                                    {debug_print("if(expr, expr, expr) -> expr"); (yyval.Expr) = create_if_expr((yyvsp[-8].Expr), (yyvsp[-5].Expr), (yyvsp[-2].Expr));}
-#line 3547 "grammar.tab.cpp"
+#line 361 "grammar.y"
+                                                                                    {parser_print("if(expr, expr, expr) -> expr"); (yyval.Expr) = create_if_expr((yyvsp[-8].Expr), (yyvsp[-5].Expr), (yyvsp[-2].Expr));}
+#line 3548 "grammar.tab.cpp"
     break;
 
   case 136: /* expr: IF_KW '(' opt_endl expr ',' opt_endl expr opt_endl ')'  */
-#line 361 "grammar.y"
-                                                                                    {debug_print("if(expr, expr) -> expr"); (yyval.Expr) = create_if_expr((yyvsp[-5].Expr), (yyvsp[-2].Expr));}
-#line 3553 "grammar.tab.cpp"
+#line 362 "grammar.y"
+                                                                                    {parser_print("if(expr, expr) -> expr"); (yyval.Expr) = create_if_expr((yyvsp[-5].Expr), (yyvsp[-2].Expr));}
+#line 3554 "grammar.tab.cpp"
     break;
 
   case 137: /* expr: expr '.' member_access_member  */
-#line 362 "grammar.y"
-                                                  {debug_print("expr . member_access_member -> expr"); (yyval.Expr) = create_member_access((yyvsp[-2].Expr), (yyvsp[0].Expr));}
-#line 3559 "grammar.tab.cpp"
+#line 363 "grammar.y"
+                                                  {parser_print("expr . member_access_member -> expr"); (yyval.Expr) = create_member_access((yyvsp[-2].Expr), (yyvsp[0].Expr));}
+#line 3560 "grammar.tab.cpp"
     break;
 
   case 138: /* expr: MYBASE_KW '.' member_access_member  */
-#line 363 "grammar.y"
-                                                  {debug_print("my_base . member_access_member -> expr"); (yyval.Expr) = create_mybase_access((yyvsp[0].Expr));}
-#line 3565 "grammar.tab.cpp"
+#line 364 "grammar.y"
+                                                  {parser_print("my_base . member_access_member -> expr"); (yyval.Expr) = create_mybase_access((yyvsp[0].Expr));}
+#line 3566 "grammar.tab.cpp"
     break;
 
   case 139: /* expr: MYCLASS_KW '.' member_access_member  */
-#line 364 "grammar.y"
-                                                  {debug_print("my_base . member_access_member -> expr"); (yyval.Expr) = create_myclass_access((yyvsp[0].Expr));}
-#line 3571 "grammar.tab.cpp"
+#line 365 "grammar.y"
+                                                  {parser_print("my_base . member_access_member -> expr"); (yyval.Expr) = create_myclass_access((yyvsp[0].Expr));}
+#line 3572 "grammar.tab.cpp"
     break;
 
   case 140: /* expr: NEW_KW simple_type_name  */
-#line 365 "grammar.y"
-                                                      {debug_print("NEW simple_type_name -> expr"); (yyval.Expr) = create_new_expr((yyvsp[0].Type));}
-#line 3577 "grammar.tab.cpp"
+#line 366 "grammar.y"
+                                                      {parser_print("NEW simple_type_name -> expr"); (yyval.Expr) = create_new_expr((yyvsp[0].Type));}
+#line 3578 "grammar.tab.cpp"
     break;
 
   case 141: /* expr: NEW_KW simple_type_name '(' opt_endl ')'  */
-#line 366 "grammar.y"
-                                                  {debug_print("NEW simple_type_name -> expr"); (yyval.Expr) = create_new_expr((yyvsp[-3].Type));}
-#line 3583 "grammar.tab.cpp"
+#line 367 "grammar.y"
+                                                  {parser_print("NEW simple_type_name -> expr"); (yyval.Expr) = create_new_expr((yyvsp[-3].Type));}
+#line 3584 "grammar.tab.cpp"
     break;
 
   case 142: /* expr: NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')'  */
-#line 367 "grammar.y"
-                                                                        {debug_print("NEW simple_type_name (expr_list)-> expr"); (yyval.Expr) = create_new_expr((yyvsp[-5].Type), (yyvsp[-2].ExprList));}
-#line 3589 "grammar.tab.cpp"
+#line 368 "grammar.y"
+                                                                        {parser_print("NEW simple_type_name (expr_list)-> expr"); (yyval.Expr) = create_new_expr((yyvsp[-5].Type), (yyvsp[-2].ExprList));}
+#line 3590 "grammar.tab.cpp"
     break;
 
   case 143: /* expr: NEW_KW simple_type_name '(' opt_endl ')' collection_initializer  */
-#line 368 "grammar.y"
-                                                                        {debug_print("NEW simple_type_name () collection_initializer -> expr"); (yyval.Expr) = create_arraynew_expr((yyvsp[-4].Type), (yyvsp[0].ExprList));}
-#line 3595 "grammar.tab.cpp"
+#line 369 "grammar.y"
+                                                                        {parser_print("NEW simple_type_name () collection_initializer -> expr"); (yyval.Expr) = create_arraynew_expr((yyvsp[-4].Type), (yyvsp[0].ExprList));}
+#line 3596 "grammar.tab.cpp"
     break;
 
   case 144: /* expr: NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')' collection_initializer  */
-#line 369 "grammar.y"
-                                                                                            {debug_print("NEW simple_type_name (expr_list) collection_initializer -> expr"); (yyval.Expr) = create_arraynew_expr((yyvsp[-6].Type), (yyvsp[-3].ExprList), (yyvsp[0].ExprList));}
-#line 3601 "grammar.tab.cpp"
+#line 370 "grammar.y"
+                                                                                            {parser_print("NEW simple_type_name (expr_list) collection_initializer -> expr"); (yyval.Expr) = create_arraynew_expr((yyvsp[-6].Type), (yyvsp[-3].ExprList), (yyvsp[0].ExprList));}
+#line 3602 "grammar.tab.cpp"
     break;
 
   case 145: /* expr: collection_initializer  */
-#line 370 "grammar.y"
-                             {debug_print("collection_initializer -> expr"); (yyval.Expr) = create_array_literal((yyvsp[0].ExprList));}
-#line 3607 "grammar.tab.cpp"
+#line 371 "grammar.y"
+                             {parser_print("collection_initializer -> expr"); (yyval.Expr) = create_array_literal((yyvsp[0].ExprList));}
+#line 3608 "grammar.tab.cpp"
     break;
 
   case 146: /* cast_target: CBOOL_KW  */
-#line 373 "grammar.y"
+#line 374 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Boolean);}
-#line 3613 "grammar.tab.cpp"
+#line 3614 "grammar.tab.cpp"
     break;
 
   case 147: /* cast_target: CBYTE_KW  */
-#line 374 "grammar.y"
+#line 375 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Byte);}
-#line 3619 "grammar.tab.cpp"
+#line 3620 "grammar.tab.cpp"
     break;
 
   case 148: /* cast_target: CSBYTE_KW  */
-#line 375 "grammar.y"
+#line 376 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::SByte);}
-#line 3625 "grammar.tab.cpp"
+#line 3626 "grammar.tab.cpp"
     break;
 
   case 149: /* cast_target: CUSHORT_KW  */
-#line 376 "grammar.y"
+#line 377 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::UShort);}
-#line 3631 "grammar.tab.cpp"
+#line 3632 "grammar.tab.cpp"
     break;
 
   case 150: /* cast_target: CSHORT_KW  */
-#line 377 "grammar.y"
+#line 378 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Short);}
-#line 3637 "grammar.tab.cpp"
+#line 3638 "grammar.tab.cpp"
     break;
 
   case 151: /* cast_target: CINTEGER_KW  */
-#line 378 "grammar.y"
+#line 379 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Integer);}
-#line 3643 "grammar.tab.cpp"
+#line 3644 "grammar.tab.cpp"
     break;
 
   case 152: /* cast_target: CUINTEGER_KW  */
-#line 379 "grammar.y"
+#line 380 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::UInteger);}
-#line 3649 "grammar.tab.cpp"
+#line 3650 "grammar.tab.cpp"
     break;
 
   case 153: /* cast_target: CLONG_KW  */
-#line 380 "grammar.y"
+#line 381 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Long);}
-#line 3655 "grammar.tab.cpp"
+#line 3656 "grammar.tab.cpp"
     break;
 
   case 154: /* cast_target: CULONG_KW  */
-#line 381 "grammar.y"
+#line 382 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::ULong);}
-#line 3661 "grammar.tab.cpp"
+#line 3662 "grammar.tab.cpp"
     break;
 
   case 155: /* cast_target: CDATE_KW  */
-#line 382 "grammar.y"
+#line 383 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Date);}
-#line 3667 "grammar.tab.cpp"
+#line 3668 "grammar.tab.cpp"
     break;
 
   case 156: /* cast_target: CCHAR_KW  */
-#line 383 "grammar.y"
+#line 384 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Char);}
-#line 3673 "grammar.tab.cpp"
+#line 3674 "grammar.tab.cpp"
     break;
 
   case 157: /* cast_target: CSTRING_KW  */
-#line 384 "grammar.y"
+#line 385 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::String);}
-#line 3679 "grammar.tab.cpp"
+#line 3680 "grammar.tab.cpp"
     break;
 
   case 158: /* cast_target: CDECIMAL_KW  */
-#line 385 "grammar.y"
+#line 386 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Decimal);}
-#line 3685 "grammar.tab.cpp"
+#line 3686 "grammar.tab.cpp"
     break;
 
   case 159: /* cast_target: CSINGLE_KW  */
-#line 386 "grammar.y"
+#line 387 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Single);}
-#line 3691 "grammar.tab.cpp"
+#line 3692 "grammar.tab.cpp"
     break;
 
   case 160: /* cast_target: CDOUBLE_KW  */
-#line 387 "grammar.y"
+#line 388 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Double);}
-#line 3697 "grammar.tab.cpp"
+#line 3698 "grammar.tab.cpp"
     break;
 
   case 161: /* cast_target: COBJECT_KW  */
-#line 388 "grammar.y"
+#line 389 "grammar.y"
                                         {(yyval.Type) = create_type(datatype_type::Object, "Object");}
-#line 3703 "grammar.tab.cpp"
+#line 3704 "grammar.tab.cpp"
     break;
 
   case 162: /* collection_initializer: '{' opt_endl expr_list opt_endl '}'  */
-#line 391 "grammar.y"
-                                                                    {debug_print("{ opt_endl expr_list opt_endl } -> collection_initializer"); (yyval.ExprList) = (yyvsp[-2].ExprList);}
-#line 3709 "grammar.tab.cpp"
+#line 392 "grammar.y"
+                                                                    {parser_print("{ opt_endl expr_list opt_endl } -> collection_initializer"); (yyval.ExprList) = (yyvsp[-2].ExprList);}
+#line 3710 "grammar.tab.cpp"
     break;
 
   case 163: /* collection_initializer: '{' opt_endl '}'  */
-#line 392 "grammar.y"
-                                                                    {debug_print("{ opt_endl } -> collection_initializer"); (yyval.ExprList) = create_expr_list();}
-#line 3715 "grammar.tab.cpp"
+#line 393 "grammar.y"
+                                                                    {parser_print("{ opt_endl } -> collection_initializer"); (yyval.ExprList) = create_expr_list();}
+#line 3716 "grammar.tab.cpp"
     break;
 
   case 164: /* member_access_member: ID  */
-#line 395 "grammar.y"
-                                        {debug_print("ID -> member_access_member"); (yyval.Expr) = create_id((yyvsp[0].Id));}
-#line 3721 "grammar.tab.cpp"
+#line 396 "grammar.y"
+                                        {parser_print("ID -> member_access_member"); (yyval.Expr) = create_id((yyvsp[0].Id));}
+#line 3722 "grammar.tab.cpp"
     break;
 
   case 165: /* member_access_member: kw  */
-#line 396 "grammar.y"
-                                        {debug_print("kw -> member_access_member"); (yyval.Expr) = (yyvsp[0].Expr);}
-#line 3727 "grammar.tab.cpp"
+#line 397 "grammar.y"
+                                        {parser_print("kw -> member_access_member"); (yyval.Expr) = (yyvsp[0].Expr);}
+#line 3728 "grammar.tab.cpp"
     break;
 
   case 166: /* expr_list: expr  */
-#line 399 "grammar.y"
-                                            {debug_print("expr -> expr_list"); (yyval.ExprList) = create_expr_list(); (yyval.ExprList)->add((yyvsp[0].Expr));}
-#line 3733 "grammar.tab.cpp"
+#line 400 "grammar.y"
+                                            {parser_print("expr -> expr_list"); (yyval.ExprList) = create_expr_list(); (yyval.ExprList)->add((yyvsp[0].Expr));}
+#line 3734 "grammar.tab.cpp"
     break;
 
   case 167: /* expr_list: expr_list ',' opt_endl expr  */
-#line 400 "grammar.y"
-                                            {debug_print("expr_list ',' opt_endl expr -> expr_list"); (yyval.ExprList) = (yyvsp[-3].ExprList); (yyval.ExprList)->add((yyvsp[0].Expr));}
-#line 3739 "grammar.tab.cpp"
+#line 401 "grammar.y"
+                                            {parser_print("expr_list ',' opt_endl expr -> expr_list"); (yyval.ExprList) = (yyvsp[-3].ExprList); (yyval.ExprList)->add((yyvsp[0].Expr));}
+#line 3740 "grammar.tab.cpp"
     break;
 
   case 168: /* stmt: CALL_KW expr endl_list  */
-#line 403 "grammar.y"
-                                                    {debug_print("CALL_KW expr endl_list -> stmt"); (yyval.Stmt) = create_call_stmt((yyvsp[-1].Expr));}
-#line 3745 "grammar.tab.cpp"
+#line 404 "grammar.y"
+                                                    {parser_print("CALL_KW expr endl_list -> stmt"); (yyval.Stmt) = create_call_stmt((yyvsp[-1].Expr));}
+#line 3746 "grammar.tab.cpp"
     break;
 
   case 169: /* stmt: expr '(' opt_endl expr_list opt_endl ')' endl_list  */
-#line 404 "grammar.y"
-                                                               {debug_print("expr(expr_list) -> stmt"); (yyval.Stmt) = create_call_stmt((yyvsp[-6].Expr), (yyvsp[-3].ExprList));}
-#line 3751 "grammar.tab.cpp"
+#line 405 "grammar.y"
+                                                               {parser_print("expr(expr_list) -> stmt"); (yyval.Stmt) = create_call_stmt((yyvsp[-6].Expr), (yyvsp[-3].ExprList));}
+#line 3752 "grammar.tab.cpp"
     break;
 
   case 170: /* stmt: expr '(' opt_endl ')' endl_list  */
-#line 405 "grammar.y"
-                                                                   {debug_print("expr() -> stmt"); (yyval.Stmt) = create_call_stmt((yyvsp[-4].Expr), create_expr_list());}
-#line 3757 "grammar.tab.cpp"
+#line 406 "grammar.y"
+                                                                   {parser_print("expr() -> stmt"); (yyval.Stmt) = create_call_stmt((yyvsp[-4].Expr), create_expr_list());}
+#line 3758 "grammar.tab.cpp"
     break;
 
   case 171: /* stmt: REDIM_KW redim_clause_list endl_list  */
-#line 406 "grammar.y"
-                                                    {debug_print("REDIM_KW redim_clause_list endl_list -> stmt"); (yyval.Stmt) = create_redim((yyvsp[-1].Redim));}
-#line 3763 "grammar.tab.cpp"
+#line 407 "grammar.y"
+                                                    {parser_print("REDIM_KW redim_clause_list endl_list -> stmt"); (yyval.Stmt) = create_redim((yyvsp[-1].Redim));}
+#line 3764 "grammar.tab.cpp"
     break;
 
   case 172: /* stmt: ERASE_KW expr_list endl_list  */
-#line 407 "grammar.y"
-                                                    {debug_print("ERASE_KW expr_list endl_list -> stmt"); (yyval.Stmt) = create_erase((yyvsp[-1].ExprList));}
-#line 3769 "grammar.tab.cpp"
+#line 408 "grammar.y"
+                                                    {parser_print("ERASE_KW expr_list endl_list -> stmt"); (yyval.Stmt) = create_erase((yyvsp[-1].ExprList));}
+#line 3770 "grammar.tab.cpp"
     break;
 
   case 173: /* stmt: if_stmt  */
-#line 408 "grammar.y"
+#line 409 "grammar.y"
                                                     {(yyval.Stmt) = (yyvsp[0].Stmt);}
-#line 3775 "grammar.tab.cpp"
+#line 3776 "grammar.tab.cpp"
     break;
 
   case 174: /* stmt: select_stmt  */
-#line 409 "grammar.y"
+#line 410 "grammar.y"
                                                     {(yyval.Stmt) = (yyvsp[0].Stmt);}
-#line 3781 "grammar.tab.cpp"
+#line 3782 "grammar.tab.cpp"
     break;
 
   case 175: /* stmt: for_stmt  */
-#line 410 "grammar.y"
+#line 411 "grammar.y"
                                                     {(yyval.Stmt) = (yyvsp[0].Stmt);}
-#line 3787 "grammar.tab.cpp"
+#line 3788 "grammar.tab.cpp"
     break;
 
   case 176: /* stmt: foreach_stmt  */
-#line 411 "grammar.y"
+#line 412 "grammar.y"
                                                     {(yyval.Stmt) = (yyvsp[0].Stmt);}
-#line 3793 "grammar.tab.cpp"
+#line 3794 "grammar.tab.cpp"
     break;
 
   case 177: /* stmt: DO_KW endl_list opt_block LOOP_KW endl_list  */
-#line 412 "grammar.y"
-                                                    {debug_print("DO_KW endl_list opt_block LOOP_KW endl_list"); (yyval.Stmt) = create_do_infinite_loop((yyvsp[-2].Block));}
-#line 3799 "grammar.tab.cpp"
+#line 413 "grammar.y"
+                                                    {parser_print("DO_KW endl_list opt_block LOOP_KW endl_list"); (yyval.Stmt) = create_do_infinite_loop((yyvsp[-2].Block));}
+#line 3800 "grammar.tab.cpp"
     break;
 
   case 178: /* stmt: do_while_stmt  */
-#line 413 "grammar.y"
+#line 414 "grammar.y"
                                                     {(yyval.Stmt) = (yyvsp[0].Stmt);}
-#line 3805 "grammar.tab.cpp"
+#line 3806 "grammar.tab.cpp"
     break;
 
   case 179: /* stmt: do_until_stmt  */
-#line 414 "grammar.y"
+#line 415 "grammar.y"
                                                     {(yyval.Stmt) = (yyvsp[0].Stmt);}
-#line 3811 "grammar.tab.cpp"
+#line 3812 "grammar.tab.cpp"
     break;
 
   case 180: /* stmt: while_stmt  */
-#line 415 "grammar.y"
+#line 416 "grammar.y"
                                                     {(yyval.Stmt) = (yyvsp[0].Stmt);}
-#line 3817 "grammar.tab.cpp"
+#line 3818 "grammar.tab.cpp"
     break;
 
   case 181: /* stmt: var_declaration  */
-#line 416 "grammar.y"
+#line 417 "grammar.y"
                                                     {(yyval.Stmt) = (yyvsp[0].Stmt);}
-#line 3823 "grammar.tab.cpp"
+#line 3824 "grammar.tab.cpp"
     break;
 
   case 182: /* stmt: expr '=' expr endl_list  */
-#line 417 "grammar.y"
-                                                    {debug_print("expr '=' expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-3].Expr), (yyvsp[-1].Expr), assignment_type::Assign);}
-#line 3829 "grammar.tab.cpp"
+#line 418 "grammar.y"
+                                                    {parser_print("expr '=' expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-3].Expr), (yyvsp[-1].Expr), assignment_type::Assign);}
+#line 3830 "grammar.tab.cpp"
     break;
 
   case 183: /* stmt: expr '=' ENDL expr endl_list  */
-#line 418 "grammar.y"
-                                                    {debug_print("expr '=' ENDL expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::Assign);}
-#line 3835 "grammar.tab.cpp"
+#line 419 "grammar.y"
+                                                    {parser_print("expr '=' ENDL expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::Assign);}
+#line 3836 "grammar.tab.cpp"
     break;
 
   case 184: /* stmt: expr ADD_ASSIGN opt_endl expr endl_list  */
-#line 419 "grammar.y"
-                                                    {debug_print("expr ADD_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::AddAssign);}
-#line 3841 "grammar.tab.cpp"
+#line 420 "grammar.y"
+                                                    {parser_print("expr ADD_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::AddAssign);}
+#line 3842 "grammar.tab.cpp"
     break;
 
   case 185: /* stmt: expr SUB_ASSIGN opt_endl expr endl_list  */
-#line 420 "grammar.y"
-                                                    {debug_print("expr SUB_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::SubAssign);}
-#line 3847 "grammar.tab.cpp"
+#line 421 "grammar.y"
+                                                    {parser_print("expr SUB_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::SubAssign);}
+#line 3848 "grammar.tab.cpp"
     break;
 
   case 186: /* stmt: expr MUL_ASSIGN opt_endl expr endl_list  */
-#line 421 "grammar.y"
-                                                    {debug_print("expr MUL_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::MulAssign);}
-#line 3853 "grammar.tab.cpp"
+#line 422 "grammar.y"
+                                                    {parser_print("expr MUL_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::MulAssign);}
+#line 3854 "grammar.tab.cpp"
     break;
 
   case 187: /* stmt: expr DIV_ASSIGN opt_endl expr endl_list  */
-#line 422 "grammar.y"
-                                                    {debug_print("expr DIV_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::DivAssign);}
-#line 3859 "grammar.tab.cpp"
+#line 423 "grammar.y"
+                                                    {parser_print("expr DIV_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::DivAssign);}
+#line 3860 "grammar.tab.cpp"
     break;
 
   case 188: /* stmt: expr FLOORDIV_ASSIGN opt_endl expr endl_list  */
-#line 423 "grammar.y"
-                                                    {debug_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::FloorDivAssign);}
-#line 3865 "grammar.tab.cpp"
+#line 424 "grammar.y"
+                                                    {parser_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::FloorDivAssign);}
+#line 3866 "grammar.tab.cpp"
     break;
 
   case 189: /* stmt: expr EXP_ASSIGN opt_endl expr endl_list  */
-#line 424 "grammar.y"
-                                                    {debug_print("expr EXP_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::ExpAssign);}
-#line 3871 "grammar.tab.cpp"
+#line 425 "grammar.y"
+                                                    {parser_print("expr EXP_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::ExpAssign);}
+#line 3872 "grammar.tab.cpp"
     break;
 
   case 190: /* stmt: expr STRCAT_ASSIGN opt_endl expr endl_list  */
-#line 425 "grammar.y"
-                                                    {debug_print("expr STRCAT_ASSIGN expr endl_list -> stmt");(yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::StrConcatAssign);}
-#line 3877 "grammar.tab.cpp"
+#line 426 "grammar.y"
+                                                    {parser_print("expr STRCAT_ASSIGN expr endl_list -> stmt");(yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::StrConcatAssign);}
+#line 3878 "grammar.tab.cpp"
     break;
 
   case 191: /* stmt: expr LSHIFT_ASSIGN opt_endl expr endl_list  */
-#line 426 "grammar.y"
-                                                    {debug_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");(yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::LshiftAssign);}
-#line 3883 "grammar.tab.cpp"
+#line 427 "grammar.y"
+                                                    {parser_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");(yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::LshiftAssign);}
+#line 3884 "grammar.tab.cpp"
     break;
 
   case 192: /* stmt: expr RSHIFT_ASSIGN opt_endl expr endl_list  */
-#line 427 "grammar.y"
-                                                    {debug_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::RshiftAssign);}
-#line 3889 "grammar.tab.cpp"
+#line 428 "grammar.y"
+                                                    {parser_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); (yyval.Stmt) = create_assign((yyvsp[-4].Expr), (yyvsp[-1].Expr), assignment_type::RshiftAssign);}
+#line 3890 "grammar.tab.cpp"
     break;
 
   case 193: /* stmt: RETURN_KW endl_list  */
-#line 428 "grammar.y"
-                                                    {debug_print("RETURN_KW endl_list -> stmt"); (yyval.Stmt) = create_return();}
-#line 3895 "grammar.tab.cpp"
+#line 429 "grammar.y"
+                                                    {parser_print("RETURN_KW endl_list -> stmt"); (yyval.Stmt) = create_return();}
+#line 3896 "grammar.tab.cpp"
     break;
 
   case 194: /* stmt: RETURN_KW expr endl_list  */
-#line 429 "grammar.y"
-                                                    {debug_print("RETURN_KW expr endl_list -> stmt"); (yyval.Stmt) = create_return((yyvsp[-1].Expr));}
-#line 3901 "grammar.tab.cpp"
+#line 430 "grammar.y"
+                                                    {parser_print("RETURN_KW expr endl_list -> stmt"); (yyval.Stmt) = create_return((yyvsp[-1].Expr));}
+#line 3902 "grammar.tab.cpp"
     break;
 
   case 195: /* stmt: CONTINUE_KW DO_KW endl_list  */
-#line 430 "grammar.y"
-                                                    {debug_print("CONTINUE_KW DO_KW endl_list -> stmt"); (yyval.Stmt) = create_continue(stmt_type::ContinueDo);}
-#line 3907 "grammar.tab.cpp"
+#line 431 "grammar.y"
+                                                    {parser_print("CONTINUE_KW DO_KW endl_list -> stmt"); (yyval.Stmt) = create_continue(stmt_type::ContinueDo);}
+#line 3908 "grammar.tab.cpp"
     break;
 
   case 196: /* stmt: CONTINUE_KW FOR_KW endl_list  */
-#line 431 "grammar.y"
-                                                    {debug_print("CONTINUE_KW FOR_KW endl_list -> stmt"); (yyval.Stmt) = create_continue(stmt_type::ContinueFor);}
-#line 3913 "grammar.tab.cpp"
+#line 432 "grammar.y"
+                                                    {parser_print("CONTINUE_KW FOR_KW endl_list -> stmt"); (yyval.Stmt) = create_continue(stmt_type::ContinueFor);}
+#line 3914 "grammar.tab.cpp"
     break;
 
   case 197: /* stmt: CONTINUE_KW WHILE_KW endl_list  */
-#line 432 "grammar.y"
-                                                    {debug_print("CONTINUE_KW WHILE_KW endl_list -> stmt"); (yyval.Stmt) = create_continue(stmt_type::ContinueWhile);}
-#line 3919 "grammar.tab.cpp"
+#line 433 "grammar.y"
+                                                    {parser_print("CONTINUE_KW WHILE_KW endl_list -> stmt"); (yyval.Stmt) = create_continue(stmt_type::ContinueWhile);}
+#line 3920 "grammar.tab.cpp"
     break;
 
   case 198: /* stmt: EXIT_KW DO_KW endl_list  */
-#line 433 "grammar.y"
-                                                    {debug_print("EXIT_KW DO_KW endl_list -> stmt"); (yyval.Stmt) = create_exit(stmt_type::ExitDo);}
-#line 3925 "grammar.tab.cpp"
+#line 434 "grammar.y"
+                                                    {parser_print("EXIT_KW DO_KW endl_list -> stmt"); (yyval.Stmt) = create_exit(stmt_type::ExitDo);}
+#line 3926 "grammar.tab.cpp"
     break;
 
   case 199: /* stmt: EXIT_KW FOR_KW endl_list  */
-#line 434 "grammar.y"
-                                                    {debug_print("EXIT_KW FOR_KW endl_list -> stmt"); (yyval.Stmt) = create_exit(stmt_type::ExitFor);}
-#line 3931 "grammar.tab.cpp"
+#line 435 "grammar.y"
+                                                    {parser_print("EXIT_KW FOR_KW endl_list -> stmt"); (yyval.Stmt) = create_exit(stmt_type::ExitFor);}
+#line 3932 "grammar.tab.cpp"
     break;
 
   case 200: /* stmt: EXIT_KW WHILE_KW endl_list  */
-#line 435 "grammar.y"
-                                                    {debug_print("EXIT_KW WHILE_KW endl_list -> stmt");(yyval.Stmt) = create_exit(stmt_type::ExitWhile);}
-#line 3937 "grammar.tab.cpp"
+#line 436 "grammar.y"
+                                                    {parser_print("EXIT_KW WHILE_KW endl_list -> stmt");(yyval.Stmt) = create_exit(stmt_type::ExitWhile);}
+#line 3938 "grammar.tab.cpp"
     break;
 
   case 201: /* stmt: EXIT_KW SELECT_KW endl_list  */
-#line 436 "grammar.y"
-                                                    {debug_print("EXIT_KW SELECT_KW endl_list -> stmt");(yyval.Stmt) = create_exit(stmt_type::ExitSelect);}
-#line 3943 "grammar.tab.cpp"
+#line 437 "grammar.y"
+                                                    {parser_print("EXIT_KW SELECT_KW endl_list -> stmt");(yyval.Stmt) = create_exit(stmt_type::ExitSelect);}
+#line 3944 "grammar.tab.cpp"
     break;
 
   case 202: /* redim_clause: ID '(' opt_endl expr_list opt_endl ')'  */
-#line 439 "grammar.y"
-                                                                     { debug_print("ID '(' opt_endl expr_list opt_endl ')' -> redim_clause"); (yyval.RedimNode) = create_redim_clause((yyvsp[-5].Id), (yyvsp[-2].ExprList)); }
-#line 3949 "grammar.tab.cpp"
+#line 440 "grammar.y"
+                                                                     { parser_print("ID '(' opt_endl expr_list opt_endl ')' -> redim_clause"); (yyval.RedimNode) = create_redim_clause((yyvsp[-5].Id), (yyvsp[-2].ExprList)); }
+#line 3950 "grammar.tab.cpp"
     break;
 
   case 203: /* redim_clause_list: redim_clause  */
-#line 442 "grammar.y"
-                                                                     { debug_print("redim_clause -> redim_clause_list"); (yyval.Redim) = create_redim_clause_list(); (yyval.Redim)->add((yyvsp[0].RedimNode)); }
-#line 3955 "grammar.tab.cpp"
+#line 443 "grammar.y"
+                                                                     { parser_print("redim_clause -> redim_clause_list"); (yyval.Redim) = create_redim_clause_list(); (yyval.Redim)->add((yyvsp[0].RedimNode)); }
+#line 3956 "grammar.tab.cpp"
     break;
 
   case 204: /* redim_clause_list: redim_clause_list ',' opt_endl redim_clause  */
-#line 443 "grammar.y"
-                                                                     { debug_print("redim_clause_list ',' opt_endl redim_clause -> redim_clause_list"); (yyval.Redim) = (yyvsp[-3].Redim); (yyval.Redim)->add((yyvsp[0].RedimNode)); }
-#line 3961 "grammar.tab.cpp"
+#line 444 "grammar.y"
+                                                                     { parser_print("redim_clause_list ',' opt_endl redim_clause -> redim_clause_list"); (yyval.Redim) = (yyvsp[-3].Redim); (yyval.Redim)->add((yyvsp[0].RedimNode)); }
+#line 3962 "grammar.tab.cpp"
     break;
 
   case 205: /* if_stmt: IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list block END_IF endl_list  */
-#line 446 "grammar.y"
-                                                                                                                        { debug_print("IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list block END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-9].Expr), (yyvsp[-6].Block), (yyvsp[-5].Block), (yyvsp[-2].Block)); }
-#line 3967 "grammar.tab.cpp"
+#line 447 "grammar.y"
+                                                                                                                        { parser_print("IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list block END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-9].Expr), (yyvsp[-6].Block), (yyvsp[-5].Block), (yyvsp[-2].Block)); }
+#line 3968 "grammar.tab.cpp"
     break;
 
   case 206: /* if_stmt: IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list  */
-#line 447 "grammar.y"
-                                                                                                                            { debug_print("IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-8].Expr), NULL, (yyvsp[-5].Block), (yyvsp[-2].Block)); }
-#line 3973 "grammar.tab.cpp"
+#line 448 "grammar.y"
+                                                                                                                            { parser_print("IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-8].Expr), NULL, (yyvsp[-5].Block), (yyvsp[-2].Block)); }
+#line 3974 "grammar.tab.cpp"
     break;
 
   case 207: /* if_stmt: IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list  */
-#line 448 "grammar.y"
-                                                                                                                            { debug_print("IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-8].Expr), (yyvsp[-5].Block), (yyvsp[-4].Block), NULL); }
-#line 3979 "grammar.tab.cpp"
+#line 449 "grammar.y"
+                                                                                                                            { parser_print("IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-8].Expr), (yyvsp[-5].Block), (yyvsp[-4].Block), NULL); }
+#line 3980 "grammar.tab.cpp"
     break;
 
   case 208: /* if_stmt: IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list  */
-#line 449 "grammar.y"
-                                                                                                                            { debug_print("IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-7].Expr), NULL, (yyvsp[-4].Block), NULL); }
-#line 3985 "grammar.tab.cpp"
+#line 450 "grammar.y"
+                                                                                                                            { parser_print("IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-7].Expr), NULL, (yyvsp[-4].Block), NULL); }
+#line 3986 "grammar.tab.cpp"
     break;
 
   case 209: /* if_stmt: IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list  */
-#line 450 "grammar.y"
-                                                                                                                        { debug_print("IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-6].Expr), (yyvsp[-3].Block), (yyvsp[-2].Block), NULL); }
-#line 3991 "grammar.tab.cpp"
+#line 451 "grammar.y"
+                                                                                                                        { parser_print("IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-6].Expr), (yyvsp[-3].Block), (yyvsp[-2].Block), NULL); }
+#line 3992 "grammar.tab.cpp"
     break;
 
   case 210: /* if_stmt: IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list  */
-#line 451 "grammar.y"
-                                                                                                                            { debug_print("IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-5].Expr), NULL, (yyvsp[-2].Block), NULL); }
-#line 3997 "grammar.tab.cpp"
+#line 452 "grammar.y"
+                                                                                                                            { parser_print("IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list -> if_stmt"); (yyval.Stmt) = create_if_stmt((yyvsp[-5].Expr), NULL, (yyvsp[-2].Block), NULL); }
+#line 3998 "grammar.tab.cpp"
     break;
 
   case 211: /* else_if_stmts: %empty  */
-#line 454 "grammar.y"
-                                                                               { debug_print("empty -> else_if_stmts"); (yyval.Block) = create_block(); }
-#line 4003 "grammar.tab.cpp"
+#line 455 "grammar.y"
+                                                                               { parser_print("empty -> else_if_stmts"); (yyval.Block) = create_block(); }
+#line 4004 "grammar.tab.cpp"
     break;
 
   case 212: /* else_if_stmts: else_if_stmts ELSEIF_KW expr THEN_KW endl_list block  */
-#line 455 "grammar.y"
-                                                                               { debug_print("else_if_stmts ELSEIF_KW expr THEN_KW endl_list block -> else_if_stmts"); (yyval.Block) = (yyvsp[-5].Block); (yyval.Block)->add(create_elseif((yyvsp[-3].Expr), (yyvsp[0].Block))); }
-#line 4009 "grammar.tab.cpp"
+#line 456 "grammar.y"
+                                                                               { parser_print("else_if_stmts ELSEIF_KW expr THEN_KW endl_list block -> else_if_stmts"); (yyval.Block) = (yyvsp[-5].Block); (yyval.Block)->add(create_elseif((yyvsp[-3].Expr), (yyvsp[0].Block))); }
+#line 4010 "grammar.tab.cpp"
     break;
 
   case 213: /* else_if_stmts: else_if_stmts ELSEIF_KW expr THEN_KW endl_list  */
-#line 456 "grammar.y"
-                                                                                           { debug_print("else_if_stmts ELSEIF_KW expr THEN_KW endl_list -> else_if_stmts"); (yyval.Block) = (yyvsp[-4].Block); (yyval.Block)->add(create_elseif((yyvsp[-2].Expr), NULL)); }
-#line 4015 "grammar.tab.cpp"
+#line 457 "grammar.y"
+                                                                                           { parser_print("else_if_stmts ELSEIF_KW expr THEN_KW endl_list -> else_if_stmts"); (yyval.Block) = (yyvsp[-4].Block); (yyval.Block)->add(create_elseif((yyvsp[-2].Expr), NULL)); }
+#line 4016 "grammar.tab.cpp"
     break;
 
   case 214: /* select_stmt: SELECT_KW expr endl_list case_stmts END_SELECT endl_list  */
-#line 459 "grammar.y"
-                                                                                         { debug_print("SELECT_KW expr endl_list case_stmts END_SELECT endl_list -> select_stmt"); (yyval.Stmt) = create_select_stmt((yyvsp[-4].Expr), (yyvsp[-2].Block)); }
-#line 4021 "grammar.tab.cpp"
+#line 460 "grammar.y"
+                                                                                         { parser_print("SELECT_KW expr endl_list case_stmts END_SELECT endl_list -> select_stmt"); (yyval.Stmt) = create_select_stmt((yyvsp[-4].Expr), (yyvsp[-2].Block)); }
+#line 4022 "grammar.tab.cpp"
     break;
 
   case 215: /* select_stmt: SELECT_KW CASE_KW expr endl_list case_stmts END_SELECT endl_list  */
-#line 460 "grammar.y"
-                                                                                         { debug_print("SELECT_KW CASE_KW expr endl_list case_stmts END_SELECT endl_list -> select_stmt"); (yyval.Stmt) = create_select_stmt((yyvsp[-4].Expr), (yyvsp[-2].Block)); }
-#line 4027 "grammar.tab.cpp"
+#line 461 "grammar.y"
+                                                                                         { parser_print("SELECT_KW CASE_KW expr endl_list case_stmts END_SELECT endl_list -> select_stmt"); (yyval.Stmt) = create_select_stmt((yyvsp[-4].Expr), (yyvsp[-2].Block)); }
+#line 4028 "grammar.tab.cpp"
     break;
 
   case 216: /* case_condition_branch: CASE_KW expr endl_list block  */
-#line 463 "grammar.y"
-                                                                                         { debug_print("CASE_KW expr endl_list block -> case_condition_branch"); (yyval.Stmt) = create_case_condition_branch((yyvsp[-2].Expr), (yyvsp[0].Block)); }
-#line 4033 "grammar.tab.cpp"
+#line 464 "grammar.y"
+                                                                                         { parser_print("CASE_KW expr endl_list block -> case_condition_branch"); (yyval.Stmt) = create_case_condition_branch((yyvsp[-2].Expr), (yyvsp[0].Block)); }
+#line 4034 "grammar.tab.cpp"
     break;
 
   case 217: /* case_condition_branch: CASE_KW expr endl_list  */
-#line 464 "grammar.y"
-                                                                                                             { debug_print("CASE_KW expr endl_list -> case_condition_branch"); (yyval.Stmt) = create_case_condition_branch((yyvsp[-1].Expr), NULL); }
-#line 4039 "grammar.tab.cpp"
+#line 465 "grammar.y"
+                                                                                                             { parser_print("CASE_KW expr endl_list -> case_condition_branch"); (yyval.Stmt) = create_case_condition_branch((yyvsp[-1].Expr), NULL); }
+#line 4040 "grammar.tab.cpp"
     break;
 
   case 218: /* case_condition_branch: CASE_KW expr TO_KW expr endl_list block  */
-#line 465 "grammar.y"
-                                                                                         { debug_print("CASE_KW expr TO_KW expr endl_list block -> case_condition_branch"); (yyval.Stmt) = create_case_range_branch((yyvsp[-4].Expr), (yyvsp[-2].Expr), (yyvsp[0].Block)); }
-#line 4045 "grammar.tab.cpp"
+#line 466 "grammar.y"
+                                                                                         { parser_print("CASE_KW expr TO_KW expr endl_list block -> case_condition_branch"); (yyval.Stmt) = create_case_range_branch((yyvsp[-4].Expr), (yyvsp[-2].Expr), (yyvsp[0].Block)); }
+#line 4046 "grammar.tab.cpp"
     break;
 
   case 219: /* case_condition_branch: CASE_KW expr TO_KW expr endl_list  */
-#line 466 "grammar.y"
-                                                                                                             { debug_print("CASE_KW expr TO_KW expr endl_list -> case_condition_branch"); (yyval.Stmt) = create_case_range_branch((yyvsp[-3].Expr), (yyvsp[-1].Expr), NULL); }
-#line 4051 "grammar.tab.cpp"
+#line 467 "grammar.y"
+                                                                                                             { parser_print("CASE_KW expr TO_KW expr endl_list -> case_condition_branch"); (yyval.Stmt) = create_case_range_branch((yyvsp[-3].Expr), (yyvsp[-1].Expr), NULL); }
+#line 4052 "grammar.tab.cpp"
     break;
 
   case 220: /* case_condition_branches: case_condition_branch  */
-#line 469 "grammar.y"
-                                                                                 { debug_print("case_condition_branch -> case_condition_branches"); (yyval.Block) = create_block(); }
-#line 4057 "grammar.tab.cpp"
+#line 470 "grammar.y"
+                                                                                 { parser_print("case_condition_branch -> case_condition_branches"); (yyval.Block) = create_block(); }
+#line 4058 "grammar.tab.cpp"
     break;
 
   case 221: /* case_condition_branches: case_condition_branches case_condition_branch  */
-#line 470 "grammar.y"
-                                                                                 { debug_print("case_condition_branches case_condition_branch -> case_condition_branches"); (yyval.Block) = (yyvsp[-1].Block); (yyval.Block)->add((yyvsp[0].Stmt)); }
-#line 4063 "grammar.tab.cpp"
+#line 471 "grammar.y"
+                                                                                 { parser_print("case_condition_branches case_condition_branch -> case_condition_branches"); (yyval.Block) = (yyvsp[-1].Block); (yyval.Block)->add((yyvsp[0].Stmt)); }
+#line 4064 "grammar.tab.cpp"
     break;
 
   case 222: /* case_else_stmt: CASE_KW ELSE_KW endl_list opt_block  */
-#line 473 "grammar.y"
-                                                                                 { debug_print("CASE_KW ELSE_KW endl_list opt_block -> case_else_stmt"); (yyval.Stmt) = create_case_else_stmt((yyvsp[0].Block)); }
-#line 4069 "grammar.tab.cpp"
+#line 474 "grammar.y"
+                                                                                 { parser_print("CASE_KW ELSE_KW endl_list opt_block -> case_else_stmt"); (yyval.Stmt) = create_case_else_stmt((yyvsp[0].Block)); }
+#line 4070 "grammar.tab.cpp"
     break;
 
   case 223: /* case_stmts: case_condition_branches  */
-#line 476 "grammar.y"
-                                                                                 { debug_print("case_condition_branches -> case_stmts"); (yyval.Block) = (yyvsp[0].Block); }
-#line 4075 "grammar.tab.cpp"
+#line 477 "grammar.y"
+                                                                                 { parser_print("case_condition_branches -> case_stmts"); (yyval.Block) = (yyvsp[0].Block); }
+#line 4076 "grammar.tab.cpp"
     break;
 
   case 224: /* case_stmts: case_else_stmt  */
-#line 477 "grammar.y"
-                                                                                 { debug_print("case_else_stmt -> case_stmts"); (yyval.Block) = create_block(); (yyval.Block)->add((yyvsp[0].Stmt)); }
-#line 4081 "grammar.tab.cpp"
+#line 478 "grammar.y"
+                                                                                 { parser_print("case_else_stmt -> case_stmts"); (yyval.Block) = create_block(); (yyval.Block)->add((yyvsp[0].Stmt)); }
+#line 4082 "grammar.tab.cpp"
     break;
 
   case 225: /* case_stmts: case_condition_branches case_else_stmt  */
-#line 478 "grammar.y"
-                                                                                 { debug_print("case_condition_branches case_else_stmt -> case_stmts"); (yyval.Block) = (yyvsp[-1].Block); (yyval.Block)->add((yyvsp[0].Stmt)); }
-#line 4087 "grammar.tab.cpp"
+#line 479 "grammar.y"
+                                                                                 { parser_print("case_condition_branches case_else_stmt -> case_stmts"); (yyval.Block) = (yyvsp[-1].Block); (yyval.Block)->add((yyvsp[0].Stmt)); }
+#line 4088 "grammar.tab.cpp"
     break;
 
   case 226: /* while_stmt: WHILE_KW expr endl_list block END_WHILE endl_list  */
-#line 481 "grammar.y"
-                                                                                 { debug_print("WHILE_KW expr endl_list block END_WHILE endl_list -> while_stmt"); (yyval.Stmt) = create_while_stmt((yyvsp[-4].Expr), (yyvsp[-2].Block)); }
-#line 4093 "grammar.tab.cpp"
+#line 482 "grammar.y"
+                                                                                 { parser_print("WHILE_KW expr endl_list block END_WHILE endl_list -> while_stmt"); (yyval.Stmt) = create_while_stmt((yyvsp[-4].Expr), (yyvsp[-2].Block)); }
+#line 4094 "grammar.tab.cpp"
     break;
 
   case 227: /* while_stmt: WHILE_KW expr endl_list END_WHILE endl_list  */
-#line 482 "grammar.y"
-                                                                                 { debug_print("WHILE_KW expr endl_list END_WHILE endl_list -> while_stmt"); (yyval.Stmt) = create_while_stmt((yyvsp[-3].Expr), create_block()); }
-#line 4099 "grammar.tab.cpp"
+#line 483 "grammar.y"
+                                                                                 { parser_print("WHILE_KW expr endl_list END_WHILE endl_list -> while_stmt"); (yyval.Stmt) = create_while_stmt((yyvsp[-3].Expr), create_block()); }
+#line 4100 "grammar.tab.cpp"
     break;
 
   case 228: /* for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list  */
-#line 485 "grammar.y"
-                                                                                                                                { debug_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-9].Var)->type, (yyvsp[-9].Var)->varName, (yyvsp[-6].Expr), (yyvsp[-4].Expr), NULL, (yyvsp[-2].Block)); }
-#line 4105 "grammar.tab.cpp"
+#line 486 "grammar.y"
+                                                                                                                                { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-9].Var)->type, (yyvsp[-9].Var)->varName, (yyvsp[-6].Expr), (yyvsp[-4].Expr), NULL, (yyvsp[-2].Block)); }
+#line 4106 "grammar.tab.cpp"
     break;
 
   case 229: /* for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list  */
-#line 486 "grammar.y"
-                                                                                                                                { debug_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-8].Var)->type, (yyvsp[-8].Var)->varName, (yyvsp[-5].Expr), (yyvsp[-3].Expr), NULL, create_block()); }
-#line 4111 "grammar.tab.cpp"
+#line 487 "grammar.y"
+                                                                                                                                { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-8].Var)->type, (yyvsp[-8].Var)->varName, (yyvsp[-5].Expr), (yyvsp[-3].Expr), NULL, create_block()); }
+#line 4112 "grammar.tab.cpp"
     break;
 
   case 230: /* for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list  */
-#line 487 "grammar.y"
-                                                                                                                                { debug_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-11].Var)->type, (yyvsp[-11].Var)->varName, (yyvsp[-8].Expr), (yyvsp[-6].Expr), (yyvsp[-4].Expr), (yyvsp[-2].Block)); }
-#line 4117 "grammar.tab.cpp"
+#line 488 "grammar.y"
+                                                                                                                                { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-11].Var)->type, (yyvsp[-11].Var)->varName, (yyvsp[-8].Expr), (yyvsp[-6].Expr), (yyvsp[-4].Expr), (yyvsp[-2].Block)); }
+#line 4118 "grammar.tab.cpp"
     break;
 
   case 231: /* for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list  */
-#line 488 "grammar.y"
-                                                                                                                                        { debug_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-10].Var)->type, (yyvsp[-10].Var)->varName, (yyvsp[-7].Expr), (yyvsp[-5].Expr), (yyvsp[-3].Expr), create_block()); }
-#line 4123 "grammar.tab.cpp"
+#line 489 "grammar.y"
+                                                                                                                                        { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-10].Var)->type, (yyvsp[-10].Var)->varName, (yyvsp[-7].Expr), (yyvsp[-5].Expr), (yyvsp[-3].Expr), create_block()); }
+#line 4124 "grammar.tab.cpp"
     break;
 
   case 232: /* for_loop_variable: ID  */
-#line 491 "grammar.y"
-                                                      { debug_print("ID -> for_loop_variable"); (yyval.Var) = create_var_declarator((yyvsp[0].Id)); }
-#line 4129 "grammar.tab.cpp"
+#line 492 "grammar.y"
+                                                      { parser_print("ID -> for_loop_variable"); (yyval.Var) = create_var_declarator((yyvsp[0].Id)); }
+#line 4130 "grammar.tab.cpp"
     break;
 
   case 233: /* for_loop_variable: ID AS_KW type_name  */
-#line 492 "grammar.y"
-                                                      { debug_print("ID AS_KW type_name -> for_loop_variable"); (yyval.Var) = create_var_declarator((yyvsp[0].Type), (yyvsp[-2].Id)); }
-#line 4135 "grammar.tab.cpp"
+#line 493 "grammar.y"
+                                                      { parser_print("ID AS_KW type_name -> for_loop_variable"); (yyval.Var) = create_var_declarator((yyvsp[0].Type), (yyvsp[-2].Id)); }
+#line 4136 "grammar.tab.cpp"
     break;
 
   case 234: /* foreach_stmt: FOR_KW EACH_KW for_loop_variable opt_endl IN_KW endl_list expr endl_list opt_block NEXT_KW endl_list  */
-#line 495 "grammar.y"
-                                                                                                                              { debug_print("FOR_KW EACH_KW for_loop_variable opt_endl IN_KW endl_list expr endl_list opt_block NEXT_KW endl_list -> foreach_stmt"); (yyval.Stmt) = create_foreach_stmt((yyvsp[-8].Var)->type, (yyvsp[-8].Var)->varName, (yyvsp[-4].Expr), (yyvsp[-2].Block)); }
-#line 4141 "grammar.tab.cpp"
+#line 496 "grammar.y"
+                                                                                                                              { parser_print("FOR_KW EACH_KW for_loop_variable opt_endl IN_KW endl_list expr endl_list opt_block NEXT_KW endl_list -> foreach_stmt"); (yyval.Stmt) = create_foreach_stmt((yyvsp[-8].Var)->type, (yyvsp[-8].Var)->varName, (yyvsp[-4].Expr), (yyvsp[-2].Block)); }
+#line 4142 "grammar.tab.cpp"
     break;
 
   case 235: /* foreach_stmt: FOR_KW EACH_KW for_loop_variable opt_endl IN_KW expr endl_list opt_block NEXT_KW endl_list  */
-#line 496 "grammar.y"
-                                                                                                                              { debug_print("FOR_KW EACH_KW for_loop_variable opt_endl IN_KW expr endl_list opt_block NEXT_KW endl_list -> foreach_stmt"); (yyval.Stmt) = create_foreach_stmt((yyvsp[-7].Var)->type, (yyvsp[-7].Var)->varName, (yyvsp[-4].Expr), (yyvsp[-2].Block)); }
-#line 4147 "grammar.tab.cpp"
+#line 497 "grammar.y"
+                                                                                                                              { parser_print("FOR_KW EACH_KW for_loop_variable opt_endl IN_KW expr endl_list opt_block NEXT_KW endl_list -> foreach_stmt"); (yyval.Stmt) = create_foreach_stmt((yyvsp[-7].Var)->type, (yyvsp[-7].Var)->varName, (yyvsp[-4].Expr), (yyvsp[-2].Block)); }
+#line 4148 "grammar.tab.cpp"
     break;
 
   case 236: /* do_while_stmt: DO_KW endl_list opt_block LOOP_KW WHILE_KW expr endl_list  */
-#line 499 "grammar.y"
-                                                                                                                              { debug_print("DO_KW endl_list opt_block LOOP_KW WHILE_KW expr endl_list -> do_while_stmt"); (yyval.Stmt) = create_do_while_stmt((yyvsp[-4].Block), (yyvsp[-1].Expr)); }
-#line 4153 "grammar.tab.cpp"
+#line 500 "grammar.y"
+                                                                                                                              { parser_print("DO_KW endl_list opt_block LOOP_KW WHILE_KW expr endl_list -> do_while_stmt"); (yyval.Stmt) = create_do_while_stmt((yyvsp[-4].Block), (yyvsp[-1].Expr)); }
+#line 4154 "grammar.tab.cpp"
     break;
 
   case 237: /* do_while_stmt: DO_KW WHILE_KW expr endl_list opt_block LOOP_KW endl_list  */
-#line 500 "grammar.y"
-                                                                                                                              { debug_print("DO_KW WHILE_KW expr endl_list opt_block LOOP_KW endl_list -> do_while_stmt"); (yyval.Stmt) = create_do_while_stmt((yyvsp[-2].Block), (yyvsp[-4].Expr)); }
-#line 4159 "grammar.tab.cpp"
+#line 501 "grammar.y"
+                                                                                                                              { parser_print("DO_KW WHILE_KW expr endl_list opt_block LOOP_KW endl_list -> do_while_stmt"); (yyval.Stmt) = create_do_while_stmt((yyvsp[-2].Block), (yyvsp[-4].Expr)); }
+#line 4160 "grammar.tab.cpp"
     break;
 
   case 238: /* do_until_stmt: DO_KW endl_list opt_block LOOP_KW UNTIL_KW expr endl_list  */
-#line 503 "grammar.y"
-                                                                                                                              { debug_print("DO_KW endl_list opt_block LOOP_KW UNTIL_KW expr endl_list -> do_until_stmt"); (yyval.Stmt) = create_do_until_stmt((yyvsp[-4].Block), (yyvsp[-1].Expr)); }
-#line 4165 "grammar.tab.cpp"
+#line 504 "grammar.y"
+                                                                                                                              { parser_print("DO_KW endl_list opt_block LOOP_KW UNTIL_KW expr endl_list -> do_until_stmt"); (yyval.Stmt) = create_do_until_stmt((yyvsp[-4].Block), (yyvsp[-1].Expr)); }
+#line 4166 "grammar.tab.cpp"
     break;
 
   case 239: /* do_until_stmt: DO_KW UNTIL_KW expr endl_list opt_block LOOP_KW endl_list  */
-#line 504 "grammar.y"
-                                                                                                                              { debug_print("DO_KW UNTIL_KW expr endl_list opt_block LOOP_KW endl_list -> do_until_stmt"); (yyval.Stmt) = create_do_until_stmt((yyvsp[-2].Block), (yyvsp[-4].Expr)); }
-#line 4171 "grammar.tab.cpp"
+#line 505 "grammar.y"
+                                                                                                                              { parser_print("DO_KW UNTIL_KW expr endl_list opt_block LOOP_KW endl_list -> do_until_stmt"); (yyval.Stmt) = create_do_until_stmt((yyvsp[-2].Block), (yyvsp[-4].Expr)); }
+#line 4172 "grammar.tab.cpp"
     break;
 
   case 240: /* opt_block: %empty  */
-#line 507 "grammar.y"
-                               { debug_print("empty -> opt_block"); (yyval.Block) = create_block(); }
-#line 4177 "grammar.tab.cpp"
+#line 508 "grammar.y"
+                               { parser_print("empty -> opt_block"); (yyval.Block) = create_block(); }
+#line 4178 "grammar.tab.cpp"
     break;
 
   case 241: /* opt_block: block  */
-#line 508 "grammar.y"
-                               { debug_print("block -> opt_block"); (yyval.Block) = (yyvsp[0].Block); }
-#line 4183 "grammar.tab.cpp"
+#line 509 "grammar.y"
+                               { parser_print("block -> opt_block"); (yyval.Block) = (yyvsp[0].Block); }
+#line 4184 "grammar.tab.cpp"
     break;
 
   case 242: /* block: stmt  */
-#line 511 "grammar.y"
-                               { debug_print("stmt -> block"); (yyval.Block) = create_block(); (yyval.Block)->add((yyvsp[0].Stmt)); }
-#line 4189 "grammar.tab.cpp"
+#line 512 "grammar.y"
+                               { parser_print("stmt -> block"); (yyval.Block) = create_block(); (yyval.Block)->add((yyvsp[0].Stmt)); }
+#line 4190 "grammar.tab.cpp"
     break;
 
   case 243: /* block: block stmt  */
-#line 512 "grammar.y"
-                               { debug_print("block stmt -> block"); (yyval.Block) = (yyvsp[-1].Block); (yyval.Block)->add((yyvsp[0].Stmt)); }
-#line 4195 "grammar.tab.cpp"
+#line 513 "grammar.y"
+                               { parser_print("block stmt -> block"); (yyval.Block) = (yyvsp[-1].Block); (yyval.Block)->add((yyvsp[0].Stmt)); }
+#line 4196 "grammar.tab.cpp"
     break;
 
   case 244: /* variable_name: ID  */
-#line 515 "grammar.y"
-                                              { debug_print("ID -> variable_name"); (yyval.Var) = create_var_declarator((yyvsp[0].Id)); }
-#line 4201 "grammar.tab.cpp"
+#line 516 "grammar.y"
+                                              { parser_print("ID -> variable_name"); (yyval.Var) = create_var_declarator((yyvsp[0].Id)); }
+#line 4202 "grammar.tab.cpp"
     break;
 
   case 245: /* variable_name: ID array_modifier  */
-#line 516 "grammar.y"
-                                              { debug_print("ID array_modifier -> variable_name"); (yyval.Var) = create_array_var_declarator((yyvsp[-1].Id), (yyvsp[0].Expr)); }
-#line 4207 "grammar.tab.cpp"
+#line 517 "grammar.y"
+                                              { parser_print("ID array_modifier -> variable_name"); (yyval.Var) = create_array_var_declarator((yyvsp[-1].Id), (yyvsp[0].Expr)); }
+#line 4208 "grammar.tab.cpp"
     break;
 
   case 246: /* array_modifier: '(' opt_endl expr opt_endl ')'  */
-#line 519 "grammar.y"
-                                               { debug_print("'(' ENDL ')' -> array_modifier"); (yyval.Expr) = (yyvsp[-2].Expr);}
-#line 4213 "grammar.tab.cpp"
+#line 520 "grammar.y"
+                                               { parser_print("'(' ENDL ')' -> array_modifier"); (yyval.Expr) = (yyvsp[-2].Expr);}
+#line 4214 "grammar.tab.cpp"
     break;
 
   case 247: /* array_modifier: '(' ')'  */
-#line 520 "grammar.y"
-                                               { debug_print("'(' ')' -> array_modifier"); (yyval.Expr) = NULL;}
-#line 4219 "grammar.tab.cpp"
+#line 521 "grammar.y"
+                                               { parser_print("'(' ')' -> array_modifier"); (yyval.Expr) = NULL;}
+#line 4220 "grammar.tab.cpp"
     break;
 
   case 249: /* var_declarator: variable_name  */
-#line 527 "grammar.y"
-                                                                     { debug_print("variable_name -> var_declarator"); (yyval.Var) = (yyvsp[0].Var); }
-#line 4225 "grammar.tab.cpp"
+#line 528 "grammar.y"
+                                                                     { parser_print("variable_name -> var_declarator"); (yyval.Var) = (yyvsp[0].Var); }
+#line 4226 "grammar.tab.cpp"
     break;
 
   case 250: /* var_declarator: variable_name AS_KW type_name  */
-#line 528 "grammar.y"
-                                                                     { debug_print("variable_name AS_KW type_name -> var_declarator"); (yyval.Var) = append_var_declarator((yyvsp[-2].Var), (yyvsp[0].Type), NULL); }
-#line 4231 "grammar.tab.cpp"
+#line 529 "grammar.y"
+                                                                     { parser_print("variable_name AS_KW type_name -> var_declarator"); (yyval.Var) = append_var_declarator((yyvsp[-2].Var), (yyvsp[0].Type), NULL); }
+#line 4232 "grammar.tab.cpp"
     break;
 
   case 251: /* var_declarator: variable_name '=' expr  */
-#line 529 "grammar.y"
-                                                                     { debug_print("variable_name '=' expr -> var_declarator"); (yyval.Var) = append_var_declarator((yyvsp[-2].Var), NULL, (yyvsp[0].Expr)); }
-#line 4237 "grammar.tab.cpp"
+#line 530 "grammar.y"
+                                                                     { parser_print("variable_name '=' expr -> var_declarator"); (yyval.Var) = append_var_declarator((yyvsp[-2].Var), NULL, (yyvsp[0].Expr)); }
+#line 4238 "grammar.tab.cpp"
     break;
 
   case 252: /* var_declarator: variable_name AS_KW type_name '=' expr  */
-#line 530 "grammar.y"
-                                                                     { debug_print("variable_name AS_KW type_name '=' expr -> var_declarator"); (yyval.Var) = append_var_declarator((yyvsp[-4].Var), (yyvsp[-2].Type), (yyvsp[0].Expr)); }
-#line 4243 "grammar.tab.cpp"
+#line 531 "grammar.y"
+                                                                     { parser_print("variable_name AS_KW type_name '=' expr -> var_declarator"); (yyval.Var) = append_var_declarator((yyvsp[-4].Var), (yyvsp[-2].Type), (yyvsp[0].Expr)); }
+#line 4244 "grammar.tab.cpp"
     break;
 
   case 253: /* var_declaration: DIM_KW var_declarator endl_list  */
-#line 533 "grammar.y"
-                                                                     { debug_print("DIM_KW var_declarator endl_list -> var_declaration"); (yyval.Stmt) = create_var_declaration((yyvsp[-1].Var), var_type::DIM); }
-#line 4249 "grammar.tab.cpp"
+#line 534 "grammar.y"
+                                                                     { parser_print("DIM_KW var_declarator endl_list -> var_declaration"); (yyval.Stmt) = create_var_declaration((yyvsp[-1].Var), var_type::DIM); }
+#line 4250 "grammar.tab.cpp"
     break;
 
   case 254: /* var_declaration: CONST_KW var_declarator endl_list  */
-#line 534 "grammar.y"
-                                                                     { debug_print("CONST_KW var_declarator endl_list -> var_declaration"); (yyval.Stmt) = create_var_declaration((yyvsp[-1].Var), var_type::CONST); }
-#line 4255 "grammar.tab.cpp"
+#line 535 "grammar.y"
+                                                                     { parser_print("CONST_KW var_declarator endl_list -> var_declaration"); (yyval.Stmt) = create_var_declaration((yyvsp[-1].Var), var_type::CONST); }
+#line 4256 "grammar.tab.cpp"
     break;
 
   case 255: /* array_type_name: simple_type_name empty_array_modifier  */
-#line 537 "grammar.y"
-                                                                           { debug_print("simple_type_name array_modifier -> array_type_name"); (yyval.Type) = create_array_type((yyvsp[-1].Type)); }
-#line 4261 "grammar.tab.cpp"
+#line 538 "grammar.y"
+                                                                           { parser_print("simple_type_name array_modifier -> array_type_name"); (yyval.Type) = create_array_type((yyvsp[-1].Type)); }
+#line 4262 "grammar.tab.cpp"
     break;
 
   case 256: /* simple_type_name: ID  */
-#line 540 "grammar.y"
-                                                                      { debug_print("ID -> simple_type_name"); (yyval.Type) = create_type(datatype_type::UserType, (yyvsp[0].Id)); }
-#line 4267 "grammar.tab.cpp"
+#line 541 "grammar.y"
+                                                                      { parser_print("ID -> simple_type_name"); (yyval.Type) = create_type(datatype_type::UserType, (yyvsp[0].Id)); }
+#line 4268 "grammar.tab.cpp"
     break;
 
   case 257: /* simple_type_name: ID '(' opt_endl OF_KW type_list opt_endl ')'  */
-#line 541 "grammar.y"
-                                                                      { debug_print("ID '(' opt_endl OF_KW type_list opt_endl ')' -> simple_type_name"); (yyval.Type) = create_type(datatype_type::UserType, (yyvsp[-6].Id), (yyvsp[-2].TypeList)); }
-#line 4273 "grammar.tab.cpp"
+#line 542 "grammar.y"
+                                                                      { parser_print("ID '(' opt_endl OF_KW type_list opt_endl ')' -> simple_type_name"); (yyval.Type) = create_type(datatype_type::UserType, (yyvsp[-6].Id), (yyvsp[-2].TypeList)); }
+#line 4274 "grammar.tab.cpp"
     break;
 
   case 258: /* simple_type_name: primitive_type  */
-#line 542 "grammar.y"
-                                                                      { debug_print("primitive_type -> simple_type_name"); (yyval.Type) = (yyvsp[0].Type); }
-#line 4279 "grammar.tab.cpp"
+#line 543 "grammar.y"
+                                                                      { parser_print("primitive_type -> simple_type_name"); (yyval.Type) = (yyvsp[0].Type); }
+#line 4280 "grammar.tab.cpp"
     break;
 
   case 259: /* primitive_type: BYTE_KW  */
-#line 545 "grammar.y"
-                             { debug_print("BYTE_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Byte); }
-#line 4285 "grammar.tab.cpp"
+#line 546 "grammar.y"
+                             { parser_print("BYTE_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Byte); }
+#line 4286 "grammar.tab.cpp"
     break;
 
   case 260: /* primitive_type: SBYTE_KW  */
-#line 546 "grammar.y"
-                             { debug_print("SBYTE_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::SByte); }
-#line 4291 "grammar.tab.cpp"
+#line 547 "grammar.y"
+                             { parser_print("SBYTE_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::SByte); }
+#line 4292 "grammar.tab.cpp"
     break;
 
   case 261: /* primitive_type: USHORT_KW  */
-#line 547 "grammar.y"
-                             { debug_print("USHORT_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::UShort); }
-#line 4297 "grammar.tab.cpp"
+#line 548 "grammar.y"
+                             { parser_print("USHORT_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::UShort); }
+#line 4298 "grammar.tab.cpp"
     break;
 
   case 262: /* primitive_type: SHORT_KW  */
-#line 548 "grammar.y"
-                             { debug_print("SHORT_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Short); }
-#line 4303 "grammar.tab.cpp"
+#line 549 "grammar.y"
+                             { parser_print("SHORT_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Short); }
+#line 4304 "grammar.tab.cpp"
     break;
 
   case 263: /* primitive_type: UINTEGER_KW  */
-#line 549 "grammar.y"
-                             { debug_print("UINTEGER_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::UInteger); }
-#line 4309 "grammar.tab.cpp"
+#line 550 "grammar.y"
+                             { parser_print("UINTEGER_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::UInteger); }
+#line 4310 "grammar.tab.cpp"
     break;
 
   case 264: /* primitive_type: INTEGER_KW  */
-#line 550 "grammar.y"
-                             { debug_print("INTEGER_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Integer); }
-#line 4315 "grammar.tab.cpp"
+#line 551 "grammar.y"
+                             { parser_print("INTEGER_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Integer); }
+#line 4316 "grammar.tab.cpp"
     break;
 
   case 265: /* primitive_type: ULONG_KW  */
-#line 551 "grammar.y"
-                             { debug_print("ULONG_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::ULong); }
-#line 4321 "grammar.tab.cpp"
+#line 552 "grammar.y"
+                             { parser_print("ULONG_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::ULong); }
+#line 4322 "grammar.tab.cpp"
     break;
 
   case 266: /* primitive_type: LONG_KW  */
-#line 552 "grammar.y"
-                             { debug_print("LONG_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Long); }
-#line 4327 "grammar.tab.cpp"
+#line 553 "grammar.y"
+                             { parser_print("LONG_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Long); }
+#line 4328 "grammar.tab.cpp"
     break;
 
   case 267: /* primitive_type: BOOLEAN_KW  */
-#line 553 "grammar.y"
-                             { debug_print("BOOLEAN_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Boolean); }
-#line 4333 "grammar.tab.cpp"
+#line 554 "grammar.y"
+                             { parser_print("BOOLEAN_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Boolean); }
+#line 4334 "grammar.tab.cpp"
     break;
 
   case 268: /* primitive_type: DATE_KW  */
-#line 554 "grammar.y"
-                             { debug_print("DATE_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Date); }
-#line 4339 "grammar.tab.cpp"
+#line 555 "grammar.y"
+                             { parser_print("DATE_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Date); }
+#line 4340 "grammar.tab.cpp"
     break;
 
   case 269: /* primitive_type: CHAR_KW  */
-#line 555 "grammar.y"
-                             { debug_print("CHAR_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Char); }
-#line 4345 "grammar.tab.cpp"
+#line 556 "grammar.y"
+                             { parser_print("CHAR_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Char); }
+#line 4346 "grammar.tab.cpp"
     break;
 
   case 270: /* primitive_type: STRING_KW  */
-#line 556 "grammar.y"
-                             { debug_print("STRING_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::String); }
-#line 4351 "grammar.tab.cpp"
+#line 557 "grammar.y"
+                             { parser_print("STRING_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::String); }
+#line 4352 "grammar.tab.cpp"
     break;
 
   case 271: /* primitive_type: DECIMAL_KW  */
-#line 557 "grammar.y"
-                             { debug_print("DECIMAL_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Decimal); }
-#line 4357 "grammar.tab.cpp"
+#line 558 "grammar.y"
+                             { parser_print("DECIMAL_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Decimal); }
+#line 4358 "grammar.tab.cpp"
     break;
 
   case 272: /* primitive_type: SINGLE_KW  */
-#line 558 "grammar.y"
-                             { debug_print("SINGLE_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Single); }
-#line 4363 "grammar.tab.cpp"
+#line 559 "grammar.y"
+                             { parser_print("SINGLE_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Single); }
+#line 4364 "grammar.tab.cpp"
     break;
 
   case 273: /* primitive_type: DOUBLE_KW  */
-#line 559 "grammar.y"
-                             { debug_print("DOUBLE_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Double); }
-#line 4369 "grammar.tab.cpp"
+#line 560 "grammar.y"
+                             { parser_print("DOUBLE_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Double); }
+#line 4370 "grammar.tab.cpp"
     break;
 
   case 274: /* primitive_type: OBJECT_KW  */
-#line 560 "grammar.y"
-                             { debug_print("OBJECT_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Object); }
-#line 4375 "grammar.tab.cpp"
+#line 561 "grammar.y"
+                             { parser_print("OBJECT_KW -> primitive_type"); (yyval.Type) = create_type(datatype_type::Object); }
+#line 4376 "grammar.tab.cpp"
     break;
 
   case 275: /* type_list: simple_type_name  */
-#line 563 "grammar.y"
-                                                              { debug_print("simple_type_name -> type_list"); (yyval.TypeList) = create_type_list(); (yyval.TypeList)->add((yyvsp[0].Type)); }
-#line 4381 "grammar.tab.cpp"
+#line 564 "grammar.y"
+                                                              { parser_print("simple_type_name -> type_list"); (yyval.TypeList) = create_type_list(); (yyval.TypeList)->add((yyvsp[0].Type)); }
+#line 4382 "grammar.tab.cpp"
     break;
 
   case 276: /* type_list: type_list ',' opt_endl simple_type_name  */
-#line 564 "grammar.y"
-                                                              { debug_print("type_list ',' opt_endl simple_type_name -> type_list"); (yyval.TypeList) = (yyvsp[-3].TypeList); (yyval.TypeList)->add((yyvsp[0].Type));  }
-#line 4387 "grammar.tab.cpp"
+#line 565 "grammar.y"
+                                                              { parser_print("type_list ',' opt_endl simple_type_name -> type_list"); (yyval.TypeList) = (yyvsp[-3].TypeList); (yyval.TypeList)->add((yyvsp[0].Type));  }
+#line 4388 "grammar.tab.cpp"
     break;
 
   case 277: /* id_list: ID  */
-#line 567 "grammar.y"
-                                                              { debug_print("ID -> id_list"); (yyval.IdList) = create_id_list(); (yyval.IdList)->add(*(yyvsp[0].Id)); }
-#line 4393 "grammar.tab.cpp"
+#line 568 "grammar.y"
+                                                              { parser_print("ID -> id_list"); (yyval.IdList) = create_id_list(); (yyval.IdList)->add(*(yyvsp[0].Id)); }
+#line 4394 "grammar.tab.cpp"
     break;
 
   case 278: /* id_list: id_list ',' opt_endl ID  */
-#line 568 "grammar.y"
-                                                              { debug_print("id_list ',' opt_endl ID -> id_list"); (yyval.IdList) = (yyvsp[-3].IdList); (yyval.IdList)->add(*(yyvsp[0].Id)); }
-#line 4399 "grammar.tab.cpp"
+#line 569 "grammar.y"
+                                                              { parser_print("id_list ',' opt_endl ID -> id_list"); (yyval.IdList) = (yyvsp[-3].IdList); (yyval.IdList)->add(*(yyvsp[0].Id)); }
+#line 4400 "grammar.tab.cpp"
     break;
 
   case 279: /* function_signature: FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name  */
-#line 571 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-7].Id), (yyvsp[-4].Vars), (yyvsp[0].Type), NULL); }
-#line 4405 "grammar.tab.cpp"
+#line 572 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-7].Id), (yyvsp[-4].Vars), (yyvsp[0].Type), NULL); }
+#line 4406 "grammar.tab.cpp"
     break;
 
   case 280: /* function_signature: FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')'  */
-#line 572 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-5].Id), (yyvsp[-2].Vars), object_type(), NULL); }
-#line 4411 "grammar.tab.cpp"
+#line 573 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-5].Id), (yyvsp[-2].Vars), object_type(), NULL); }
+#line 4412 "grammar.tab.cpp"
     break;
 
   case 281: /* function_signature: FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name  */
-#line 573 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-5].Id), NULL, (yyvsp[0].Type), NULL); }
-#line 4417 "grammar.tab.cpp"
+#line 574 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-5].Id), NULL, (yyvsp[0].Type), NULL); }
+#line 4418 "grammar.tab.cpp"
     break;
 
   case 282: /* function_signature: FUNCTION_KW ID '(' opt_endl ')'  */
-#line 574 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID '(' opt_endl ')' -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-3].Id), NULL, object_type(), NULL); }
-#line 4423 "grammar.tab.cpp"
+#line 575 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID '(' opt_endl ')' -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-3].Id), NULL, object_type(), NULL); }
+#line 4424 "grammar.tab.cpp"
     break;
 
   case 283: /* function_signature: FUNCTION_KW ID AS_KW type_name  */
-#line 575 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-2].Id), NULL, (yyvsp[0].Type), NULL); }
-#line 4429 "grammar.tab.cpp"
+#line 576 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-2].Id), NULL, (yyvsp[0].Type), NULL); }
+#line 4430 "grammar.tab.cpp"
     break;
 
   case 284: /* function_signature: FUNCTION_KW ID  */
-#line 576 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID -> function_signature"); (yyval.Procedure) = create_function((yyvsp[0].Id), NULL, object_type(), NULL); }
-#line 4435 "grammar.tab.cpp"
+#line 577 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID -> function_signature"); (yyval.Procedure) = create_function((yyvsp[0].Id), NULL, object_type(), NULL); }
+#line 4436 "grammar.tab.cpp"
     break;
 
   case 285: /* function_signature: FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' AS_KW type_name  */
-#line 577 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-8].Id), (yyvsp[-4].Vars), (yyvsp[0].Type), (yyvsp[-7].IdList)); }
-#line 4441 "grammar.tab.cpp"
+#line 578 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-8].Id), (yyvsp[-4].Vars), (yyvsp[0].Type), (yyvsp[-7].IdList)); }
+#line 4442 "grammar.tab.cpp"
     break;
 
   case 286: /* function_signature: FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')'  */
-#line 578 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-6].Id), (yyvsp[-2].Vars), object_type(), (yyvsp[-5].IdList)); }
-#line 4447 "grammar.tab.cpp"
+#line 579 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-6].Id), (yyvsp[-2].Vars), object_type(), (yyvsp[-5].IdList)); }
+#line 4448 "grammar.tab.cpp"
     break;
 
   case 287: /* function_signature: FUNCTION_KW ID generic_param_list '(' opt_endl ')' AS_KW type_name  */
-#line 579 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID generic_param_list '(' opt_endl ')' AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-6].Id), NULL, (yyvsp[0].Type), (yyvsp[-5].IdList)); }
-#line 4453 "grammar.tab.cpp"
+#line 580 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID generic_param_list '(' opt_endl ')' AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-6].Id), NULL, (yyvsp[0].Type), (yyvsp[-5].IdList)); }
+#line 4454 "grammar.tab.cpp"
     break;
 
   case 288: /* function_signature: FUNCTION_KW ID generic_param_list '(' opt_endl ')'  */
-#line 580 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID generic_param_list '(' opt_endl ')' -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-4].Id), NULL, object_type(), (yyvsp[-3].IdList)); }
-#line 4459 "grammar.tab.cpp"
+#line 581 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID generic_param_list '(' opt_endl ')' -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-4].Id), NULL, object_type(), (yyvsp[-3].IdList)); }
+#line 4460 "grammar.tab.cpp"
     break;
 
   case 289: /* function_signature: FUNCTION_KW ID generic_param_list AS_KW type_name  */
-#line 581 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID generic_param_list AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-3].Id), NULL, (yyvsp[0].Type), (yyvsp[-2].IdList)); }
-#line 4465 "grammar.tab.cpp"
+#line 582 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID generic_param_list AS_KW type_name -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-3].Id), NULL, (yyvsp[0].Type), (yyvsp[-2].IdList)); }
+#line 4466 "grammar.tab.cpp"
     break;
 
   case 290: /* function_signature: FUNCTION_KW ID generic_param_list  */
-#line 582 "grammar.y"
-                                                                                                                                  { debug_print("FUNCTION_KW ID generic_param_list -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-1].Id), NULL, object_type(), (yyvsp[0].IdList)); }
-#line 4471 "grammar.tab.cpp"
+#line 583 "grammar.y"
+                                                                                                                                  { parser_print("FUNCTION_KW ID generic_param_list -> function_signature"); (yyval.Procedure) = create_function((yyvsp[-1].Id), NULL, object_type(), (yyvsp[0].IdList)); }
+#line 4472 "grammar.tab.cpp"
     break;
 
   case 291: /* sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'  */
-#line 585 "grammar.y"
-                                                                                          { debug_print("SUB_KW ID '(' opt_endl function_parameters opt_endl ')' -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[-5].Id), (yyvsp[-2].Vars), NULL, NULL); }
-#line 4477 "grammar.tab.cpp"
+#line 586 "grammar.y"
+                                                                                          { parser_print("SUB_KW ID '(' opt_endl function_parameters opt_endl ')' -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[-5].Id), (yyvsp[-2].Vars), NULL, NULL); }
+#line 4478 "grammar.tab.cpp"
     break;
 
   case 292: /* sub_signature: SUB_KW ID '(' opt_endl ')'  */
-#line 586 "grammar.y"
-                                                                                          { debug_print("SUB_KW ID '(' opt_endl ')' -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[-3].Id), NULL, NULL, NULL);}
-#line 4483 "grammar.tab.cpp"
+#line 587 "grammar.y"
+                                                                                          { parser_print("SUB_KW ID '(' opt_endl ')' -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[-3].Id), NULL, NULL, NULL);}
+#line 4484 "grammar.tab.cpp"
     break;
 
   case 293: /* sub_signature: SUB_KW ID  */
-#line 587 "grammar.y"
-                                                                                          { debug_print("SUB_KW ID -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[0].Id), NULL, NULL, NULL); }
-#line 4489 "grammar.tab.cpp"
+#line 588 "grammar.y"
+                                                                                          { parser_print("SUB_KW ID -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[0].Id), NULL, NULL, NULL); }
+#line 4490 "grammar.tab.cpp"
     break;
 
   case 294: /* sub_signature: SUB_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')'  */
-#line 588 "grammar.y"
-                                                                                          { debug_print("SUB_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[-6].Id), (yyvsp[-2].Vars), NULL, (yyvsp[-5].IdList));}
-#line 4495 "grammar.tab.cpp"
+#line 589 "grammar.y"
+                                                                                          { parser_print("SUB_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[-6].Id), (yyvsp[-2].Vars), NULL, (yyvsp[-5].IdList));}
+#line 4496 "grammar.tab.cpp"
     break;
 
   case 295: /* sub_signature: SUB_KW ID generic_param_list '(' opt_endl ')'  */
-#line 589 "grammar.y"
-                                                                                          { debug_print("SUB_KW ID generic_param_list '(' opt_endl ')' -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[-4].Id), NULL, NULL, (yyvsp[-3].IdList)); }
-#line 4501 "grammar.tab.cpp"
+#line 590 "grammar.y"
+                                                                                          { parser_print("SUB_KW ID generic_param_list '(' opt_endl ')' -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[-4].Id), NULL, NULL, (yyvsp[-3].IdList)); }
+#line 4502 "grammar.tab.cpp"
     break;
 
   case 296: /* sub_signature: SUB_KW ID generic_param_list  */
-#line 590 "grammar.y"
-                                                                                          { debug_print("SUB_KW ID generic_param_list -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[-1].Id), NULL, NULL, (yyvsp[0].IdList)); }
-#line 4507 "grammar.tab.cpp"
+#line 591 "grammar.y"
+                                                                                          { parser_print("SUB_KW ID generic_param_list -> sub_signature"); (yyval.Procedure) = create_function((yyvsp[-1].Id), NULL, NULL, (yyvsp[0].IdList)); }
+#line 4508 "grammar.tab.cpp"
     break;
 
   case 297: /* function_declaration: opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list  */
-#line 593 "grammar.y"
-                                                                                                            { debug_print("opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list -> function_declaration"); (yyval.Procedure) = (yyvsp[-4].Procedure); (yyval.Procedure)->block = (yyvsp[-2].Block); (yyval.Procedure)->isStatic = (yyvsp[-5].Bool); }
-#line 4513 "grammar.tab.cpp"
+#line 594 "grammar.y"
+                                                                                                            { parser_print("opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list -> function_declaration"); (yyval.Procedure) = (yyvsp[-4].Procedure); (yyval.Procedure)->block = (yyvsp[-2].Block); (yyval.Procedure)->isStatic = (yyvsp[-5].Bool); }
+#line 4514 "grammar.tab.cpp"
     break;
 
   case 298: /* function_declaration: opt_procedure_modifiers function_signature endl_list END_FUNCTION endl_list  */
-#line 594 "grammar.y"
-                                                                                                            { debug_print("opt_procedure_modifiers function_signature endl_list END_FUNCTION endl_list -> function_declaration"); (yyval.Procedure) = (yyvsp[-3].Procedure); (yyval.Procedure)->block = create_block(); (yyval.Procedure)->isStatic = (yyvsp[-4].Bool); }
-#line 4519 "grammar.tab.cpp"
+#line 595 "grammar.y"
+                                                                                                            { parser_print("opt_procedure_modifiers function_signature endl_list END_FUNCTION endl_list -> function_declaration"); (yyval.Procedure) = (yyvsp[-3].Procedure); (yyval.Procedure)->block = create_block(); (yyval.Procedure)->isStatic = (yyvsp[-4].Bool); }
+#line 4520 "grammar.tab.cpp"
     break;
 
   case 299: /* sub_declaration: opt_procedure_modifiers sub_signature endl_list block END_SUB endl_list  */
-#line 597 "grammar.y"
-                                                                                                  { debug_print("opt_procedure_modifiers sub_signature endl_list block END_SUB endl_list -> sub_declaration"); (yyval.Procedure) = (yyvsp[-4].Procedure); (yyval.Procedure)->block = (yyvsp[-2].Block); (yyval.Procedure)->isStatic = (yyvsp[-5].Bool); }
-#line 4525 "grammar.tab.cpp"
+#line 598 "grammar.y"
+                                                                                                  { parser_print("opt_procedure_modifiers sub_signature endl_list block END_SUB endl_list -> sub_declaration"); (yyval.Procedure) = (yyvsp[-4].Procedure); (yyval.Procedure)->block = (yyvsp[-2].Block); (yyval.Procedure)->isStatic = (yyvsp[-5].Bool); }
+#line 4526 "grammar.tab.cpp"
     break;
 
   case 300: /* sub_declaration: opt_procedure_modifiers sub_signature endl_list END_SUB endl_list  */
-#line 598 "grammar.y"
-                                                                                                              { debug_print("opt_procedure_modifiers sub_signature endl_list END_SUB endl_list -> sub_declaration"); (yyval.Procedure) = (yyvsp[-3].Procedure); (yyval.Procedure)->block = create_block(); (yyval.Procedure)->isStatic = (yyvsp[-4].Bool); }
-#line 4531 "grammar.tab.cpp"
+#line 599 "grammar.y"
+                                                                                                              { parser_print("opt_procedure_modifiers sub_signature endl_list END_SUB endl_list -> sub_declaration"); (yyval.Procedure) = (yyvsp[-3].Procedure); (yyval.Procedure)->block = create_block(); (yyval.Procedure)->isStatic = (yyvsp[-4].Bool); }
+#line 4532 "grammar.tab.cpp"
     break;
 
   case 301: /* opt_procedure_modifiers: SHARED_KW  */
-#line 601 "grammar.y"
-                                                    { debug_print("SHARED_KW -> opt_procedure_modifiers"); (yyval.Bool) = true; }
-#line 4537 "grammar.tab.cpp"
+#line 602 "grammar.y"
+                                                    { parser_print("SHARED_KW -> opt_procedure_modifiers"); (yyval.Bool) = true; }
+#line 4538 "grammar.tab.cpp"
     break;
 
   case 302: /* opt_procedure_modifiers: %empty  */
-#line 602 "grammar.y"
-                                                    { debug_print("empty -> opt_procedure_modifiers"); (yyval.Bool) = false; }
-#line 4543 "grammar.tab.cpp"
+#line 603 "grammar.y"
+                                                    { parser_print("empty -> opt_procedure_modifiers"); (yyval.Bool) = false; }
+#line 4544 "grammar.tab.cpp"
     break;
 
   case 303: /* function_parameters: function_parameter  */
-#line 605 "grammar.y"
-                                                                      { debug_print("function_parameter -> function_parameters"); (yyval.Vars) = new list<typed_value*>(); (yyval.Vars)->add((yyvsp[0].Var)); }
-#line 4549 "grammar.tab.cpp"
+#line 606 "grammar.y"
+                                                                      { parser_print("function_parameter -> function_parameters"); (yyval.Vars) = new list<typed_value*>(); (yyval.Vars)->add((yyvsp[0].Var)); }
+#line 4550 "grammar.tab.cpp"
     break;
 
   case 304: /* function_parameters: function_parameters ',' function_parameter  */
-#line 606 "grammar.y"
-                                                                      { debug_print("function_parameters ',' function_parameter -> function_parameters"); (yyval.Vars) = (yyvsp[-2].Vars); (yyval.Vars)->add((yyvsp[0].Var)); }
-#line 4555 "grammar.tab.cpp"
+#line 607 "grammar.y"
+                                                                      { parser_print("function_parameters ',' function_parameter -> function_parameters"); (yyval.Vars) = (yyvsp[-2].Vars); (yyval.Vars)->add((yyvsp[0].Var)); }
+#line 4556 "grammar.tab.cpp"
     break;
 
   case 305: /* function_parameter: variable_name AS_KW type_name '=' expr  */
-#line 609 "grammar.y"
-                                                                               { debug_print("variable_name AS_KW type_name '=' expr -> function_parameter"); (yyval.Var) = (yyvsp[-4].Var); (yyvsp[-4].Var)->type = (yyvsp[-2].Type); (yyvsp[-4].Var)->value = (yyvsp[0].Expr); }
-#line 4561 "grammar.tab.cpp"
+#line 610 "grammar.y"
+                                                                               { parser_print("variable_name AS_KW type_name '=' expr -> function_parameter"); (yyval.Var) = (yyvsp[-4].Var); (yyvsp[-4].Var)->type = (yyvsp[-2].Type); (yyvsp[-4].Var)->value = (yyvsp[0].Expr); }
+#line 4562 "grammar.tab.cpp"
     break;
 
   case 306: /* function_parameter: variable_name AS_KW type_name  */
-#line 610 "grammar.y"
-                                                                               { debug_print("variable_name AS_KW type_name -> function_parameter"); (yyval.Var) = (yyvsp[-2].Var); (yyvsp[-2].Var)->type = (yyvsp[0].Type); }
-#line 4567 "grammar.tab.cpp"
+#line 611 "grammar.y"
+                                                                               { parser_print("variable_name AS_KW type_name -> function_parameter"); (yyval.Var) = (yyvsp[-2].Var); (yyvsp[-2].Var)->type = (yyvsp[0].Type); }
+#line 4568 "grammar.tab.cpp"
     break;
 
   case 307: /* function_parameter: variable_name  */
-#line 611 "grammar.y"
-                                                                               { debug_print("variable_name -> function_parameter"); (yyval.Var) = (yyvsp[0].Var); }
-#line 4573 "grammar.tab.cpp"
+#line 612 "grammar.y"
+                                                                               { parser_print("variable_name -> function_parameter"); (yyval.Var) = (yyvsp[0].Var); }
+#line 4574 "grammar.tab.cpp"
     break;
 
   case 308: /* class_declaration: CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW  */
-#line 614 "grammar.y"
-                                                                                                                              { debug_print("CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); (yyval.Struct) = parse_struct_body(create_class((yyvsp[-7].Id), NULL, (yyvsp[-4].Id)), (yyvsp[-2].UnknownBody)); }
-#line 4579 "grammar.tab.cpp"
+#line 615 "grammar.y"
+                                                                                                                              { parser_print("CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); (yyval.Struct) = parse_struct_body(create_class((yyvsp[-7].Id), NULL, (yyvsp[-4].Id)), (yyvsp[-2].UnknownBody)); }
+#line 4580 "grammar.tab.cpp"
     break;
 
   case 309: /* class_declaration: CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW  */
-#line 615 "grammar.y"
-                                                                                                                              { debug_print("CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); (yyval.Struct) = parse_struct_body(create_class((yyvsp[-4].Id), NULL, NULL), (yyvsp[-2].UnknownBody)); }
-#line 4585 "grammar.tab.cpp"
+#line 616 "grammar.y"
+                                                                                                                              { parser_print("CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); (yyval.Struct) = parse_struct_body(create_class((yyvsp[-4].Id), NULL, NULL), (yyvsp[-2].UnknownBody)); }
+#line 4586 "grammar.tab.cpp"
     break;
 
   case 310: /* class_declaration: CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW  */
-#line 616 "grammar.y"
-                                                                                                                              { debug_print("CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); (yyval.Struct) = parse_struct_body(create_class((yyvsp[-8].Id), (yyvsp[-7].IdList), (yyvsp[-4].Id)), (yyvsp[-2].UnknownBody)); }
-#line 4591 "grammar.tab.cpp"
+#line 617 "grammar.y"
+                                                                                                                              { parser_print("CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); (yyval.Struct) = parse_struct_body(create_class((yyvsp[-8].Id), (yyvsp[-7].IdList), (yyvsp[-4].Id)), (yyvsp[-2].UnknownBody)); }
+#line 4592 "grammar.tab.cpp"
     break;
 
   case 311: /* class_declaration: CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW  */
-#line 617 "grammar.y"
-                                                                                                                              { debug_print("CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); (yyval.Struct) = parse_struct_body(create_class((yyvsp[-5].Id), (yyvsp[-4].IdList), NULL), (yyvsp[-2].UnknownBody)); }
-#line 4597 "grammar.tab.cpp"
+#line 618 "grammar.y"
+                                                                                                                              { parser_print("CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); (yyval.Struct) = parse_struct_body(create_class((yyvsp[-5].Id), (yyvsp[-4].IdList), NULL), (yyvsp[-2].UnknownBody)); }
+#line 4598 "grammar.tab.cpp"
     break;
 
   case 312: /* generic_param_list: '(' opt_endl OF_KW id_list opt_endl ')'  */
-#line 620 "grammar.y"
-                                                                                     { debug_print("ID '(' opt_endl OF_KW id_list opt_endl ')' -> generic_param_list"); (yyval.IdList) = (yyvsp[-2].IdList); }
-#line 4603 "grammar.tab.cpp"
+#line 621 "grammar.y"
+                                                                                     { parser_print("ID '(' opt_endl OF_KW id_list opt_endl ')' -> generic_param_list"); (yyval.IdList) = (yyvsp[-2].IdList); }
+#line 4604 "grammar.tab.cpp"
     break;
 
   case 313: /* opt_structure_body: %empty  */
-#line 623 "grammar.y"
-                                         { debug_print("empty -> opt_structure_body"); (yyval.UnknownBody) = create_node_list(); }
-#line 4609 "grammar.tab.cpp"
+#line 624 "grammar.y"
+                                         { parser_print("empty -> opt_structure_body"); (yyval.UnknownBody) = create_node_list(); }
+#line 4610 "grammar.tab.cpp"
     break;
 
   case 314: /* opt_structure_body: structure_body  */
-#line 624 "grammar.y"
-                                         { debug_print("structure_body -> opt_structure_body"); (yyval.UnknownBody) = (yyvsp[0].UnknownBody); }
-#line 4615 "grammar.tab.cpp"
+#line 625 "grammar.y"
+                                         { parser_print("structure_body -> opt_structure_body"); (yyval.UnknownBody) = (yyvsp[0].UnknownBody); }
+#line 4616 "grammar.tab.cpp"
     break;
 
   case 315: /* structure_body: structure_member  */
-#line 627 "grammar.y"
-                                                          { debug_print("structure_member -> structure_body"); (yyval.UnknownBody) = create_node_list(); (yyval.UnknownBody)->add((yyvsp[0].Unknown)); }
-#line 4621 "grammar.tab.cpp"
+#line 628 "grammar.y"
+                                                          { parser_print("structure_member -> structure_body"); (yyval.UnknownBody) = create_node_list(); (yyval.UnknownBody)->add((yyvsp[0].Unknown)); }
+#line 4622 "grammar.tab.cpp"
     break;
 
   case 316: /* structure_body: structure_body structure_member  */
-#line 628 "grammar.y"
-                                                          { debug_print("structure_body structure_member -> structure_body"); (yyval.UnknownBody) = (yyvsp[-1].UnknownBody);  (yyval.UnknownBody)->add((yyvsp[0].Unknown)); }
-#line 4627 "grammar.tab.cpp"
+#line 629 "grammar.y"
+                                                          { parser_print("structure_body structure_member -> structure_body"); (yyval.UnknownBody) = (yyvsp[-1].UnknownBody);  (yyval.UnknownBody)->add((yyvsp[0].Unknown)); }
+#line 4628 "grammar.tab.cpp"
     break;
 
   case 317: /* structure_member: function_declaration  */
-#line 631 "grammar.y"
-                                                         { debug_print("function_declaration -> structure_member"); (yyval.Unknown) = (yyvsp[0].Procedure); }
-#line 4633 "grammar.tab.cpp"
+#line 632 "grammar.y"
+                                                         { parser_print("function_declaration -> structure_member"); (yyval.Unknown) = (yyvsp[0].Procedure); }
+#line 4634 "grammar.tab.cpp"
     break;
 
   case 318: /* structure_member: sub_declaration  */
-#line 632 "grammar.y"
-                                                         { debug_print("sub_declaration -> structure_member"); (yyval.Unknown) = (yyvsp[0].Procedure); }
-#line 4639 "grammar.tab.cpp"
+#line 633 "grammar.y"
+                                                         { parser_print("sub_declaration -> structure_member"); (yyval.Unknown) = (yyvsp[0].Procedure); }
+#line 4640 "grammar.tab.cpp"
     break;
 
   case 319: /* structure_member: field_declaration  */
-#line 633 "grammar.y"
-                                                         { debug_print("field_declaration -> structure_member"); (yyval.Unknown) = (yyvsp[0].Field); }
-#line 4645 "grammar.tab.cpp"
+#line 634 "grammar.y"
+                                                         { parser_print("field_declaration -> structure_member"); (yyval.Unknown) = (yyvsp[0].Field); }
+#line 4646 "grammar.tab.cpp"
     break;
 
   case 320: /* field_declaration: DIM_KW var_declarator endl_list  */
-#line 636 "grammar.y"
-                                                           { debug_print("DIM_KW var_declarator endl_list -> field_declaration"); (yyval.Field) = create_field((yyvsp[-1].Var)); }
-#line 4651 "grammar.tab.cpp"
+#line 637 "grammar.y"
+                                                           { parser_print("DIM_KW var_declarator endl_list -> field_declaration"); (yyval.Field) = create_field((yyvsp[-1].Var)); }
+#line 4652 "grammar.tab.cpp"
     break;
 
 
-#line 4655 "grammar.tab.cpp"
+#line 4656 "grammar.tab.cpp"
 
       default: break;
     }
@@ -4880,7 +4881,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 639 "grammar.y"
+#line 640 "grammar.y"
 
 
 void runParserTests() {
@@ -4899,7 +4900,7 @@ void runParserTests() {
 int main(int argc, char** argv) {
     if (argc > 1) {
         if (strcmp(argv[1], "--debug") == 0) {
-            DEBUG = true;
+            PARSER_DEBUG = true;
             runParserTests();
             return 0;
         }

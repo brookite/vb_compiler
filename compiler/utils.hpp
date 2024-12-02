@@ -10,9 +10,18 @@
 #pragma warning(disable:4996)
 
 extern bool DEBUG;
+extern bool PARSER_DEBUG;
+extern bool LEXER_DEBUG;
 
 void debug_print(const char* format, ...);
-void internal_error(const char* msg);
+
+void lexer_print(const char* format, ...);
+void parser_print(const char* format, ...);
+void semantic_print(const char* format, ...);
+
+void internal_error(const char* msg, ...);
+void syntax_error(const char* msg, ...);
+void type_error(const char* msg, ...);
 
 namespace fs = std::filesystem;
 

@@ -16,6 +16,8 @@
     void removeUnderline(char * str);
 
     void printDateTimeLiteral(DateTime& datetime);
+
+    bool LEXER_DEBUG = false;
 %}
 
 
@@ -50,142 +52,142 @@ HOUR({DIGIT}{1,2}{WHITESPACE}*(AM|PM))
 
 %}
 
-AndAlso { debug_print("Found keyword : %s\n", yytext); return AND_ALSO; }
-Byte { debug_print("Found keyword : %s\n", yytext); return BYTE_KW; }
-CDate { debug_print("Found keyword : %s\n", yytext); return CDATE_KW; }
-CInt { debug_print("Found keyword : %s\n", yytext); return CINTEGER_KW; }
-Const { debug_print("Found keyword : %s\n", yytext); return CONST_KW; }
-CSng { debug_print("Found keyword : %s\n", yytext); return CSINGLE_KW; }
-CULng { debug_print("Found keyword : %s\n", yytext); return CULONG_KW; }
-Else { debug_print("Found keyword : %s\n", yytext); return ELSE_KW; }
-Exit { debug_print("Found keyword : %s\n", yytext); return EXIT_KW; }
-In { debug_print("Found keyword : %s\n", yytext); return IN_KW; }
-Is { debug_print("Found keyword : %s\n", yytext); return IS; }
-Like { debug_print("Found keyword : %s\n", yytext); return LIKE; }
-Mod { debug_print("Found keyword : %s\n", yytext); return MOD; }
-MyBase { debug_print("Found keyword : %s\n", yytext); return MYBASE_KW; }
-New { debug_print("Found keyword : %s\n", yytext); return NEW_KW; }
-Or { debug_print("Found keyword : %s\n", yytext); return OR;  }
-ReadOnly { debug_print("Found keyword : %s\n", yytext); return READONLY_KW; }
-Single { debug_print("Found keyword : %s\n", yytext); return SINGLE_KW; }
-String { debug_print("Found keyword : %s\n", yytext); return STRING_KW; }
-Then { debug_print("Found keyword : %s\n", yytext); return THEN_KW; }
-ULong { debug_print("Found keyword : %s\n", yytext); return ULONG_KW; }
-As { debug_print("Found keyword : %s\n", yytext); return AS_KW; }
-ByVal { debug_print("Found keyword : %s\n", yytext); return BYVAL_KW; }
-CBool { debug_print("Found keyword : %s\n", yytext); return CBOOL_KW; }
-CDbl { debug_print("Found keyword : %s\n", yytext); return CDOUBLE_KW; }
-Class { debug_print("Found keyword : %s\n", yytext); return CLASS_KW; }
-Continue { debug_print("Found keyword : %s\n", yytext); return CONTINUE_KW; }
-CStr { debug_print("Found keyword : %s\n", yytext); return CSTRING_KW; }
-CUShort { debug_print("Found keyword : %s\n", yytext); return CUSHORT_KW; }
-Do { debug_print("Found keyword : %s\n", yytext); return DO_KW; }
-ElseIf { debug_print("Found keyword : %s\n", yytext); return ELSEIF_KW; }
-Erase { debug_print("Found keyword : %s\n", yytext); return ERASE_KW; }
-Function { debug_print("Found keyword : %s\n", yytext); return FUNCTION_KW; }
-If { debug_print("Found keyword : %s\n", yytext); return IF_KW; }
-Inherits { debug_print("Found keyword : %s\n", yytext); return INHERITS_KW;  }
-IsNot { debug_print("Found keyword : %s\n", yytext); return ISNOT; }
-Long { debug_print("Found keyword : %s\n", yytext); return LONG_KW; }
-MyClass { debug_print("Found keyword : %s\n", yytext); return MYCLASS_KW;  }
-Next { debug_print("Found keyword : %s\n", yytext); return NEXT_KW; }
-OrElse { debug_print("Found keyword : %s\n", yytext); return OR_ELSE; }
-ParamArray { debug_print("Found keyword : %s\n", yytext); return PARAMARRAY_KW; }
-Protected { debug_print("Found keyword : %s\n", yytext); return PROTECTED_KW; }
-ReDim { debug_print("Found keyword : %s\n", yytext); return REDIM_KW; }
-Return { debug_print("Found keyword : %s\n", yytext); return RETURN_KW; }
-Static { debug_print("Found keyword : %s\n", yytext); return STATIC_KW; }
-Structure { debug_print("Found keyword : %s\n", yytext); return STRUCT_KW; }
-UShort { debug_print("Found keyword : %s\n", yytext); return USHORT_KW;  }
-Boolean { debug_print("Found keyword : %s\n", yytext); return BOOLEAN_KW; }
-Call { debug_print("Found keyword : %s\n", yytext); return CALL_KW; }
-CByte { debug_print("Found keyword : %s\n", yytext); return CBYTE_KW; }
-CLng { debug_print("Found keyword : %s\n", yytext); return CLONG_KW; }
-CSByte { debug_print("Found keyword : %s\n", yytext); return CSBYTE_KW;  }
-CType { debug_print("Found keyword : %s\n", yytext); return CTYPE_KW; }
-Date { debug_print("Found keyword : %s\n", yytext); return DATE_KW; }
-Double { debug_print("Found keyword : %s\n", yytext); return DOUBLE_KW; }
-End { debug_print("Found keyword : %s\n", yytext); return END_KW; }
-End[ ]+Function { debug_print("Found keyword : %s\n", yytext); return END_FUNCTION; }
-End[ ]+Select { debug_print("Found keyword : %s\n", yytext); return END_SELECT; }
-End[ ]+If { debug_print("Found keyword : %s\n", yytext); return END_IF; }
-End[ ]+Sub { debug_print("Found keyword : %s\n", yytext); return END_SUB; }
-End[ ]+While { debug_print("Found keyword : %s\n", yytext); return END_WHILE; }
-Integer { debug_print("Found keyword : %s\n", yytext); return INTEGER_KW; }
-Loop { debug_print("Found keyword : %s\n", yytext); return LOOP_KW; }
-Not { debug_print("Found keyword : %s\n", yytext); return NOT; }
-Object { debug_print("Found keyword : %s\n", yytext); return OBJECT_KW; }
-Public { debug_print("Found keyword : %s\n", yytext); return PUBLIC_KW; }
-SByte { debug_print("Found keyword : %s\n", yytext); return SBYTE_KW; }
-Shared { debug_print("Found keyword : %s\n", yytext); return SHARED_KW; }
-Step { debug_print("Found keyword : %s\n", yytext); return STEP_KW; }
-Sub { debug_print("Found keyword : %s\n", yytext); return SUB_KW; }
-To { debug_print("Found keyword : %s\n", yytext); return TO_KW; }
-While { debug_print("Found keyword : %s\n", yytext); return WHILE_KW; }
-And { debug_print("Found keyword : %s\n", yytext); return AND; }
-ByRef { debug_print("Found keyword : %s\n", yytext); return BYREF_KW; }
-Case { debug_print("Found keyword : %s\n", yytext); return CASE_KW; }
-CChar { debug_print("Found keyword : %s\n", yytext); return CCHAR_KW; }
-Char { debug_print("Found keyword : %s\n", yytext); return CHAR_KW; }
-CObj { debug_print("Found keyword : %s\n", yytext); return COBJECT_KW; }
-CShort { debug_print("Found keyword : %s\n", yytext); return CSHORT_KW; }
-CUInt { debug_print("Found keyword : %s\n", yytext); return CUINTEGER_KW; }
-Decimal { debug_print("Found keyword : %s\n", yytext); return DECIMAL_KW; }
-Dim { debug_print("Found keyword : %s\n", yytext); return DIM_KW; }
-Each { debug_print("Found keyword : %s\n", yytext); return EACH_KW; }
-For { debug_print("Found keyword : %s\n", yytext); return FOR_KW; }
-GoTo { debug_print("Found keyword : %s\n", yytext); return GOTO_KW; }
-Me { debug_print("Found keyword : %s\n", yytext); return ME_KW; }
-Of { debug_print("Found keyword : %s\n", yytext); return OF_KW; }
-Optional { debug_print("Found keyword : %s\n", yytext); return OPTIONAL_KW; }
-Private { debug_print("Found keyword : %s\n", yytext); return PRIVATE_KW; }
-Select { debug_print("Found keyword : %s\n", yytext); return SELECT_KW; }
-Short { debug_print("Found keyword : %s\n", yytext); return SHORT_KW; }
-Stop { debug_print("Found keyword : %s\n", yytext); return STOP_KW; }
-UInteger { debug_print("Found keyword : %s\n", yytext); return UINTEGER_KW; }
-Xor { debug_print("Found keyword : %s\n", yytext); return XOR; }
-Until { debug_print("Found keyword : %s\n", yytext); return UNTIL_KW; }
+AndAlso { lexer_print("Found keyword : %s\n", yytext); return AND_ALSO; }
+Byte { lexer_print("Found keyword : %s\n", yytext); return BYTE_KW; }
+CDate { lexer_print("Found keyword : %s\n", yytext); return CDATE_KW; }
+CInt { lexer_print("Found keyword : %s\n", yytext); return CINTEGER_KW; }
+Const { lexer_print("Found keyword : %s\n", yytext); return CONST_KW; }
+CSng { lexer_print("Found keyword : %s\n", yytext); return CSINGLE_KW; }
+CULng { lexer_print("Found keyword : %s\n", yytext); return CULONG_KW; }
+Else { lexer_print("Found keyword : %s\n", yytext); return ELSE_KW; }
+Exit { lexer_print("Found keyword : %s\n", yytext); return EXIT_KW; }
+In { lexer_print("Found keyword : %s\n", yytext); return IN_KW; }
+Is { lexer_print("Found keyword : %s\n", yytext); return IS; }
+Like { lexer_print("Found keyword : %s\n", yytext); return LIKE; }
+Mod { lexer_print("Found keyword : %s\n", yytext); return MOD; }
+MyBase { lexer_print("Found keyword : %s\n", yytext); return MYBASE_KW; }
+New { lexer_print("Found keyword : %s\n", yytext); return NEW_KW; }
+Or { lexer_print("Found keyword : %s\n", yytext); return OR;  }
+ReadOnly { lexer_print("Found keyword : %s\n", yytext); return READONLY_KW; }
+Single { lexer_print("Found keyword : %s\n", yytext); return SINGLE_KW; }
+String { lexer_print("Found keyword : %s\n", yytext); return STRING_KW; }
+Then { lexer_print("Found keyword : %s\n", yytext); return THEN_KW; }
+ULong { lexer_print("Found keyword : %s\n", yytext); return ULONG_KW; }
+As { lexer_print("Found keyword : %s\n", yytext); return AS_KW; }
+ByVal { lexer_print("Found keyword : %s\n", yytext); return BYVAL_KW; }
+CBool { lexer_print("Found keyword : %s\n", yytext); return CBOOL_KW; }
+CDbl { lexer_print("Found keyword : %s\n", yytext); return CDOUBLE_KW; }
+Class { lexer_print("Found keyword : %s\n", yytext); return CLASS_KW; }
+Continue { lexer_print("Found keyword : %s\n", yytext); return CONTINUE_KW; }
+CStr { lexer_print("Found keyword : %s\n", yytext); return CSTRING_KW; }
+CUShort { lexer_print("Found keyword : %s\n", yytext); return CUSHORT_KW; }
+Do { lexer_print("Found keyword : %s\n", yytext); return DO_KW; }
+ElseIf { lexer_print("Found keyword : %s\n", yytext); return ELSEIF_KW; }
+Erase { lexer_print("Found keyword : %s\n", yytext); return ERASE_KW; }
+Function { lexer_print("Found keyword : %s\n", yytext); return FUNCTION_KW; }
+If { lexer_print("Found keyword : %s\n", yytext); return IF_KW; }
+Inherits { lexer_print("Found keyword : %s\n", yytext); return INHERITS_KW;  }
+IsNot { lexer_print("Found keyword : %s\n", yytext); return ISNOT; }
+Long { lexer_print("Found keyword : %s\n", yytext); return LONG_KW; }
+MyClass { lexer_print("Found keyword : %s\n", yytext); return MYCLASS_KW;  }
+Next { lexer_print("Found keyword : %s\n", yytext); return NEXT_KW; }
+OrElse { lexer_print("Found keyword : %s\n", yytext); return OR_ELSE; }
+ParamArray { lexer_print("Found keyword : %s\n", yytext); return PARAMARRAY_KW; }
+Protected { lexer_print("Found keyword : %s\n", yytext); return PROTECTED_KW; }
+ReDim { lexer_print("Found keyword : %s\n", yytext); return REDIM_KW; }
+Return { lexer_print("Found keyword : %s\n", yytext); return RETURN_KW; }
+Static { lexer_print("Found keyword : %s\n", yytext); return STATIC_KW; }
+Structure { lexer_print("Found keyword : %s\n", yytext); return STRUCT_KW; }
+UShort { lexer_print("Found keyword : %s\n", yytext); return USHORT_KW;  }
+Boolean { lexer_print("Found keyword : %s\n", yytext); return BOOLEAN_KW; }
+Call { lexer_print("Found keyword : %s\n", yytext); return CALL_KW; }
+CByte { lexer_print("Found keyword : %s\n", yytext); return CBYTE_KW; }
+CLng { lexer_print("Found keyword : %s\n", yytext); return CLONG_KW; }
+CSByte { lexer_print("Found keyword : %s\n", yytext); return CSBYTE_KW;  }
+CType { lexer_print("Found keyword : %s\n", yytext); return CTYPE_KW; }
+Date { lexer_print("Found keyword : %s\n", yytext); return DATE_KW; }
+Double { lexer_print("Found keyword : %s\n", yytext); return DOUBLE_KW; }
+End { lexer_print("Found keyword : %s\n", yytext); return END_KW; }
+End[ ]+Function { lexer_print("Found keyword : %s\n", yytext); return END_FUNCTION; }
+End[ ]+Select { lexer_print("Found keyword : %s\n", yytext); return END_SELECT; }
+End[ ]+If { lexer_print("Found keyword : %s\n", yytext); return END_IF; }
+End[ ]+Sub { lexer_print("Found keyword : %s\n", yytext); return END_SUB; }
+End[ ]+While { lexer_print("Found keyword : %s\n", yytext); return END_WHILE; }
+Integer { lexer_print("Found keyword : %s\n", yytext); return INTEGER_KW; }
+Loop { lexer_print("Found keyword : %s\n", yytext); return LOOP_KW; }
+Not { lexer_print("Found keyword : %s\n", yytext); return NOT; }
+Object { lexer_print("Found keyword : %s\n", yytext); return OBJECT_KW; }
+Public { lexer_print("Found keyword : %s\n", yytext); return PUBLIC_KW; }
+SByte { lexer_print("Found keyword : %s\n", yytext); return SBYTE_KW; }
+Shared { lexer_print("Found keyword : %s\n", yytext); return SHARED_KW; }
+Step { lexer_print("Found keyword : %s\n", yytext); return STEP_KW; }
+Sub { lexer_print("Found keyword : %s\n", yytext); return SUB_KW; }
+To { lexer_print("Found keyword : %s\n", yytext); return TO_KW; }
+While { lexer_print("Found keyword : %s\n", yytext); return WHILE_KW; }
+And { lexer_print("Found keyword : %s\n", yytext); return AND; }
+ByRef { lexer_print("Found keyword : %s\n", yytext); return BYREF_KW; }
+Case { lexer_print("Found keyword : %s\n", yytext); return CASE_KW; }
+CChar { lexer_print("Found keyword : %s\n", yytext); return CCHAR_KW; }
+Char { lexer_print("Found keyword : %s\n", yytext); return CHAR_KW; }
+CObj { lexer_print("Found keyword : %s\n", yytext); return COBJECT_KW; }
+CShort { lexer_print("Found keyword : %s\n", yytext); return CSHORT_KW; }
+CUInt { lexer_print("Found keyword : %s\n", yytext); return CUINTEGER_KW; }
+Decimal { lexer_print("Found keyword : %s\n", yytext); return DECIMAL_KW; }
+Dim { lexer_print("Found keyword : %s\n", yytext); return DIM_KW; }
+Each { lexer_print("Found keyword : %s\n", yytext); return EACH_KW; }
+For { lexer_print("Found keyword : %s\n", yytext); return FOR_KW; }
+GoTo { lexer_print("Found keyword : %s\n", yytext); return GOTO_KW; }
+Me { lexer_print("Found keyword : %s\n", yytext); return ME_KW; }
+Of { lexer_print("Found keyword : %s\n", yytext); return OF_KW; }
+Optional { lexer_print("Found keyword : %s\n", yytext); return OPTIONAL_KW; }
+Private { lexer_print("Found keyword : %s\n", yytext); return PRIVATE_KW; }
+Select { lexer_print("Found keyword : %s\n", yytext); return SELECT_KW; }
+Short { lexer_print("Found keyword : %s\n", yytext); return SHORT_KW; }
+Stop { lexer_print("Found keyword : %s\n", yytext); return STOP_KW; }
+UInteger { lexer_print("Found keyword : %s\n", yytext); return UINTEGER_KW; }
+Xor { lexer_print("Found keyword : %s\n", yytext); return XOR; }
+Until { lexer_print("Found keyword : %s\n", yytext); return UNTIL_KW; }
 
-Nothing { debug_print("Found nothing literal\n"); return NOTHING; }
-True { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = true; return BOOL; }
-False { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = false; return BOOL; }
+Nothing { lexer_print("Found nothing literal\n"); return NOTHING; }
+True { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = true; return BOOL; }
+False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false; return BOOL; }
 
-\^ {debug_print("Found a XOR operator: %s\n", yytext); return '^'; }
-\* {debug_print("Found a MUL operator: %s\n", yytext); return '*'; }
-\\ {debug_print("Found a FLOOR_DIV operator: %s\n", yytext); return '\\'; }
-\/ {debug_print("Found a DIV operator: %s\n", yytext); return '/'; }
-\+ {debug_print("Found a PLUS operator: %s\n", yytext); return '+'; }
-\- {debug_print("Found a MINUS operator: %s\n", yytext); return '-'; }
-\= { debug_print("Found an ASSIGNMENT operator: %s\n", yytext); return '='; }
-\^= {debug_print("Found a XOR_ASSIGNMENT operator: %s\n", yytext); return EXP_ASSIGN; }
-\*= {debug_print("Found a MUL_ASSIGNMENT operator: %s\n", yytext); return MUL_ASSIGN; }
-\+= {debug_print("Found a ADD_ASSIGNMENT operator: %s\n", yytext); return ADD_ASSIGN; }
-\-= {debug_print("Found a SUB_ASSIGNMENT operator: %s\n", yytext); return SUB_ASSIGN; }
-\<= {debug_print("Found a LESS_EQUAL to operator: %s\n", yytext); return LEQ; }
-\< {debug_print("Found a LESS operator: %s\n", yytext); return '<'; }
-\> {debug_print("Found a GREATER operator: %s\n", yytext); return '>'; }
-\>= {debug_print("Found a GREATER_EQUAL to operator: %s\n", yytext); return GEQ; }
-\<\> {debug_print("Found a NOT_EQUAL to operator: %s\n", yytext); return NEQ; }
-\& {debug_print("Found a STR_CONCAT operator: %s\n", yytext); return '&'; }
-\&= {debug_print("Found a STR_CONCAT_ASSIGNMENT operator: %s\n", yytext); return STRCAT_ASSIGN; }
-\>\>  {debug_print("Found a RSHIFT operator: %s\n", yytext); return RSHIFT; }
-\<\< {debug_print("Found a LSHIFT operator: %s\n", yytext); return LSHIFT; }
-\<\<= {debug_print("Found a LSHIFT_ASSIGNMENT operator: %s\n", yytext); return LSHIFT_ASSIGN; }
-\>\>= {debug_print("Found a RSHIFT_ASSIGNMENT operator: %s\n", yytext); return RSHIFT_ASSIGN; }
-\\= { debug_print("Found an FLOOR_DIV_ASSIGNMENT operator: %s\n", yytext); return FLOORDIV_ASSIGN; }
-\/= {debug_print("Found a DIV_ASSIGNMENT operator: %s\n", yytext); return DIV_ASSIGN; }
+\^ {lexer_print("Found a XOR operator: %s\n", yytext); return '^'; }
+\* {lexer_print("Found a MUL operator: %s\n", yytext); return '*'; }
+\\ {lexer_print("Found a FLOOR_DIV operator: %s\n", yytext); return '\\'; }
+\/ {lexer_print("Found a DIV operator: %s\n", yytext); return '/'; }
+\+ {lexer_print("Found a PLUS operator: %s\n", yytext); return '+'; }
+\- {lexer_print("Found a MINUS operator: %s\n", yytext); return '-'; }
+\= { lexer_print("Found an ASSIGNMENT operator: %s\n", yytext); return '='; }
+\^= {lexer_print("Found a XOR_ASSIGNMENT operator: %s\n", yytext); return EXP_ASSIGN; }
+\*= {lexer_print("Found a MUL_ASSIGNMENT operator: %s\n", yytext); return MUL_ASSIGN; }
+\+= {lexer_print("Found a ADD_ASSIGNMENT operator: %s\n", yytext); return ADD_ASSIGN; }
+\-= {lexer_print("Found a SUB_ASSIGNMENT operator: %s\n", yytext); return SUB_ASSIGN; }
+\<= {lexer_print("Found a LESS_EQUAL to operator: %s\n", yytext); return LEQ; }
+\< {lexer_print("Found a LESS operator: %s\n", yytext); return '<'; }
+\> {lexer_print("Found a GREATER operator: %s\n", yytext); return '>'; }
+\>= {lexer_print("Found a GREATER_EQUAL to operator: %s\n", yytext); return GEQ; }
+\<\> {lexer_print("Found a NOT_EQUAL to operator: %s\n", yytext); return NEQ; }
+\& {lexer_print("Found a STR_CONCAT operator: %s\n", yytext); return '&'; }
+\&= {lexer_print("Found a STR_CONCAT_ASSIGNMENT operator: %s\n", yytext); return STRCAT_ASSIGN; }
+\>\>  {lexer_print("Found a RSHIFT operator: %s\n", yytext); return RSHIFT; }
+\<\< {lexer_print("Found a LSHIFT operator: %s\n", yytext); return LSHIFT; }
+\<\<= {lexer_print("Found a LSHIFT_ASSIGNMENT operator: %s\n", yytext); return LSHIFT_ASSIGN; }
+\>\>= {lexer_print("Found a RSHIFT_ASSIGNMENT operator: %s\n", yytext); return RSHIFT_ASSIGN; }
+\\= { lexer_print("Found an FLOOR_DIV_ASSIGNMENT operator: %s\n", yytext); return FLOORDIV_ASSIGN; }
+\/= {lexer_print("Found a DIV_ASSIGNMENT operator: %s\n", yytext); return DIV_ASSIGN; }
 
 \'|REM {BEGIN(COMMENT); comment.clear(); }
 <COMMENT>[^\n]+ {comment += yytext;}
-<COMMENT>\n {debug_print("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
-<COMMENT><<EOF>> {debug_print("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
+<COMMENT>\n {lexer_print("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
+<COMMENT><<EOF>> {lexer_print("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
 
 \" {BEGIN(STRING); strLiteral.clear();}
 <STRING>[^\n"]+ {strLiteral += yytext;}
 <STRING>\"\" {strLiteral += "\"";}
-<STRING><<EOF>>	{debug_print("Error: String literal wasn't closed\n"); yyterminate();}
+<STRING><<EOF>>	{lexer_print("Error: String literal wasn't closed\n"); yyterminate();}
 <STRING>\n	{
-    debug_print("Error: String literal wasn't closed at line %d\n", yylineno - 1); 
+    lexer_print("Error: String literal wasn't closed at line %d\n", yylineno - 1); 
     if (!DEBUG) {
         yyterminate();
     }
@@ -196,30 +198,30 @@ False { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 <STRING>\"[Cc] {
     if (strLiteral.length() == 1) {
         charValue = strLiteral.at(0);
-        debug_print("Found a char literal: %s\n", strLiteral.c_str());
+        lexer_print("Found a char literal: %s\n", strLiteral.c_str());
         BEGIN(INITIAL);
         yylval.Char = charValue;
         return CHAR;
     } else {
-        debug_print("Error: character literal can have only one character, not string, line: %d\n", yylineno);
+        lexer_print("Error: character literal can have only one character, not string, line: %d\n", yylineno);
         if (!DEBUG) yyterminate();
     }
 }
-<STRING>\" {debug_print("Found a string literal: %s\n", strLiteral.c_str()); yylval.Str = new std::string(strLiteral); BEGIN(INITIAL); debug_print("%d", STR); return STR; }
+<STRING>\" {lexer_print("Found a string literal: %s\n", strLiteral.c_str()); yylval.Str = new std::string(strLiteral); BEGIN(INITIAL); lexer_print("%d", STR); return STR; }
 
 
 {UNDERSCORE_NUMBER}\_+(S|US|I|UI|L|UL)? {
-    debug_print("Error: invalid underscore character in number literal\n");
+    lexer_print("Error: invalid underscore character in number literal\n");
     if (!DEBUG) yyterminate();
 }
 
 &H{HEX_DIGIT}(\_*{HEX_DIGIT})*\_+(S|US|I|UI|L|UL)? {
-    debug_print("Error: invalid underscore character in number literal\n");
+    lexer_print("Error: invalid underscore character in number literal\n");
     if (!DEBUG) yyterminate();
 }
 
 &O{OCT_DIGIT}(\_*{OCT_DIGIT})*\_+(S|US|I|UI|L|UL)? {
-    debug_print("Error: invalid underscore character in number literal\n");
+    lexer_print("Error: invalid underscore character in number literal\n");
     if (!DEBUG) yyterminate();
 }
 
@@ -237,7 +239,7 @@ False { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     }
 
     removeUnderline(intLiteral);
-    intValue = atoi(intLiteral); debug_print("Found a integer value: %d\n", intValue);
+    intValue = atoi(intLiteral); lexer_print("Found a integer value: %d\n", intValue);
     yylval.Int = intValue;
     return INT;
 }
@@ -256,7 +258,7 @@ False { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 
     removeUnderline(intLiteral);
     intValue = strtol(intLiteral + 2, NULL, 16);
-    debug_print("Found a hex integer value: %d\n", intValue);
+    lexer_print("Found a hex integer value: %d\n", intValue);
     yylval.Int = intValue;
     return INT;
 }
@@ -275,7 +277,7 @@ False { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 
     removeUnderline(intLiteral);
     intValue = strtol(intLiteral + 2, NULL, 8);
-    debug_print("Found a oct integer value: %d\n", intValue);
+    lexer_print("Found a oct integer value: %d\n", intValue);
     yylval.Int = intValue;
     return INT;
 }
@@ -284,7 +286,7 @@ False { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     std::string lexeme(yytext);
     removeUnderline(&lexeme);
     doubleValue = atof(lexeme.c_str());
-    debug_print("Found floating point literal: %f\n", doubleValue);
+    lexer_print("Found floating point literal: %f\n", doubleValue);
     yylval.Float = doubleValue;
     return FLOAT;
 }
@@ -294,13 +296,13 @@ False { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
     removeUnderline(floatLiteral);
     doubleValue = atof(floatLiteral);
-    debug_print("Found floating point literal: %f\n", doubleValue);
+    lexer_print("Found floating point literal: %f\n", doubleValue);
     yylval.Float = doubleValue;
     return FLOAT;
 }
 
 {UNDERSCORE_NUMBER}(\_*(\.{UNDERSCORE_NUMBER}\_*)?({EXPONENT})?|({UNDERSCORE_NUMBER}\_*)?\.{UNDERSCORE_NUMBER}\_*({EXPONENT}\_*)?)([Ff]|[Dd]|[Rr])? {
-    debug_print("Invalid float literal: %s at line %d\n", yytext, yylineno);
+    lexer_print("Invalid float literal: %s at line %d\n", yytext, yylineno);
     if (!DEBUG) yyterminate();
 }
 
@@ -354,42 +356,42 @@ False { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     datetime = new DateTime();
     datetime->date = date;
     datetime->time = time;
-    debug_print("Found a datetime literal: \n");
+    lexer_print("Found a datetime literal: \n");
     printDateTimeLiteral(*datetime);
     yylval.DateTime = datetime;
     return DATETIME;
 }
 
 \#[^\n]*\# {
-    debug_print("Invalid datetime literal: %s\n", yytext);
+    lexer_print("Invalid datetime literal: %s\n", yytext);
     if (!DEBUG) yyterminate();
 }
 
 \#[^\n\#]* {
-    debug_print("Datetime literal wasn't closed: %s\n", yytext);
+    lexer_print("Datetime literal wasn't closed: %s\n", yytext);
     if (!DEBUG) yyterminate();
 }
 
-\( { debug_print("Found a separator left parenthesis: %s\n", yytext); return '(';}
-\) {debug_print("Found a separator right parenthesis: %s\n", yytext); return ')';}
-\{ {debug_print("Found a separator left curly brace: %s\n", yytext); return '{';}
-\} { debug_print("Found a separator right curly brace: %s\n", yytext); return '}';}
-\? {debug_print("Found a separator question mark: %s\n", yytext); return '?';}
-\. {debug_print("Found a separator point: %s\n", yytext); return '.';}
-\! {debug_print("Found a separator exclamation mark: %s\n", yytext); return '!'; }
-\, { debug_print("Found a separator comma: %s\n", yytext); return ','; }
-\: {debug_print("Found a separator colon: %s\n", yytext); return ':'; }
+\( { lexer_print("Found a separator left parenthesis: %s\n", yytext); return '(';}
+\) {lexer_print("Found a separator right parenthesis: %s\n", yytext); return ')';}
+\{ {lexer_print("Found a separator left curly brace: %s\n", yytext); return '{';}
+\} { lexer_print("Found a separator right curly brace: %s\n", yytext); return '}';}
+\? {lexer_print("Found a separator question mark: %s\n", yytext); return '?';}
+\. {lexer_print("Found a separator point: %s\n", yytext); return '.';}
+\! {lexer_print("Found a separator exclamation mark: %s\n", yytext); return '!'; }
+\, { lexer_print("Found a separator comma: %s\n", yytext); return ','; }
+\: {lexer_print("Found a separator colon: %s\n", yytext); return ':'; }
 
 \[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {
-    debug_print("Found a identifier: %s\n", yytext);
+    lexer_print("Found a identifier: %s\n", yytext);
     yylval.Id = new std::string(yytext);
     return ID;
 }
 
 [\r\t ]+ {}
-[\r\t ]_[\r\t ]+\n+ {debug_print("Found a line continuation: %s\n", yytext);}
-\n+ {debug_print("Found end of line %d\n\n", yylineno - 1); return ENDL; }
-<<EOF>> {debug_print("File ended\n"); yyterminate();}
+[\r\t ]_[\r\t ]+\n+ {lexer_print("Found a line continuation: %s\n", yytext);}
+\n+ {lexer_print("Found end of line %d\n\n", yylineno - 1); return ENDL; }
+<<EOF>> {lexer_print("File ended\n"); yyterminate();}
 
 %%
 
@@ -422,29 +424,29 @@ void removeUnderline(char* str) {
 
 void printDateTimeLiteral(DateTime & datetime) {
     if (datetime.date != nullptr) {
-        debug_print("Month: %d\n", datetime.date->month);
-        debug_print("Day: %d\n", datetime.date->day);
-        debug_print("Year: %d\n", datetime.date->year);
+        lexer_print("Month: %d\n", datetime.date->month);
+        lexer_print("Day: %d\n", datetime.date->day);
+        lexer_print("Year: %d\n", datetime.date->year);
     }
     if (datetime.time != nullptr) {
-        debug_print("Hour: %d\n", datetime.time->hour);
-        debug_print("Minute: %d\n", datetime.time->minute);
-        debug_print("Second: %d\n", datetime.time->second);
-        debug_print("Time format: ");
+        lexer_print("Hour: %d\n", datetime.time->hour);
+        lexer_print("Minute: %d\n", datetime.time->minute);
+        lexer_print("Second: %d\n", datetime.time->second);
+        lexer_print("Time format: ");
         if (datetime.time->format == AM) {
-            debug_print("AM\n");
+            lexer_print("AM\n");
         }
         else if (datetime.time->format == PM) {
-            debug_print("PM\n");
+            lexer_print("PM\n");
         }
         else {
-            debug_print("24-hour format\n");
+            lexer_print("24-hour format\n");
         }
     }
 }
 
 void runLexerTests() {
-    DEBUG = true;
+    LEXER_DEBUG = true;
     const char* files[] = {
         "lexer/tests/lexer_comment_test.vb",
         "lexer/tests/lexer_literal_test.vb",
@@ -458,7 +460,7 @@ void runLexerTests() {
     int numFiles = sizeof(files) / sizeof(files[0]);
     for (int i = 0; i < numFiles; i++) {
         fopen_s(&yyin, files[i], "r");
-        debug_print("Processing file: %s\n", files[i]);
+        lexer_print("Processing file: %s\n", files[i]);
         yylex();
         fclose(yyin);
         BEGIN(INITIAL);
