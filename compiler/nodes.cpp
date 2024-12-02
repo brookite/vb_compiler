@@ -109,30 +109,25 @@ void expr_node::dot(DotWriter * out) {
 
     switch (type) {
     case expr_type::String:
-        out->addNodeLabel(this);
-        litId = getNewId();
-        out->label(litId, this->String);
+        litId = out->addStringNode(this->String);
         out->link(this->id, litId, "");
         break;
     case expr_type::Id:
-        out->addNodeLabel(this);
-        litId = getNewId();
-        out->label(litId, this->String);
+        
+        litId = out->addStringNode(this->String);
         out->link(this->id, litId, "");
         break;
     case expr_type::Int:
-        out->addNodeLabel(this);
-        litId = getNewId();
-        out->label(litId, std::to_string(this->Int));
+        
+        litId = out->addStringNode(std::to_string(this->Int));
         out->link(this->id, litId, "");
         break;
     case expr_type::Bool:
         out->label(this->id, this->Bool ? "true" : "false");
         break;
     case expr_type::Float:
-        out->addNodeLabel(this);
-        litId = getNewId();
-        out->label(litId, std::to_string(this->Float));
+        
+        litId = out->addStringNode(std::to_string(this->Float));
         out->link(this->id, litId, "");
         break;
     case expr_type::Nothing:
@@ -145,52 +140,51 @@ void expr_node::dot(DotWriter * out) {
         out->label(this->id, std::to_string(this->Char));
         break;
     case expr_type::Datetime:
-        out->addNodeLabel(this);
-        litId = getNewId();
-        out->label(litId, this->DateTime->str());
+        
+        litId = out->addStringNode(this->DateTime->str());
         out->link(this->id, litId, "");
         break;
     case expr_type::UnaryMinusOp:
-        out->addNodeLabel(this);
+        
         out->addNode(this->argument);
         out->linkNodes(this, this->argument, "argument");
         break;
     case expr_type::UnaryPlusOp:
-        out->addNodeLabel(this);
+        
         out->addNode(this->argument);
         out->linkNodes(this, this->argument, "argument");
         break;
     case expr_type::NotOp:
-        out->addNodeLabel(this);
+        
         out->addNode(this->argument);
         out->linkNodes(this, this->argument, "argument");
         break;
     case expr_type::MyClassMemberAccess:
-        out->addNodeLabel(this);
+        
         out->addNode(this->right);
         out->linkNodes(this, this->right, "right");
         break;
     case expr_type::MyBaseMemberAccess:
-        out->addNodeLabel(this);
+        
         out->addNode(this->right);
         out->linkNodes(this, this->right, "right");
         break;
     case expr_type::CallOrIndex:
-        out->addNodeLabel(this);
+        
         out->addNode(this->left);
         out->linkNodes(this, this->left, "left");
         out->addList(this->arg_list);
         out->linkList(this, this->arg_list, "arg_list");
         break;
     case expr_type::Cast:
-        out->addNodeLabel(this);
+        
         out->addNode(this->datatype);
         out->linkNodes(this, this->datatype, "datatype");
         out->addNode(this->argument);
         out->linkNodes(this, this->argument, "argument");
         break;
     case expr_type::If:
-        out->addNodeLabel(this);
+        
         out->addNode(this->condition);
         out->linkNodes(this, this->condition, "cond");
         out->addNode(this->then_expr);
@@ -199,19 +193,19 @@ void expr_node::dot(DotWriter * out) {
         out->linkNodes(this, this->else_expr, "else");
         break;
     case expr_type::New:
-        out->addNodeLabel(this);
+        
         out->addNode(this->datatype);
         out->linkNodes(this, this->datatype, "datatype");
         out->addList(this->arg_list);
         out->linkList(this, this->arg_list, "arg_list");
         break;
     case expr_type::Collection:
-        out->addNodeLabel(this);
+        
         out->addList(this->arg_list);
         out->linkList(this, this->arg_list, "arg_list");
         break;
     case expr_type::ArrayNew:
-        out->addNodeLabel(this);
+        
         out->addNode(this->datatype);
         out->linkNodes(this, this->datatype, "datatype");
         out->addList(this->arg_list);
@@ -220,21 +214,21 @@ void expr_node::dot(DotWriter * out) {
         out->linkList(this, this->collection, "collection");
         break;
     case expr_type::Index:
-        out->addNodeLabel(this);
+        
         out->addNode(this->left);
         out->linkNodes(this, this->left, "left");
         out->addList(this->arg_list);
         out->linkList(this, this->arg_list, "arg_list");
         break;
     case expr_type::Call:
-        out->addNodeLabel(this);
+        
         out->addNode(this->left);
         out->linkNodes(this, this->left, "left");
         out->addList(this->arg_list);
         out->linkList(this, this->arg_list, "right");
         break;
     default:
-        out->addNodeLabel(this);
+        
         out->addNode(this->left);
         out->linkNodes(this, this->left, "left");
         out->addNode(this->right);
@@ -338,12 +332,12 @@ void stmt_node::dot(DotWriter* out) {
 
     switch (type) {
     case stmt_type::Call:
-        out->addNodeLabel(this);
+        
         out->addNode(target_expr);
         out->linkNodes(this, target_expr);
         break;
     case stmt_type::If:
-        out->addNodeLabel(this);
+        
         out->addNode(condition);
         out->linkNodes(this, condition, "cond");
         out->addList(block);
@@ -354,14 +348,14 @@ void stmt_node::dot(DotWriter* out) {
         out->linkList(this, else_block, "else_block");
         break;
     case stmt_type::ElseIf:
-        out->addNodeLabel(this);
+        
         out->addNode(condition);
         out->linkNodes(this, condition, "condition");
         out->addList(block);
         out->linkList(this, block, "block");
         break;
     case stmt_type::For:
-        out->addNodeLabel(this);
+        
         nameId = out->addStringNode(Id);
         out->link(((node *)this)->id, nameId, "varname");
         out->addNode(to_expr);
@@ -374,7 +368,7 @@ void stmt_node::dot(DotWriter* out) {
         out->linkList(this, block, "block");
         break;
     case stmt_type::ForEach:
-        out->addNodeLabel(this);
+        
         nameId = getNewId();
         out->label(nameId, Id);
         out->link(((node*)this)->id, nameId, "varname");
@@ -384,21 +378,21 @@ void stmt_node::dot(DotWriter* out) {
         out->linkList(this, block, "block");
         break;
     case stmt_type::Select:
-        out->addNodeLabel(this);
+        
         out->addNode(target_expr);
         out->linkNodes(this, target_expr, "target");
         out->addList(condition_nodes);
         out->linkList(this, condition_nodes, "branches");
         break;
     case stmt_type::Case:
-        out->addNodeLabel(this);
+        
         out->addNode(condition);
         out->linkNodes(this, condition, "cond");
         out->addList(block);
         out->linkList(this, block, "block");
         break;
     case stmt_type::CaseRange:
-        out->addNodeLabel(this);
+        
         out->addNode(condition);
         out->linkNodes(this, condition, "from");
         out->addNode(to_expr);
@@ -407,33 +401,33 @@ void stmt_node::dot(DotWriter* out) {
         out->linkList(this, block, "block");
         break;
     case stmt_type::CaseElse:
-        out->addNodeLabel(this);
+        
         out->addList(block);
         out->linkList(this, block, "block");
         break;
     case stmt_type::While:
-        out->addNodeLabel(this);
+        
         out->addNode(condition);
         out->linkNodes(this, condition, "cond");
         out->addList(block);
         out->linkList(this, block, "block");
         break;
     case stmt_type::DoWhile:
-        out->addNodeLabel(this);
+        
         out->addNode(condition);
         out->linkNodes(this, condition, "cond");
         out->addList(block);
         out->linkList(this, block, "block");
         break;
     case stmt_type::DoUntil:
-        out->addNodeLabel(this);
+        
         out->addNode(condition);
         out->linkNodes(this, condition, "cond");
         out->addList(block);
         out->linkList(this, block, "block");
         break;
     case stmt_type::VarDecl:
-        out->addNodeLabel(this);
+        
         out->addNode(var_decl);
         out->linkNodes(this, var_decl, "decl");
         var = "dim";
@@ -441,45 +435,45 @@ void stmt_node::dot(DotWriter* out) {
         out->link(((node*)this)->id, modId, "modifier");
         break;
     case stmt_type::Assignment:
-        out->addNodeLabel(this);
+        
         out->addNode(lvalue);
         out->linkNodes(this, lvalue, "lval");
         out->addNode(rvalue);
         out->linkNodes(this, rvalue, "rval");
         break;
     case stmt_type::ContinueDo:
-        out->addNodeLabel(this);
+        
         break;
     case stmt_type::ContinueWhile:
-        out->addNodeLabel(this);
+        
         break;
     case stmt_type::ContinueFor:
-        out->addNodeLabel(this);
+        
         break;
     case stmt_type::ExitDo:
-        out->addNodeLabel(this);
+        
         break;
     case stmt_type::ExitWhile:
-        out->addNodeLabel(this);
+        
         break;
     case stmt_type::ExitFor:
-        out->addNodeLabel(this);
+        
         break;
     case stmt_type::ExitSelect:
-        out->addNodeLabel(this);
+        
         break;
     case stmt_type::Redim:
-        out->addNodeLabel(this);
+        
         out->addList(redim);
         out->linkList(this, redim);
         break;
     case stmt_type::Erase:
-        out->addNodeLabel(this);
+        
         out->addList(expr_list);
         out->linkList(this, expr_list);
         break;
     case stmt_type::Return:
-        out->addNodeLabel(this);
+        
         out->addNode(target_expr);
         out->linkNodes(this, target_expr, "val");
         break;
@@ -490,7 +484,7 @@ void stmt_node::dot(DotWriter* out) {
 }
 
 void procedure_node::dot(DotWriter* out) {
-    out->addNodeLabel(this);
+    
     out->addNode(returnType);
     out->linkNodes(this, returnType, "ret_type");
     out->addStringList(generics);
@@ -504,7 +498,7 @@ void procedure_node::dot(DotWriter* out) {
 }
 
 void struct_node::dot(DotWriter* out) {
-    out->addNodeLabel(this);
+    
     out->addStringList(generics);
     out->linkList(this, generics, "generic");
     size_t nameId = out->addStringNode(name);
@@ -514,7 +508,7 @@ void struct_node::dot(DotWriter* out) {
     out->addList(fields);
     out->linkList(this, fields, "fields");
     out->addList(methods);
-    out->linkList(this, fields, "methods");
+    out->linkList(this, methods, "methods");
 }
 
 std::string type_node::getName() {
@@ -559,7 +553,7 @@ std::string type_node::getName() {
 }
 
 void type_node::dot(DotWriter* out) {
-    out->addNodeLabel(this);
+    
     out->addList(generics);
     out->linkList(this, generics, "generics");
     out->addList(dimensions, true, !isArray);
@@ -567,7 +561,7 @@ void type_node::dot(DotWriter* out) {
 }
 
 void typed_value::dot(DotWriter* out) {
-    out->addNodeLabel(this);
+    
     size_t nameId = out->addStringNode(varName);
     out->link(this->id, nameId, "name");
     out->addNode(type);
@@ -577,7 +571,7 @@ void typed_value::dot(DotWriter* out) {
 }
 
 void redim_clause_node::dot(DotWriter* out) {
-    out->addNodeLabel(this);
+    
     size_t id = out->addStringNode(Id);
     out->link(this->id, id, "id");
     out->addList(arg);
@@ -585,6 +579,8 @@ void redim_clause_node::dot(DotWriter* out) {
 }
 
 void program_node::dot(DotWriter* out) {
+    *out << "digraph {" << '\n';
+    *out << "subgraph {" << '\n';
     out->addNodeLabel(this);
     int i = 0;
     for (node* node : *nodes) {
@@ -592,10 +588,11 @@ void program_node::dot(DotWriter* out) {
         out->linkNodes(this, node, std::to_string(i));
         i++;
     }
+    *out << "}" << '\n';
+    *out << "}" << '\n';
 }
 
 void field_node::dot(DotWriter* out) {
-    out->addNodeLabel(this);
     out->addNode(decl);
     out->linkNodes(this, decl, "decl");
 }

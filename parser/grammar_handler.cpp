@@ -97,6 +97,7 @@ expr_node* create_call_expr(expr_node* call, list<expr_node *>* expr_list) {
 expr_node* create_call_expr(expr_node* call) {
 	expr_node* node = new expr_node(expr_type::CallOrIndex);
 	node->left = call;
+	node->arg_list = new list<expr_node*>();
 	return node;
 }
 

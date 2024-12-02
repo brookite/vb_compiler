@@ -51,6 +51,7 @@ enum class datatype_type {
 enum class var_type {
 	DIM, CONST
 };
+
 struct type_node : node {
 	datatype_type value;
 

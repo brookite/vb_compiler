@@ -396,13 +396,13 @@ member_access_member: ID                {debug_print("ID -> member_access_member
                     | kw                {debug_print("kw -> member_access_member"); $$ = $1;}
                     ;
 
-expr_list: expr                             {debug_print("expr -> expr_list"); $$ = create_expr_list();}
-         | expr_list ',' opt_endl expr      {debug_print("expr_list ',' opt_endl expr -> expr_list"); $1->add($4); $$ = $1;}
+expr_list: expr                             {debug_print("expr -> expr_list"); $$ = create_expr_list(); $$->add($1);}
+         | expr_list ',' opt_endl expr      {debug_print("expr_list ',' opt_endl expr -> expr_list"); $$ = $1; $$->add($4);}
          ;
 
 stmt: CALL_KW expr endl_list                        {debug_print("CALL_KW expr endl_list -> stmt"); $$ = create_call_stmt($2);}
-    | expr '(' opt_endl expr_list opt_endl ')' endl_list        {debug_print("expr(expr_list) -> stmt"); $$ = create_call_stmt($1, $4);} 
-	| expr '(' opt_endl ')'  endl_list                          {debug_print("expr() -> stmt"); $$ = create_call_stmt($1, create_expr_list());} 
+    | expr '(' opt_endl expr_list opt_endl ')' endl_list       {debug_print("expr(expr_list) -> stmt"); $$ = create_call_stmt($1, $4);} 
+	| expr '(' opt_endl ')' endl_list                          {debug_print("expr() -> stmt"); $$ = create_call_stmt($1, create_expr_list());} 
     | REDIM_KW redim_clause_list endl_list          {debug_print("REDIM_KW redim_clause_list endl_list -> stmt"); $$ = create_redim($2);}
     | ERASE_KW expr_list endl_list                  {debug_print("ERASE_KW expr_list endl_list -> stmt"); $$ = create_erase($2);}
     | if_stmt                                       {$$ = $1;}
@@ -415,15 +415,16 @@ stmt: CALL_KW expr endl_list                        {debug_print("CALL_KW expr e
     | while_stmt                                    {$$ = $1;}
     | var_declaration                               {$$ = $1;}
     | expr '=' expr endl_list                       {debug_print("expr '=' expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::Assign);}
-    | expr ADD_ASSIGN expr endl_list                {debug_print("expr ADD_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::AddAssign);}
-    | expr SUB_ASSIGN expr endl_list                {debug_print("expr SUB_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::SubAssign);}
-    | expr MUL_ASSIGN expr endl_list                {debug_print("expr MUL_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::MulAssign);}
-    | expr DIV_ASSIGN expr endl_list                {debug_print("expr DIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::DivAssign);}
-    | expr FLOORDIV_ASSIGN expr endl_list           {debug_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::FloorDivAssign);}
-    | expr EXP_ASSIGN expr endl_list                {debug_print("expr EXP_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::ExpAssign);}
-    | expr STRCAT_ASSIGN expr endl_list             {debug_print("expr STRCAT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $3, assignment_type::StrConcatAssign);}
-    | expr LSHIFT_ASSIGN expr endl_list             {debug_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $3, assignment_type::LshiftAssign);}
-    | expr RSHIFT_ASSIGN expr endl_list             {debug_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::RshiftAssign);}
+    | expr '=' ENDL expr endl_list                  {debug_print("expr '=' ENDL expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::Assign);}
+    | expr ADD_ASSIGN opt_endl expr endl_list       {debug_print("expr ADD_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::AddAssign);}
+    | expr SUB_ASSIGN opt_endl expr endl_list       {debug_print("expr SUB_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::SubAssign);}
+    | expr MUL_ASSIGN opt_endl expr endl_list       {debug_print("expr MUL_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::MulAssign);}
+    | expr DIV_ASSIGN opt_endl expr endl_list       {debug_print("expr DIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::DivAssign);}
+    | expr FLOORDIV_ASSIGN opt_endl expr endl_list  {debug_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::FloorDivAssign);}
+    | expr EXP_ASSIGN opt_endl expr endl_list       {debug_print("expr EXP_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::ExpAssign);}
+    | expr STRCAT_ASSIGN opt_endl expr endl_list    {debug_print("expr STRCAT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::StrConcatAssign);}
+    | expr LSHIFT_ASSIGN opt_endl expr endl_list    {debug_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::LshiftAssign);}
+    | expr RSHIFT_ASSIGN opt_endl expr endl_list    {debug_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::RshiftAssign);}
     | RETURN_KW endl_list                           {debug_print("RETURN_KW endl_list -> stmt"); $$ = create_return();}
     | RETURN_KW expr endl_list                      {debug_print("RETURN_KW expr endl_list -> stmt"); $$ = create_return($2);}
     | CONTINUE_KW DO_KW endl_list                   {debug_print("CONTINUE_KW DO_KW endl_list -> stmt"); $$ = create_continue(stmt_type::ContinueDo);}

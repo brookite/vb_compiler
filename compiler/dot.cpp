@@ -89,10 +89,11 @@ void outputDot(node* node, std::string filename) {
 		}
 		node->dot(&writer);
 		std::string dot_data = writer.write();
+		//std::cout << dot_data << std::endl;
 
 		fwrite(dot_data.c_str(), sizeof(char), dot_data.size(), pipe);
 		_pclose(pipe);
 		writer.close();
-		system(filename.c_str()); // open png in default application
+		system(("start " + filename).c_str()); // open png in default application
 	}
 }
