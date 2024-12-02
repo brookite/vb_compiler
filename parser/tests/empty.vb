@@ -1,5 +1,5 @@
 Class Main
     Shared Sub Main()
-        Call Print("a")
+        Call Print("abc")
     End Sub
 End Class

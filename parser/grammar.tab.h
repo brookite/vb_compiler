@@ -60,7 +60,7 @@ extern int yydebug;
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
     INT = 258,                     /* INT  */
-    STRING = 259,                  /* STRING  */
+    STR = 259,                     /* STR  */
     FLOAT = 260,                   /* FLOAT  */
     BOOL = 261,                    /* BOOL  */
     DATETIME = 262,                /* DATETIME  */
@@ -189,7 +189,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 183 "grammar.y"
+#line 180 "grammar.y"
 
     long long int Int;
     std::string * Str;
@@ -210,22 +210,17 @@ union YYSTYPE
 
     block * Block;
     procedure_node * Procedure;
-    constructor_node * Constructor;
     field_node * Field;
     redim_clause_node * RedimNode;
-    goto_label* Label;
 
     list<node *>* UnknownBody;
     list<expr_node *> * ExprList;
     list<redim_clause_node*>* Redim;
-    list<field_modifier>* FieldModifiers;
     list<std::string>* IdList;
     list<type_node *> * TypeList;
     list<typed_value*>* Vars;
 
-    field_modifier FieldMod;
-
-#line 229 "grammar.tab.h"
+#line 224 "grammar.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

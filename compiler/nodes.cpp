@@ -71,8 +71,6 @@ std::string expr_node::getName() {
         return "is";
     case expr_type::IsNotOp:
         return "isnot";
-    case expr_type::LikeOp:
-        return "like";
     case expr_type::UnaryMinusOp:
         return "unaryminus";
     case expr_type::UnaryPlusOp:
@@ -323,12 +321,6 @@ std::string stmt_node::getName() {
         return "exit_for";
     case stmt_type::ExitSelect:
         return "exit_select";
-    case stmt_type::Stop:
-        return "stop";
-    case stmt_type::End:
-        return "end";
-    case stmt_type::GoTo:
-        return "goto_stmt";
     case stmt_type::Redim:
         return "redim_stmt";
     case stmt_type::Erase:
@@ -440,22 +432,11 @@ void stmt_node::dot(DotWriter* out) {
         out->addList(block);
         out->linkList(this, block, "block");
         break;
-    case stmt_type::Label:
-        out->addNodeLabel(this);
-        out->addNode(label);
-        out->linkNodes(this, label, "label");
-        break;
     case stmt_type::VarDecl:
         out->addNodeLabel(this);
         out->addNode(var_decl);
         out->linkNodes(this, var_decl, "decl");
         var = "dim";
-        if (var_type == var_type::STATIC) {
-            var = "static";
-        }
-        else if (var_type == var_type::CONST) {
-            var = "const";
-        }
         modId = out->addStringNode(var);
         out->link(((node*)this)->id, modId, "modifier");
         break;
@@ -486,17 +467,6 @@ void stmt_node::dot(DotWriter* out) {
         break;
     case stmt_type::ExitSelect:
         out->addNodeLabel(this);
-        break;
-    case stmt_type::Stop:
-        out->addNodeLabel(this);
-        break;
-    case stmt_type::End:
-        out->addNodeLabel(this);
-        break;
-    case stmt_type::GoTo:
-        out->addNodeLabel(this);
-        out->addNode(label);
-        out->linkNodes(this, label, "label");
         break;
     case stmt_type::Redim:
         out->addNodeLabel(this);
@@ -533,12 +503,6 @@ void procedure_node::dot(DotWriter* out) {
     out->linkList(this, block, "body");
 }
 
-void goto_label::dot(DotWriter* out) {
-    out->addNodeLabel(this);
-    size_t id = out->addStringNode(this->isString ? value.string : std::to_string(value.number));
-    out->link(this->id, id, "");
-}
-
 void struct_node::dot(DotWriter* out) {
     out->addNodeLabel(this);
     out->addStringList(generics);
@@ -551,8 +515,6 @@ void struct_node::dot(DotWriter* out) {
     out->linkList(this, fields, "fields");
     out->addList(methods);
     out->linkList(this, fields, "methods");
-    out->addList(constructors);
-    out->linkList(this, constructors, "constructors");
 }
 
 std::string type_node::getName() {
@@ -632,31 +594,8 @@ void program_node::dot(DotWriter* out) {
     }
 }
 
-void constructor_node::dot(DotWriter* out) {
-    out->addNodeLabel(this);
-    out->addList(arguments);
-    out->linkList(this, arguments, "args");
-    out->addList(block);
-    out->linkList(this, block, "block");
-}
-
 void field_node::dot(DotWriter* out) {
     out->addNodeLabel(this);
     out->addNode(decl);
     out->linkNodes(this, decl, "decl");
-    for (field_modifier mod : *modifiers) {
-        if (mod == field_modifier::STATIC) {
-            size_t modId = out->addStringNode("shared");
-            out->link(this->id, modId, "modifier");
-        } else if (mod == field_modifier::DIM) {
-            size_t modId = out->addStringNode("dim");
-            out->link(this->id, modId, "modifier");
-        } else if (mod == field_modifier::CONST) {
-            size_t modId = out->addStringNode("shared");
-            out->link(this->id, modId, "modifier");
-        } else if (mod == field_modifier::READONLY) {
-            size_t modId = out->addStringNode("readonly");
-            out->link(this->id, modId, "modifier");
-        }
-    }
 }

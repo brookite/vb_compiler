@@ -14,20 +14,13 @@ struct node {
 	const size_t id; 
 };
 
-union IdOrInt {
-	long long number;
-	std::string string;
-
-	IdOrInt() {};
-	~IdOrInt() {};
-};
 
 enum class expr_type {
 	String, Id, Int, Bool, Float, Nothing, Me, Char, Datetime,
 	AddOp, SubOp, MulOp, DivOp, FloorDivOp, ExpOp, StrConcatOp, 
 	LtOp, GtOp, GteOp, LteOp, EqOp, NeqOp,
 	AndOp, AndAlsoOp, OrOp, OrElseOp, LeqOp, GeqOp, XorOp, ModOp, 
-	LshiftOp, RshiftOp, IsOp, IsNotOp, LikeOp,
+	LshiftOp, RshiftOp, IsOp, IsNotOp,
 	UnaryMinusOp, UnaryPlusOp, NotOp,
 	MemberAccess, MyClassMemberAccess,
 	MyBaseMemberAccess, CallOrIndex, Cast,
@@ -38,8 +31,8 @@ enum class expr_type {
 enum class stmt_type {
 	Call, If, ElseIf, For, ForEach, Select, Case, CaseRange,
 	CaseElse, While, DoWhile, DoUntil, Label, VarDecl, Assignment,
-	ContinueDo, ContinueWhile, ContinueFor, ExitDo, ExitWhile, ExitFor, ExitSelect,
-	Stop, End, GoTo, Redim, Erase, Return
+	ContinueDo, ContinueWhile, ContinueFor, ExitDo, ExitWhile, ExitFor, ExitSelect, //TODO: нужно?
+	Redim, Erase, Return
 };
 
 enum class assignment_type {
@@ -56,13 +49,8 @@ enum class datatype_type {
 };
 
 enum class var_type {
-	STATIC, DIM, CONST
+	DIM, CONST
 };
-
-enum class field_modifier {
-	STATIC, CONST, READONLY, DIM
-};
-
 struct type_node : node {
 	datatype_type value;
 
@@ -121,25 +109,13 @@ struct expr_node : public node {
 	virtual std::string getName();
 };
 
-struct goto_label : node {
-	IdOrInt value;
-
-	bool isString;
-
-	goto_label() {
-		value.number = 0;
-	}
-
-	virtual void dot(DotWriter* writer);
-	virtual std::string getName() { return "goto_label"; }
-};
-
 struct typed_value : node {
 	type_node* type = NULL;
 	std::string varName;
 	expr_node* value = NULL;
 
-	bool isArray = false; // Marker only in cases: var()
+	bool isArray = false; // marker in case var()
+	expr_node* array_size = NULL;
 
 	virtual void dot(DotWriter* writer);
 	virtual std::string getName() { return "var"; }
@@ -160,8 +136,6 @@ struct stmt_node : node {
 	stmt_type type;
 	expr_node* target_expr = NULL; // for case expr, call, return
 	list<expr_node*>* expr_list = NULL; //for erase
-
-	goto_label* label = NULL;
 
 	list<redim_clause_node*>* redim = new list<redim_clause_node*>();
 
@@ -221,16 +195,7 @@ struct procedure_node: node {
 	}
 };
 
-struct constructor_node : node {
-	list<typed_value*>* arguments = new list<typed_value*>();
-	block* block = NULL;
-	
-	virtual void dot(DotWriter* writer);
-	virtual std::string getName() { return "constructor"; }
-};
-
 struct field_node : node {
-	list<field_modifier>* modifiers = new list<field_modifier>();
 	typed_value* decl = NULL;
 
 	virtual void dot(DotWriter* writer);
@@ -238,17 +203,15 @@ struct field_node : node {
 };
 
 struct struct_node : node {
-	bool isClass = false; // if is false - means Struct in syntax
 	list<std::string>* generics = new list<std::string>();
 	std::string name;
 
 	list<field_node*>* fields = new list<field_node*>();
 	list<procedure_node*>* methods = new list<procedure_node*>();
-	list<constructor_node*>* constructors = new list<constructor_node*>();
 	type_node* parent_class = NULL;
 
 	virtual void dot(DotWriter* writer);
-	virtual std::string getName() { return isClass ? "class" : "struct"; }
+	virtual std::string getName() { return "class"; }
 };
 
 struct program_node : node {

@@ -2714,7 +2714,7 @@ YY_RULE_SETUP
 case 131:
 YY_RULE_SETUP
 #line 209 "lexer.l"
-{debug_print("Found a string literal: %s\n", strLiteral.c_str()); yylval.Str = new std::string(strLiteral); BEGIN(INITIAL); return STRING; }
+{debug_print("Found a string literal: %s\n", strLiteral.c_str()); yylval.Str = new std::string(strLiteral); BEGIN(INITIAL); debug_print("%d", STR); return STR; }
 	YY_BREAK
 case 132:
 YY_RULE_SETUP

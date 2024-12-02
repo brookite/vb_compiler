@@ -203,12 +203,6 @@ stmt_node* create_select_stmt(expr_node* expr, list<stmt_node*>* case_stmts) {
 	return node;
 }
 
-stmt_node* create_label_stmt(goto_label* label) {
-	stmt_node* node = new stmt_node(stmt_type::Label);
-	node->label = label;
-	return node;
-}
-
 stmt_node* create_for_stmt(type_node* type, std::string id, 
 	expr_node * value, expr_node* to_expr, 
 	expr_node* step, block* block) {
@@ -313,29 +307,6 @@ stmt_node* create_exit(stmt_type type) {
 	}
 }
 
-stmt_node* create_stop() {
-	stmt_node* node = new stmt_node(stmt_type::Stop);
-	return node;
-}
-
-stmt_node* create_end() {
-	stmt_node* node = new stmt_node(stmt_type::End);
-	return node;
-}
-
-goto_label* create_goto_label(expr_node * id) {
-	goto_label * value = new goto_label();
-	if (id->type == expr_type::Int) {
-		value->value.number = id->Int;
-		value->isString = false;
-		return value;
-	} else if (id->type == expr_type::String) {
-		value->value.string = id->String;
-		value->isString = true;
-	}
-	return value;
-}
-
 expr_node* create_arraynew_expr(type_node* type, list<expr_node*>* size) {
     expr_node* node = new expr_node(expr_type::ArrayNew);
     node->datatype = type;
@@ -396,12 +367,6 @@ list<expr_node*>* create_expr_list() {
 	return new list<expr_node*>();
 }
 
-stmt_node* create_goto(goto_label * label) {
-	stmt_node* stmt = new stmt_node(stmt_type::GoTo);
-	stmt->label = label;
-	return stmt;
-}
-
 list<redim_clause_node*>* create_redim_clause_list() {
 	return new list<redim_clause_node*>();
 }
@@ -451,6 +416,14 @@ typed_value* create_array_var_declarator(std::string* id) {
 	return node;
 }
 
+typed_value* create_array_var_declarator(std::string* id, expr_node * size) {
+	typed_value* node = new typed_value();
+	node->varName = *id;
+	node->isArray = true;
+	node->array_size = size;
+	return node;
+}
+
 typed_value* create_var_declarator(type_node* type, std::string * id) {
 	typed_value* node = new typed_value();
 	node->varName = *id;
@@ -485,11 +458,6 @@ procedure_node* create_function(std::string * name,
 	return node;
 }
 
-constructor_node* create_constructor(list<typed_value*>* params) {
-	constructor_node* node = new constructor_node();
-	node->arguments = params == NULL ? new list<typed_value*>() : params;
-	return node;
-}
 
 struct_node* create_struct(std::string * name,
 	list<std::string>* generics,
@@ -500,8 +468,7 @@ struct_node* create_struct(std::string * name,
 	node->generics = generics == NULL ? new list<std::string>() : generics;
 	node->fields = new list<field_node*>();
 	node->methods = new list<procedure_node*>();
-	node->constructors = new list<constructor_node*>();
-	node->parent_class = create_type(datatype_type::UserType, parent);
+	if (parent != NULL) node->parent_class = create_type(datatype_type::UserType, parent);
 	return node;
 }
 
@@ -510,13 +477,11 @@ struct_node* create_class(std::string * name,
 	std::string* parent
 ) {
 	struct_node* node = new struct_node();
-	node->isClass = true;
 	node->name = *name;
-	node->parent_class = create_type(datatype_type::UserType, parent);
+	if (parent != NULL) node->parent_class = create_type(datatype_type::UserType, parent);
 	node->generics = generics == NULL ? new list<std::string>() : generics;
 	node->fields = new list<field_node*>();
 	node->methods = new list<procedure_node*>();
-	node->constructors = new list<constructor_node*>();
 	return node;
 }
 
@@ -526,8 +491,6 @@ struct_node* parse_struct_body(struct_node* s, list<node*>* nodes) {
 			s->methods->add((procedure_node*)node);
 		} else if (dynamic_cast<field_node*>(node) != NULL) {
 			s->fields->add((field_node*)node);
-		} else if (dynamic_cast<constructor_node*>(node) != NULL) {
-			s->constructors->add((constructor_node*)node);
 		}
 	}
 	return s;
@@ -537,18 +500,8 @@ list<node*>* create_node_list() {
 	return new list<node*>();
 }
 
-
-field_node* create_field(typed_value* val, field_modifier mod) {
+field_node* create_field(typed_value* val) {
 	field_node* field = new field_node();
-	field->modifiers = new list<field_modifier>();
-	field->modifiers->add(mod);
-	field->decl = val;
-	return field;
-}
-
-field_node* create_field(typed_value* val, list<field_modifier>* mods) {
-	field_node* field = new field_node();
-	field->modifiers = mods;
 	field->decl = val;
 	return field;
 }

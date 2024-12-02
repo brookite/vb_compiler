@@ -11,12 +11,13 @@
 
 extern int yylineno;
 extern FILE* yyin;
+extern char* yytext;
 
 int yyparse();
 int yylex();
 
 void yyerror(char const* s) {
-    fprintf(stderr, "Error: %s on line %d\n", s, yylineno);
+    fprintf(stderr, "Error: %s on line %d, text: %s\n", s, yylineno, yytext);
     exit(1);
 }
 
@@ -28,7 +29,7 @@ program_node * program = NULL;
 %start program
 
 %token<Int> INT
-%token<Str> STRING
+%token<Str> STR
 %token<Float> FLOAT
 %token<Bool> BOOL
 %token<DateTime> DATETIME
@@ -153,14 +154,14 @@ program_node * program = NULL;
 %left '.'
 %nonassoc '(' ')' '{' '}'
 
-%type<Expr> expr kw member_access_member
-%type<Stmt> stmt select_stmt var_declaration case_else_stmt case_condition_branch label_stmt while_stmt if_stmt for_stmt foreach_stmt do_while_stmt do_until_stmt
+%type<Expr> expr kw member_access_member array_modifier
+%type<Stmt> stmt select_stmt var_declaration case_else_stmt case_condition_branch while_stmt if_stmt for_stmt foreach_stmt do_while_stmt do_until_stmt
 %type<ExprList> expr_list collection_initializer
 
 %type<EntryPoint> program
 
 %type<Struct> program_member
-%type<Struct> struct_declaration class_declaration
+%type<Struct> class_declaration
 %type<Type> primitive_type type_name array_type_name simple_type_name cast_target
 
 %type<RedimNode> redim_clause
@@ -170,13 +171,9 @@ program_node * program = NULL;
 %type<TypeList> type_list
 %type<IdList> id_list generic_param_list
 %type<Procedure> function_signature sub_signature function_declaration sub_declaration
-%type<Constructor> constructor_signature constructor_declaration
 %type<Bool> opt_procedure_modifiers
-%type<Field> field_declaration const_declaration
+%type<Field> field_declaration
 %type<UnknownBody> structure_body opt_structure_body
-%type<FieldModifiers> field_modifiers
-%type<FieldMod> field_var_modifier
-%type<Label> label_name
 %type<Vars> function_parameters
 %type<Unknown> structure_member
 
@@ -200,20 +197,15 @@ program_node * program = NULL;
 
     block * Block;
     procedure_node * Procedure;
-    constructor_node * Constructor;
     field_node * Field;
     redim_clause_node * RedimNode;
-    goto_label* Label;
 
     list<node *>* UnknownBody;
     list<expr_node *> * ExprList;
     list<redim_clause_node*>* Redim;
-    list<field_modifier>* FieldModifiers;
     list<std::string>* IdList;
     list<type_node *> * TypeList;
     list<typed_value*>* Vars;
-
-    field_modifier FieldMod;
 }
 
 %%
@@ -222,8 +214,7 @@ program: program_member                     {debug_print("program_member -> prog
        | program program_member             {debug_print("program program_member -> program"); program->nodes->add($2); $$ = program;}
        ;
 
-program_member: struct_declaration              {debug_print("struct_declaration -> program_member"); $$ = $1;}
-              | class_declaration               {debug_print("class_declaration -> program_member"); $$ = $1;}
+program_member: class_declaration               {debug_print("class_declaration -> program_member"); $$ = $1;}
               ;
 
 endl_list: ENDL                                { debug_print("ENDL -> endl_list");}
@@ -326,7 +317,7 @@ type_name: simple_type_name         {$$ = $1;}
          ;
 
 expr: INT                                        {debug_print("INT -> expr"); $$ = create_int($1);}
-    | STRING                                     {debug_print("STRING -> expr"); $$ = create_string($1);}
+    | STR                                        {debug_print("STR-> expr"); $$ = create_string($1);}
     | ID                                         {debug_print("ID -> expr"); $$ = create_id($1);}
     | FLOAT                                      {debug_print("FLOAT -> expr"); $$ = create_float($1);}
     | BOOL                                       {debug_print("BOOL -> expr"); $$ = create_bool($1);}
@@ -342,7 +333,7 @@ expr: INT                                        {debug_print("INT -> expr"); $$
     | expr '\\' opt_endl expr                     {debug_print("expr \\ opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::FloorDivOp);} 
     | expr '^' opt_endl expr                      {debug_print("expr ^ opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::ExpOp);} 
     | expr '&' opt_endl expr                      {debug_print("expr & opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::StrConcatOp);}  
-    | expr '>' opt_endl expr                       {debug_print("expr > opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::GtOp);}  
+    | expr '>' opt_endl expr                      {debug_print("expr > opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::GtOp);}  
     | expr '<' opt_endl expr                      {debug_print("expr < opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::LtOp);}  
     | expr '=' ENDL expr %prec '='                {debug_print("expr = ENDL expr -> expr"); $$ = create_binary($1, $4, expr_type::EqOp);}         
     | expr '=' expr                               {debug_print("expr = expr -> expr"); $$ = create_binary($1, $3, expr_type::EqOp);}   
@@ -362,7 +353,6 @@ expr: INT                                        {debug_print("INT -> expr"); $$
     | NOT expr                                    {debug_print("Not expr"); $$ = create_unary($2, expr_type::NotOp);} 
     | expr IS opt_endl expr                       {debug_print("expr Is opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::IsOp);} 
     | expr ISNOT opt_endl expr                    {debug_print("expr IsNot opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::IsNotOp);} 
-    | expr LIKE opt_endl expr                     {debug_print("expr Like opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::LikeOp);} 
     | expr '(' opt_endl expr_list opt_endl ')'    {debug_print("expr(expr_list) -> expr"); $$ = create_call_expr($1, $4);} 
 	| expr '(' opt_endl ')'                       {debug_print("expr() -> expr"); $$ = create_call_expr($1);} 
     | cast_target '(' opt_endl expr opt_endl ')'  {debug_print("cast_target (expr) -> expr"); $$ = create_cast($1, $4);} 
@@ -417,7 +407,6 @@ stmt: CALL_KW expr endl_list                        {debug_print("CALL_KW expr e
     | ERASE_KW expr_list endl_list                  {debug_print("ERASE_KW expr_list endl_list -> stmt"); $$ = create_erase($2);}
     | if_stmt                                       {$$ = $1;}
     | select_stmt                                   {$$ = $1;}
-    | label_stmt                                    {$$ = $1;}
     | for_stmt                                      {$$ = $1;}
     | foreach_stmt                                  {$$ = $1;}
     | DO_KW endl_list opt_block LOOP_KW endl_list   {debug_print("DO_KW endl_list opt_block LOOP_KW endl_list"); $$ = create_do_infinite_loop($3);}
@@ -444,17 +433,7 @@ stmt: CALL_KW expr endl_list                        {debug_print("CALL_KW expr e
     | EXIT_KW FOR_KW endl_list                      {debug_print("EXIT_KW FOR_KW endl_list -> stmt"); $$ = create_exit(stmt_type::ExitFor);}
     | EXIT_KW WHILE_KW endl_list                    {debug_print("EXIT_KW WHILE_KW endl_list -> stmt");$$ = create_exit(stmt_type::ExitWhile);}
     | EXIT_KW SELECT_KW endl_list                   {debug_print("EXIT_KW SELECT_KW endl_list -> stmt");$$ = create_exit(stmt_type::ExitSelect);}
-    | STOP_KW endl_list                             {debug_print("STOP_KW endl_list -> stmt"); $$ = create_stop();}
-    | END_KW endl_list                              {debug_print("END_KW endl_list -> stmt"); $$ = create_end();}
-    | GOTO_KW label_name endl_list                  {debug_print("GOTO_KW label_name endl_list -> stmt"); $$ = create_goto($2);}
     ;
-
-label_name: ID                      {debug_print("ID -> label_name"); $$ = create_goto_label(create_id($1));}
-          | INT                     {debug_print("INT -> label_name"); $$ = create_goto_label(create_int($1));}
-          ;
-
-label_stmt: label_name ':'          {debug_print("label_name : -> label_stmt"); $$ = create_goto($1);}
-          ;
 
 redim_clause: ID '(' opt_endl expr_list opt_endl ')'                 { debug_print("ID '(' opt_endl expr_list opt_endl ')' -> redim_clause"); $$ = create_redim_clause($1, $4); }
             ;
@@ -533,12 +512,16 @@ block: stmt                    { debug_print("stmt -> block"); $$ = create_block
      ;
 
 variable_name: ID                             { debug_print("ID -> variable_name"); $$ = create_var_declarator($1); }
-             | ID array_modifier              { debug_print("ID array_modifier -> variable_name"); $$ = create_array_var_declarator($1); }
+             | ID array_modifier              { debug_print("ID array_modifier -> variable_name"); $$ = create_array_var_declarator($1, $2); }
              ;
 
-array_modifier: '(' ENDL ')'                  { debug_print("'(' ENDL ')' -> array_modifier");}
-              | '(' ')'                       { debug_print("'(' ')' -> array_modifier");}
+array_modifier: '(' opt_endl expr opt_endl ')' { debug_print("'(' ENDL ')' -> array_modifier"); $$ = $3;}
+              | '(' ')'                        { debug_print("'(' ')' -> array_modifier"); $$ = NULL;}
               ;
+
+empty_array_modifier: '(' opt_endl ')'
+                    ;
+
 
 var_declarator: variable_name                                        { debug_print("variable_name -> var_declarator"); $$ = $1; }
               | variable_name AS_KW type_name                        { debug_print("variable_name AS_KW type_name -> var_declarator"); $$ = append_var_declarator($1, $3, NULL); }
@@ -546,12 +529,11 @@ var_declarator: variable_name                                        { debug_pri
               | variable_name AS_KW type_name '=' expr               { debug_print("variable_name AS_KW type_name '=' expr -> var_declarator"); $$ = append_var_declarator($1, $3, $5); }
               ;
 
-var_declaration: STATIC_KW var_declarator endl_list                  { debug_print("STATIC_KW var_declarator endl_list -> var_declaration"); $$ = create_var_declaration($2, var_type::STATIC); }
-               | DIM_KW var_declarator endl_list                     { debug_print("DIM_KW var_declarator endl_list -> var_declaration"); $$ = create_var_declaration($2, var_type::DIM); }
+var_declaration: DIM_KW var_declarator endl_list                     { debug_print("DIM_KW var_declarator endl_list -> var_declaration"); $$ = create_var_declaration($2, var_type::DIM); }
                | CONST_KW var_declarator endl_list                   { debug_print("CONST_KW var_declarator endl_list -> var_declaration"); $$ = create_var_declaration($2, var_type::CONST); }
                ;
 
-array_type_name: simple_type_name array_modifier                     { debug_print("simple_type_name array_modifier -> array_type_name"); $$ = create_array_type($1); }
+array_type_name: simple_type_name empty_array_modifier                     { debug_print("simple_type_name array_modifier -> array_type_name"); $$ = create_array_type($1); }
                ;
 
 simple_type_name: ID                                                  { debug_print("ID -> simple_type_name"); $$ = create_type(datatype_type::UserType, $1); }
@@ -607,15 +589,6 @@ sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'          
              | SUB_KW ID generic_param_list                                               { debug_print("SUB_KW ID generic_param_list -> sub_signature"); $$ = create_function($2, NULL, NULL, $3); }
              ;
 
-constructor_signature: SUB_KW NEW_KW '(' opt_endl function_parameters opt_endl ')'           { debug_print("SUB_KW NEW_KW '(' opt_endl function_parameters opt_endl ')' -> constructor_signature"); $$ = create_constructor($5); }
-                     | SUB_KW NEW_KW '(' opt_endl ')'                                        { debug_print("SUB_KW NEW_KW '(' opt_endl ')' -> constructor_signature");  $$ = create_constructor(NULL); }
-                     | SUB_KW NEW_KW                                                         { debug_print("SUB_KW NEW_KW -> constructor_signature");  $$ = create_constructor(NULL);}
-                     ;
-
-constructor_declaration: opt_procedure_modifiers constructor_signature endl_list block END_SUB endl_list            { debug_print("opt_procedure_modifiers constructor_signature endl_list block END_SUB endl_list -> constructor_declaration"); $$ = $2; $$->block = $4; }
-			           | opt_procedure_modifiers constructor_signature endl_list END_SUB endl_list                  { debug_print("opt_procedure_modifiers constructor_signature endl_list END_SUB endl_list -> constructor_declaration"); $$ = $2; $$->block = create_block(); }
-                       ;
-
 function_declaration: opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list     { debug_print("opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list -> function_declaration"); $$ = $2; $$->block = $4; $$->isStatic = $1; }
                     | opt_procedure_modifiers function_signature endl_list END_FUNCTION endl_list           { debug_print("opt_procedure_modifiers function_signature endl_list END_FUNCTION endl_list -> function_declaration"); $$ = $2; $$->block = create_block(); $$->isStatic = $1; }
                     ;
@@ -625,8 +598,8 @@ sub_declaration: opt_procedure_modifiers sub_signature endl_list block END_SUB e
                ;
 
 opt_procedure_modifiers: SHARED_KW                  { debug_print("SHARED_KW -> opt_procedure_modifiers"); $$ = true; }
-                   | /* empty */                    { debug_print("empty -> opt_procedure_modifiers"); $$ = false; }
-                   ;
+                       | /* empty */                { debug_print("empty -> opt_procedure_modifiers"); $$ = false; }
+                       ;
 
 function_parameters: function_parameter                               { debug_print("function_parameter -> function_parameters"); $$ = new list<typed_value*>(); $$->add($1); }
                    | function_parameters ',' function_parameter       { debug_print("function_parameters ',' function_parameter -> function_parameters"); $$ = $1; $$->add($3); }
@@ -637,18 +610,11 @@ function_parameter: variable_name AS_KW type_name '=' expr                     {
                   | variable_name                                              { debug_print("variable_name -> function_parameter"); $$ = $1; }
                   ;
 
-
 class_declaration: CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW                          { debug_print("CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, NULL, $5), $7); }
                  | CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW                                                   { debug_print("CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, NULL, NULL), $4); }
                  | CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW       { debug_print("CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, $3, $6), $8); }
                  | CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW                                { debug_print("CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, $3, NULL), $5); }
                  ;
-
-struct_declaration: STRUCT_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW STRUCT_KW              { debug_print("STRUCT_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW STRUCT_KW -> struct_declaration"); $$ = parse_struct_body(create_struct($2, NULL, $5), $7); }
-                  | STRUCT_KW ID endl_list opt_structure_body END_KW STRUCT_KW                                       { debug_print("STRUCT_KW ID generic_param_list endl_list opt_structure_body END_KW STRUCT_KW -> struct_declaration"); $$ = parse_struct_body(create_struct($2, NULL, NULL), $4); }
-                  | STRUCT_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW STRUCT_KW              { debug_print("STRUCT_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW STRUCT_KW -> struct_declaration"); $$ = parse_struct_body(create_struct($2, $3, $6), $8); }
-                  | STRUCT_KW ID generic_param_list endl_list opt_structure_body END_KW STRUCT_KW                                       { debug_print("STRUCT_KW ID generic_param_list endl_list opt_structure_body END_KW STRUCT_KW -> struct_declaration"); $$ = parse_struct_body(create_struct($2, $3, NULL), $5); }
-                  ;
  
 generic_param_list: '(' opt_endl OF_KW id_list opt_endl ')'                          { debug_print("ID '(' opt_endl OF_KW id_list opt_endl ')' -> generic_param_list"); $$ = $4; };
 
@@ -664,26 +630,10 @@ structure_body: structure_member                          { debug_print("structu
 structure_member: function_declaration                   { debug_print("function_declaration -> structure_member"); $$ = $1; }
                 | sub_declaration                        { debug_print("sub_declaration -> structure_member"); $$ = $1; }
                 | field_declaration                      { debug_print("field_declaration -> structure_member"); $$ = $1; }
-                | const_declaration                      { debug_print("const_declaration -> structure_member"); $$ = $1; }
-                | constructor_declaration                { debug_print("constructor_declaration -> structure_member"); $$ = $1; }
                 ;
 
-const_declaration: CONST_KW var_declarator endl_list       { debug_print("CONST_KW var_declarator endl_list -> const_declaration"); $$ = create_field($2, field_modifier::CONST); }
+field_declaration: DIM_KW var_declarator endl_list         { debug_print("DIM_KW var_declarator endl_list -> field_declaration"); $$ = create_field($2); }
                  ;
-
-
-field_declaration: field_modifiers var_declarator endl_list         { debug_print("field_modifiers var_declarator endl_list -> field_declaration"); $$ = create_field($2, $1); }
-                 ;
-
-
-field_modifiers: field_var_modifier                          { debug_print("field_var_modifier -> field_modifiers"); $$ = new list<field_modifier>(); $$->add($1);}
-               | field_modifiers field_var_modifier          { debug_print("field_modifiers field_var_modifier -> field_modifiers"); $$ = $1; $$->add($2); }
-               ;
-
-field_var_modifier: DIM_KW            { debug_print("DIM_KW -> field_var_modifier"); $$ = field_modifier::DIM; }
-                  | READONLY_KW       { debug_print("READONLY_KW -> field_var_modifier"); $$ = field_modifier::READONLY; }
-                  | SHARED_KW         { debug_print("SHARED_KW -> field_var_modifier"); $$ = field_modifier::STATIC; }
-                  ;
 
 %%
 

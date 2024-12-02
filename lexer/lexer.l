@@ -205,7 +205,7 @@ False { debug_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
         if (!DEBUG) yyterminate();
     }
 }
-<STRING>\" {debug_print("Found a string literal: %s\n", strLiteral.c_str()); yylval.Str = new std::string(strLiteral); BEGIN(INITIAL); return STRING; }
+<STRING>\" {debug_print("Found a string literal: %s\n", strLiteral.c_str()); yylval.Str = new std::string(strLiteral); BEGIN(INITIAL); debug_print("%d", STR); return STR; }
 
 
 {UNDERSCORE_NUMBER}\_+(S|US|I|UI|L|UL)? {
