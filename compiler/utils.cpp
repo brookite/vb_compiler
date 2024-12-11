@@ -12,7 +12,7 @@ size_t lastId() {
 
 static void debug_print(bool debugCondition, const char* component, const char* format, va_list args) {
     if (debugCondition) {
-        if (strlen(component) > 0) printf("[%s]:", component);
+        if (strlen(component) > 0) printf("[%s]: ", component);
         vprintf(format, args);
         if (!endsWith(format, "\n")) printf("\n");
     }

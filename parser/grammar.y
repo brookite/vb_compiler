@@ -15,10 +15,12 @@ extern char* yytext;
 
 int yyparse();
 int yylex();
+void yyrestart(FILE * file);
 
 void yyerror(char const* s) {
     fprintf(stderr, "SyntaxError: %s on line %d, text: %s\n", s, yylineno, yytext);
-    exit(1);
+    yyrestart(yyin);
+    if (!PARSER_DEBUG && !DEBUG) exit(1);
 }
 
 bool PARSER_DEBUG = false;
@@ -137,6 +139,7 @@ program_node * program = NULL;
 %token LSHIFT_ASSIGN
 %token RSHIFT_ASSIGN
 
+%precedence ASSIGN_STMT
 %precedence BARE_NEW
 %precedence ID
 %left XOR
@@ -215,12 +218,16 @@ program: program_member                     {parser_print("program_member -> pro
        | program program_member             {parser_print("program program_member -> program"); program->nodes->add($2); $$ = program;}
        ;
 
-program_member: class_declaration               {parser_print("class_declaration -> program_member"); $$ = $1;}
+program_member: class_declaration opt_endl_list         {parser_print("class_declaration -> program_member"); $$ = $1;}
               ;
 
 endl_list: ENDL                                { parser_print("ENDL -> endl_list");}
          | endl_list ENDL                      { parser_print("endl_list ENDL -> endl_list");}
          ;
+
+opt_endl_list: /* empty */
+             | endl_list
+             ;
 
 stmt_endl: ENDL                                { parser_print("ENDL -> stmt_endl");}
          | ':'                                 { parser_print("':' -> stmt_endl");}
@@ -402,8 +409,8 @@ expr_list: expr                             {parser_print("expr -> expr_list"); 
          ;
 
 stmt: CALL_KW expr endl_list                        {parser_print("CALL_KW expr endl_list -> stmt"); $$ = create_call_stmt($2);}
-    | expr '(' opt_endl expr_list opt_endl ')' endl_list       {parser_print("expr(expr_list) -> stmt"); $$ = create_call_stmt($1, $4);} 
-	| expr '(' opt_endl ')' endl_list                          {parser_print("expr() -> stmt"); $$ = create_call_stmt($1, create_expr_list());} 
+    | expr '(' opt_endl expr_list opt_endl ')' endl_list       {parser_print("expr(expr_list) -> stmt"); $$ = create_call_stmt($1, $4);}
+	| expr '(' opt_endl ')' endl_list                          {parser_print("expr() -> stmt"); $$ = create_call_stmt($1, create_expr_list());}
     | REDIM_KW redim_clause_list endl_list          {parser_print("REDIM_KW redim_clause_list endl_list -> stmt"); $$ = create_redim($2);}
     | ERASE_KW expr_list endl_list                  {parser_print("ERASE_KW expr_list endl_list -> stmt"); $$ = create_erase($2);}
     | if_stmt                                       {$$ = $1;}
@@ -415,17 +422,17 @@ stmt: CALL_KW expr endl_list                        {parser_print("CALL_KW expr 
     | do_until_stmt                                 {$$ = $1;}
     | while_stmt                                    {$$ = $1;}
     | var_declaration                               {$$ = $1;}
-    | expr '=' expr endl_list                       {parser_print("expr '=' expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::Assign);}
-    | expr '=' ENDL expr endl_list                  {parser_print("expr '=' ENDL expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::Assign);}
-    | expr ADD_ASSIGN opt_endl expr endl_list       {parser_print("expr ADD_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::AddAssign);}
-    | expr SUB_ASSIGN opt_endl expr endl_list       {parser_print("expr SUB_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::SubAssign);}
-    | expr MUL_ASSIGN opt_endl expr endl_list       {parser_print("expr MUL_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::MulAssign);}
-    | expr DIV_ASSIGN opt_endl expr endl_list       {parser_print("expr DIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::DivAssign);}
-    | expr FLOORDIV_ASSIGN opt_endl expr endl_list  {parser_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::FloorDivAssign);}
-    | expr EXP_ASSIGN opt_endl expr endl_list       {parser_print("expr EXP_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::ExpAssign);}
-    | expr STRCAT_ASSIGN opt_endl expr endl_list    {parser_print("expr STRCAT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::StrConcatAssign);}
-    | expr LSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::LshiftAssign);}
-    | expr RSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::RshiftAssign);}
+    | expr '=' expr endl_list                       {parser_print("expr '=' expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::Assign);} %prec ASSIGN_STMT
+    | expr '=' ENDL expr endl_list                  {parser_print("expr '=' ENDL expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::Assign);} %prec ASSIGN_STMT
+    | expr ADD_ASSIGN opt_endl expr endl_list       {parser_print("expr ADD_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::AddAssign);} %prec ASSIGN_STMT
+    | expr SUB_ASSIGN opt_endl expr endl_list       {parser_print("expr SUB_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::SubAssign);} %prec ASSIGN_STMT
+    | expr MUL_ASSIGN opt_endl expr endl_list       {parser_print("expr MUL_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::MulAssign);} %prec ASSIGN_STMT
+    | expr DIV_ASSIGN opt_endl expr endl_list       {parser_print("expr DIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::DivAssign);} %prec ASSIGN_STMT
+    | expr FLOORDIV_ASSIGN opt_endl expr endl_list  {parser_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::FloorDivAssign);} %prec ASSIGN_STMT
+    | expr EXP_ASSIGN opt_endl expr endl_list       {parser_print("expr EXP_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::ExpAssign);} %prec ASSIGN_STMT
+    | expr STRCAT_ASSIGN opt_endl expr endl_list    {parser_print("expr STRCAT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::StrConcatAssign);} %prec ASSIGN_STMT
+    | expr LSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::LshiftAssign);} %prec ASSIGN_STMT
+    | expr RSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::RshiftAssign);} %prec ASSIGN_STMT
     | RETURN_KW endl_list                           {parser_print("RETURN_KW endl_list -> stmt"); $$ = create_return();}
     | RETURN_KW expr endl_list                      {parser_print("RETURN_KW expr endl_list -> stmt"); $$ = create_return($2);}
     | CONTINUE_KW DO_KW endl_list                   {parser_print("CONTINUE_KW DO_KW endl_list -> stmt"); $$ = create_continue(stmt_type::ContinueDo);}
@@ -477,6 +484,7 @@ case_else_stmt: CASE_KW ELSE_KW endl_list opt_block                             
 case_stmts: case_condition_branches                                              { parser_print("case_condition_branches -> case_stmts"); $$ = $1; }
           | case_else_stmt                                                       { parser_print("case_else_stmt -> case_stmts"); $$ = create_block(); $$->add($1); }
           | case_condition_branches case_else_stmt                               { parser_print("case_condition_branches case_else_stmt -> case_stmts"); $$ = $1; $$->add($2); }
+          | /* empty */                                                          { parser_print("empty -> case_stmts"); $$ = create_block();}
           ;
 
 while_stmt: WHILE_KW expr endl_list block END_WHILE endl_list                    { parser_print("WHILE_KW expr endl_list block END_WHILE endl_list -> while_stmt"); $$ = create_while_stmt($2, $4); }
@@ -644,10 +652,12 @@ void runParserTests() {
     fs::create_directories("parser/tests/output");
     std::vector<std::string> test_files = find_files("parser/tests", ".vb");
     for (std::string testpath : test_files) {
+         yylineno = 1;
          printf("Testing this file: %s\n\n", testpath.c_str());
          fs::path file_path = testpath;
          fopen_s(&yyin, testpath.c_str(), "r");
          yyparse();
+         fclose(yyin);
          outputDot(program, "parser/tests/output/" + file_path.stem().string() + ".png");
     }
 }

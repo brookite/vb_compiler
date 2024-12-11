@@ -299,7 +299,7 @@ stmt_node* create_continue(stmt_type type) {
 }
 
 stmt_node* create_exit(stmt_type type) {
-	if (type == stmt_type::ExitDo || type == stmt_type::ExitWhile || type == stmt_type::ExitSelect || type == stmt_type::ExitDo) {
+	if (type == stmt_type::ExitFor || type == stmt_type::ExitWhile || type == stmt_type::ExitSelect || type == stmt_type::ExitDo) {
 		stmt_node* node = new stmt_node(type);
 		return node;
 	}

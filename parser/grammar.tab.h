@@ -163,24 +163,25 @@ extern int yydebug;
     STRCAT_ASSIGN = 359,           /* STRCAT_ASSIGN  */
     LSHIFT_ASSIGN = 360,           /* LSHIFT_ASSIGN  */
     RSHIFT_ASSIGN = 361,           /* RSHIFT_ASSIGN  */
-    BARE_NEW = 362,                /* BARE_NEW  */
-    XOR = 363,                     /* XOR  */
-    OR = 364,                      /* OR  */
-    OR_ELSE = 365,                 /* OR_ELSE  */
-    AND = 366,                     /* AND  */
-    AND_ALSO = 367,                /* AND_ALSO  */
-    NOT = 368,                     /* NOT  */
-    NEQ = 369,                     /* NEQ  */
-    LEQ = 370,                     /* LEQ  */
-    GEQ = 371,                     /* GEQ  */
-    IS = 372,                      /* IS  */
-    ISNOT = 373,                   /* ISNOT  */
-    LIKE = 374,                    /* LIKE  */
-    LSHIFT = 375,                  /* LSHIFT  */
-    RSHIFT = 376,                  /* RSHIFT  */
-    MOD = 377,                     /* MOD  */
-    UMINUS = 378,                  /* UMINUS  */
-    UPLUS = 379                    /* UPLUS  */
+    ASSIGN_STMT = 362,             /* ASSIGN_STMT  */
+    BARE_NEW = 363,                /* BARE_NEW  */
+    XOR = 364,                     /* XOR  */
+    OR = 365,                      /* OR  */
+    OR_ELSE = 366,                 /* OR_ELSE  */
+    AND = 367,                     /* AND  */
+    AND_ALSO = 368,                /* AND_ALSO  */
+    NOT = 369,                     /* NOT  */
+    NEQ = 370,                     /* NEQ  */
+    LEQ = 371,                     /* LEQ  */
+    GEQ = 372,                     /* GEQ  */
+    IS = 373,                      /* IS  */
+    ISNOT = 374,                   /* ISNOT  */
+    LIKE = 375,                    /* LIKE  */
+    LSHIFT = 376,                  /* LSHIFT  */
+    RSHIFT = 377,                  /* RSHIFT  */
+    MOD = 378,                     /* MOD  */
+    UMINUS = 379,                  /* UMINUS  */
+    UPLUS = 380                    /* UPLUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -189,7 +190,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 181 "grammar.y"
+#line 184 "grammar.y"
 
     long long int Int;
     std::string * Str;
@@ -220,7 +221,7 @@ union YYSTYPE
     list<type_node *> * TypeList;
     list<typed_value*>* Vars;
 
-#line 224 "grammar.tab.h"
+#line 225 "grammar.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -18,7 +18,7 @@ public:
 
 	template <typename T>
 	void addList(list<T>* list, bool add_indexes = true, bool ensure_nonempty = true) {
-		if (list->isEmpty() && ensure_nonempty) return;
+		if (list == NULL || (list->isEmpty() && ensure_nonempty)) return;
 		label(list->id, "list");
 		for (int i = 0; i < list->size(); i++) {
 			addNode(list->get(i));
@@ -28,7 +28,7 @@ public:
 
 	template<>
 	void addList<int>(list<int>* list, bool add_indexes, bool ensure_nonempty) {
-		if (list->isEmpty() && ensure_nonempty) return;
+		if (list == NULL || (list->isEmpty() && ensure_nonempty)) return;
 		label(list->id, "list");
 		for (int i = 0; i < list->size(); i++) {
 			size_t id = addStringNode(std::to_string(list->get(i)));

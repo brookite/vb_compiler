@@ -54,16 +54,30 @@ struct DateTime {
     std::string str() {
         char string[128];
         const char* format = "";
-        if (time->format == AM) {
-            format = "AM";
+        if (time != NULL) {
+            if (time->format == AM) {
+                format = "AM";
+            }
+            else {
+                format = "PM";
+            }
+        }
+        if (time == NULL && date != NULL) {
+            sprintf(string, "%0d.%0d.%d", date->day, date->month, date->year);
+        }
+        else if (time != NULL && date == NULL) {
+            sprintf(string, "%0d:%0d:%d %s",
+                time->hour, time->minute, time->second,
+                format
+            );
         }
         else {
-            format = "PM";
+            sprintf(string, "%0d.%0d.%d %0d:%0d:%d %s", date->day, date->month, date->year,
+                time->hour, time->minute, time->second,
+                format
+            );
         }
-        sprintf(string, "%0d.%0d.%d %0d:%0d:%d %s", date->day, date->month, date->year,
-            time->hour, time->minute, time->second,
-            format
-        );
+        
         return std::string(string);
     }
 };

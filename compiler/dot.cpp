@@ -94,6 +94,6 @@ void outputDot(node* node, std::string filename) {
 		fwrite(dot_data.c_str(), sizeof(char), dot_data.size(), pipe);
 		_pclose(pipe);
 		writer.close();
-		system(("start " + filename).c_str()); // open png in default application
+		// system(("start " + filename).c_str()); // open png in default application
 	}
 }
