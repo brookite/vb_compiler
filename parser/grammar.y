@@ -12,6 +12,7 @@
 extern int yylineno;
 extern FILE* yyin;
 extern char* yytext;
+extern int yydebug;
 
 int yyparse();
 int yylex();
@@ -139,14 +140,13 @@ program_node * program = NULL;
 %token LSHIFT_ASSIGN
 %token RSHIFT_ASSIGN
 
-%precedence ASSIGN_STMT
+%precedence TYPENAME
 %precedence BARE_NEW
-%precedence ID
 %left XOR
 %left OR OR_ELSE
 %left AND AND_ALSO
 %right NOT
-%left '=' NEQ LEQ GEQ '<' '>' IS ISNOT LIKE
+%left EQ NEQ LEQ GEQ '<' '>' IS ISNOT LIKE
 %left LSHIFT RSHIFT
 %left '&'
 %left '+' '-'
@@ -157,6 +157,9 @@ program_node * program = NULL;
 %left '^'
 %left '.'
 %nonassoc '(' ')' '{' '}'
+%precedence ID
+%nonassoc '='
+
 
 %type<Expr> expr kw member_access_member array_modifier
 %type<Stmt> stmt select_stmt var_declaration case_else_stmt case_condition_branch while_stmt if_stmt for_stmt foreach_stmt do_while_stmt do_until_stmt
@@ -343,8 +346,8 @@ expr: INT                                        {parser_print("INT -> expr"); $
     | expr '&' opt_endl expr                      {parser_print("expr & opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::StrConcatOp);}  
     | expr '>' opt_endl expr                      {parser_print("expr > opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::GtOp);}  
     | expr '<' opt_endl expr                      {parser_print("expr < opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::LtOp);}  
-    | expr '=' ENDL expr %prec '='                {parser_print("expr = ENDL expr -> expr"); $$ = create_binary($1, $4, expr_type::EqOp);}         
-    | expr '=' expr                               {parser_print("expr = expr -> expr"); $$ = create_binary($1, $3, expr_type::EqOp);}   
+    | expr '=' ENDL expr %prec EQ                 {parser_print("expr = ENDL expr -> expr"); $$ = create_binary($1, $4, expr_type::EqOp);}         
+    | expr '=' expr      %prec EQ                 {parser_print("expr = expr -> expr"); $$ = create_binary($1, $3, expr_type::EqOp);}   
     | expr NEQ opt_endl expr                      {parser_print("expr NEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::NeqOp);} 
     | expr LEQ opt_endl expr                      {parser_print("expr LEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::LeqOp);} 
     | expr GEQ opt_endl expr                      {parser_print("expr GEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::GeqOp);} 
@@ -422,17 +425,17 @@ stmt: CALL_KW expr endl_list                        {parser_print("CALL_KW expr 
     | do_until_stmt                                 {$$ = $1;}
     | while_stmt                                    {$$ = $1;}
     | var_declaration                               {$$ = $1;}
-    | expr '=' expr endl_list                       {parser_print("expr '=' expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::Assign);} %prec ASSIGN_STMT
-    | expr '=' ENDL expr endl_list                  {parser_print("expr '=' ENDL expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::Assign);} %prec ASSIGN_STMT
-    | expr ADD_ASSIGN opt_endl expr endl_list       {parser_print("expr ADD_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::AddAssign);} %prec ASSIGN_STMT
-    | expr SUB_ASSIGN opt_endl expr endl_list       {parser_print("expr SUB_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::SubAssign);} %prec ASSIGN_STMT
-    | expr MUL_ASSIGN opt_endl expr endl_list       {parser_print("expr MUL_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::MulAssign);} %prec ASSIGN_STMT
-    | expr DIV_ASSIGN opt_endl expr endl_list       {parser_print("expr DIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::DivAssign);} %prec ASSIGN_STMT
-    | expr FLOORDIV_ASSIGN opt_endl expr endl_list  {parser_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::FloorDivAssign);} %prec ASSIGN_STMT
-    | expr EXP_ASSIGN opt_endl expr endl_list       {parser_print("expr EXP_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::ExpAssign);} %prec ASSIGN_STMT
-    | expr STRCAT_ASSIGN opt_endl expr endl_list    {parser_print("expr STRCAT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::StrConcatAssign);} %prec ASSIGN_STMT
-    | expr LSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::LshiftAssign);} %prec ASSIGN_STMT
-    | expr RSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::RshiftAssign);} %prec ASSIGN_STMT
+    | expr '=' expr endl_list                       {parser_print("expr '=' expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::Assign);} 
+    | expr '=' ENDL expr endl_list                  {parser_print("expr '=' ENDL expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::Assign);}
+    | expr ADD_ASSIGN opt_endl expr endl_list       {parser_print("expr ADD_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::AddAssign);}
+    | expr SUB_ASSIGN opt_endl expr endl_list       {parser_print("expr SUB_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::SubAssign);}
+    | expr MUL_ASSIGN opt_endl expr endl_list       {parser_print("expr MUL_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::MulAssign);}
+    | expr DIV_ASSIGN opt_endl expr endl_list       {parser_print("expr DIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::DivAssign);}
+    | expr FLOORDIV_ASSIGN opt_endl expr endl_list  {parser_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::FloorDivAssign);} 
+    | expr EXP_ASSIGN opt_endl expr endl_list       {parser_print("expr EXP_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::ExpAssign);}
+    | expr STRCAT_ASSIGN opt_endl expr endl_list    {parser_print("expr STRCAT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::StrConcatAssign);}
+    | expr LSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::LshiftAssign);}
+    | expr RSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::RshiftAssign);}
     | RETURN_KW endl_list                           {parser_print("RETURN_KW endl_list -> stmt"); $$ = create_return();}
     | RETURN_KW expr endl_list                      {parser_print("RETURN_KW expr endl_list -> stmt"); $$ = create_return($2);}
     | CONTINUE_KW DO_KW endl_list                   {parser_print("CONTINUE_KW DO_KW endl_list -> stmt"); $$ = create_continue(stmt_type::ContinueDo);}
@@ -546,9 +549,9 @@ var_declaration: DIM_KW var_declarator endl_list                     { parser_pr
 array_type_name: simple_type_name empty_array_modifier                     { parser_print("simple_type_name array_modifier -> array_type_name"); $$ = create_array_type($1); }
                ;
 
-simple_type_name: ID                                                  { parser_print("ID -> simple_type_name"); $$ = create_type(datatype_type::UserType, $1); }
-                | ID '(' opt_endl OF_KW type_list opt_endl ')'        { parser_print("ID '(' opt_endl OF_KW type_list opt_endl ')' -> simple_type_name"); $$ = create_type(datatype_type::UserType, $1, $5); }
-                | primitive_type                                      { parser_print("primitive_type -> simple_type_name"); $$ = $1; }
+simple_type_name: ID                     %prec TYPENAME                             { parser_print("ID -> simple_type_name"); $$ = create_type(datatype_type::UserType, $1); }
+                | ID '(' opt_endl OF_KW type_list opt_endl ')'   %prec TYPENAME     { parser_print("ID '(' opt_endl OF_KW type_list opt_endl ')' -> simple_type_name"); $$ = create_type(datatype_type::UserType, $1, $5); }
+                | primitive_type                                                    { parser_print("primitive_type -> simple_type_name"); $$ = $1; }
                 ;
                
 primitive_type: BYTE_KW      { parser_print("BYTE_KW -> primitive_type"); $$ = create_type(datatype_type::Byte); }
@@ -648,6 +651,7 @@ field_declaration: DIM_KW var_declarator endl_list         { parser_print("DIM_K
 %%
 
 void runParserTests() {
+    yydebug = 0;
     fs::create_directories("parser/tests");
     fs::create_directories("parser/tests/output");
     std::vector<std::string> test_files = find_files("parser/tests", ".vb");

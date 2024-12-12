@@ -7,7 +7,7 @@ Class Main
         x = a + b * c
         x = +k + +t
         x = -k - -k
-        x = t \\ t * c
+        x = t \ t * c
         x = x And z = y
         x = (z And z) = y
         x = {1, 2, 3} + 5
