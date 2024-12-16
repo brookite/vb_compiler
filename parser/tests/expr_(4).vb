@@ -4,9 +4,10 @@ Class Main
         m = CType(5, String)
         m = If(a, b, c)
         m = If(c, d)
-        m = New MyObj
+        m = new MyObj
+        m = new Integer
         m = New MyObj(Of h)(10, 5) {"lol"}
-        m = New MyObj(Of t)
+        m = New MyObj(Of t)()
         m = New MyObj()
         m = New MyObj(1, 3, 4)
         m = New MyObj(3) {1, 3, 4}
