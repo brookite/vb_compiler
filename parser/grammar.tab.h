@@ -163,14 +163,14 @@ extern int yydebug;
     STRCAT_ASSIGN = 359,           /* STRCAT_ASSIGN  */
     LSHIFT_ASSIGN = 360,           /* LSHIFT_ASSIGN  */
     RSHIFT_ASSIGN = 361,           /* RSHIFT_ASSIGN  */
-    ASSIGN_STMT = 362,             /* ASSIGN_STMT  */
-    BARE_NEW = 363,                /* BARE_NEW  */
-    XOR = 364,                     /* XOR  */
-    OR = 365,                      /* OR  */
-    OR_ELSE = 366,                 /* OR_ELSE  */
-    AND = 367,                     /* AND  */
-    AND_ALSO = 368,                /* AND_ALSO  */
-    NOT = 369,                     /* NOT  */
+    NEW = 362,                     /* NEW  */
+    XOR = 363,                     /* XOR  */
+    OR = 364,                      /* OR  */
+    OR_ELSE = 365,                 /* OR_ELSE  */
+    AND = 366,                     /* AND  */
+    AND_ALSO = 367,                /* AND_ALSO  */
+    NOT = 368,                     /* NOT  */
+    EQ = 369,                      /* EQ  */
     NEQ = 370,                     /* NEQ  */
     LEQ = 371,                     /* LEQ  */
     GEQ = 372,                     /* GEQ  */
@@ -190,7 +190,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 184 "grammar.y"
+#line 186 "grammar.y"
 
     long long int Int;
     std::string * Str;

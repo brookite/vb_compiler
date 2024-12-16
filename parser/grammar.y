@@ -13,13 +13,15 @@ extern int yylineno;
 extern FILE* yyin;
 extern char* yytext;
 extern int yydebug;
+extern bool new_stmt;
 
 int yyparse();
 int yylex();
 void yyrestart(FILE * file);
 
 void yyerror(char const* s) {
-    fprintf(stderr, "SyntaxError: %s on line %d, text: %s\n", s, yylineno, yytext);
+    fprintf(stderr, "\033[31mSyntaxError: %s on line %d, text: %s\n", s, yylineno, yytext);
+    fprintf(stderr, "\033[0m");
     yyrestart(yyin);
     if (!PARSER_DEBUG && !DEBUG) exit(1);
 }
@@ -140,8 +142,7 @@ program_node * program = NULL;
 %token LSHIFT_ASSIGN
 %token RSHIFT_ASSIGN
 
-%precedence TYPENAME
-%precedence BARE_NEW
+%precedence NEW
 %left XOR
 %left OR OR_ELSE
 %left AND AND_ALSO
@@ -157,9 +158,7 @@ program_node * program = NULL;
 %left '^'
 %left '.'
 %nonassoc '(' ')' '{' '}'
-%precedence ID
 %nonassoc '='
-
 
 %type<Expr> expr kw member_access_member array_modifier
 %type<Stmt> stmt select_stmt var_declaration case_else_stmt case_condition_branch while_stmt if_stmt for_stmt foreach_stmt do_while_stmt do_until_stmt
@@ -169,7 +168,7 @@ program_node * program = NULL;
 
 %type<Struct> program_member
 %type<Struct> class_declaration
-%type<Type> primitive_type type_name array_type_name simple_type_name cast_target
+%type<Type> primitive_type type_name simple_type_name cast_target
 
 %type<RedimNode> redim_clause
 %type<Redim> redim_clause_list
@@ -323,10 +322,6 @@ kw: ME_KW                               {$$ = create_id("Me");}
   | CTYPE_KW                            {$$ = create_id("CType");}
   ;
 
-type_name: simple_type_name         {$$ = $1;}
-         | array_type_name          {$$ = $1;}
-         ;
-
 expr: INT                                        {parser_print("INT -> expr"); $$ = create_int($1);}
     | STR                                        {parser_print("STR-> expr"); $$ = create_string($1);}
     | ID                                         {parser_print("ID -> expr"); $$ = create_id($1);}
@@ -346,8 +341,7 @@ expr: INT                                        {parser_print("INT -> expr"); $
     | expr '&' opt_endl expr                      {parser_print("expr & opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::StrConcatOp);}  
     | expr '>' opt_endl expr                      {parser_print("expr > opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::GtOp);}  
     | expr '<' opt_endl expr                      {parser_print("expr < opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::LtOp);}  
-    | expr '=' ENDL expr %prec EQ                 {parser_print("expr = ENDL expr -> expr"); $$ = create_binary($1, $4, expr_type::EqOp);}         
-    | expr '=' expr      %prec EQ                 {parser_print("expr = expr -> expr"); $$ = create_binary($1, $3, expr_type::EqOp);}   
+    | expr EQ opt_endl expr                          {parser_print("expr = opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::EqOp);}         
     | expr NEQ opt_endl expr                      {parser_print("expr NEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::NeqOp);} 
     | expr LEQ opt_endl expr                      {parser_print("expr LEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::LeqOp);} 
     | expr GEQ opt_endl expr                      {parser_print("expr GEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::GeqOp);} 
@@ -373,11 +367,21 @@ expr: INT                                        {parser_print("INT -> expr"); $
     | expr '.' member_access_member               {parser_print("expr . member_access_member -> expr"); $$ = create_member_access($1, $3);}
     | MYBASE_KW '.' member_access_member          {parser_print("my_base . member_access_member -> expr"); $$ = create_mybase_access($3);}
     | MYCLASS_KW '.' member_access_member         {parser_print("my_base . member_access_member -> expr"); $$ = create_myclass_access($3);}
-	| NEW_KW simple_type_name %prec BARE_NEW      {parser_print("NEW simple_type_name -> expr"); $$ = create_new_expr($2);}
-    | NEW_KW simple_type_name '(' opt_endl ')'    {parser_print("NEW simple_type_name -> expr"); $$ = create_new_expr($2);}
-    | NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')'       {parser_print("NEW simple_type_name (expr_list)-> expr"); $$ = create_new_expr($2, $5);}
-    | NEW_KW simple_type_name '(' opt_endl ')' collection_initializer   {parser_print("NEW simple_type_name () collection_initializer -> expr"); $$ = create_arraynew_expr($2, $6);}
-    | NEW_KW simple_type_name '(' opt_endl expr_list opt_endl ')' collection_initializer    {parser_print("NEW simple_type_name (expr_list) collection_initializer -> expr"); $$ = create_arraynew_expr($2, $5, $8);}
+	| NEW_KW ID  %prec NEW                                 {parser_print("NEW_KW ID -> expr"); $$ = create_new_expr(create_type(datatype_type::UserType, $2));}
+    | NEW_KW ID '(' opt_endl ')'     %prec NEW             {parser_print("NEW_KW ID '(' opt_endl ')' -> expr"); $$ = create_new_expr(create_type(datatype_type::UserType, $2));}
+    | NEW_KW ID '(' opt_endl expr_list opt_endl ')'  %prec NEW     {parser_print("NEW_KW ID '(' opt_endl expr_list opt_endl ')' -> expr"); $$ = create_new_expr(create_type(datatype_type::UserType, $2), $5);}
+    | NEW_KW ID '(' opt_endl ')' collection_initializer %prec NEW  {parser_print("NEW_KW ID '(' opt_endl ')' collection_initializer -> expr"); $$ = create_arraynew_expr(create_type(datatype_type::UserType, $2), $6);}
+    | NEW_KW ID '(' opt_endl expr_list opt_endl ')' collection_initializer  %prec NEW  {parser_print("NEW_KW ID '(' opt_endl expr_list opt_endl ')' collection_initializer -> expr"); $$ = create_arraynew_expr(create_type(datatype_type::UserType, $2), $5, $8);}
+	| NEW_KW ID '(' opt_endl OF_KW type_list opt_endl ')'  %prec NEW                   {parser_print("NEW_KW ID '(' opt_endl OF_KW type_list opt_endl ')' -> expr"); $$ = create_new_expr(create_type(datatype_type::UserType, $2, $6));}
+    | NEW_KW ID '(' opt_endl OF_KW type_list opt_endl ')' '(' opt_endl ')'  %prec NEW  {parser_print("NEW_KW ID '(' opt_endl OF_KW type_list opt_endl ')' '(' opt_endl ')' -> expr"); $$ = create_new_expr(create_type(datatype_type::UserType, $2, $6));}
+    | NEW_KW ID '(' opt_endl OF_KW type_list opt_endl ')' '(' opt_endl expr_list opt_endl ')'    %prec NEW   {parser_print("NEW_KW ID '(' opt_endl OF_KW type_list opt_endl ')' '(' opt_endl expr_list opt_endl ')' -> expr"); $$ = create_new_expr(create_type(datatype_type::UserType, $2, $6), $11);}
+    | NEW_KW ID '(' opt_endl OF_KW type_list opt_endl ')' '(' opt_endl ')' collection_initializer %prec NEW  {parser_print("NEW_KW ID '(' opt_endl OF_KW type_list opt_endl ')' '(' opt_endl ')' collection_initializer -> expr"); $$ = create_arraynew_expr(create_type(datatype_type::UserType, $2, $6), $12);}
+    | NEW_KW ID '(' opt_endl OF_KW type_list opt_endl ')' '(' opt_endl expr_list opt_endl ')' collection_initializer  %prec NEW  {parser_print("NEW_KW ID '(' opt_endl OF_KW type_list opt_endl ')' '(' opt_endl expr_list opt_endl ')' collection_initializer -> expr"); $$ = create_arraynew_expr(create_type(datatype_type::UserType, $2, $6), $11, $14);}
+	| NEW_KW primitive_type  %prec NEW  {parser_print("NEW_KW primitive_type -> expr"); $$ = create_new_expr($2);}
+    | NEW_KW primitive_type '(' opt_endl ')'  %prec NEW  {parser_print("NEW_KW primitive_type '(' opt_endl ')'-> expr"); $$ = create_new_expr($2);}
+    | NEW_KW primitive_type '(' opt_endl expr_list opt_endl ')'  %prec NEW     {parser_print("NEW_KW primitive_type '(' opt_endl expr_list opt_endl ')' -> expr"); $$ = create_new_expr($2, $5);}
+    | NEW_KW primitive_type '(' opt_endl ')' collection_initializer %prec NEW  {parser_print("NEW_KW primitive_type '(' opt_endl ')' collection_initializer -> expr"); $$ = create_arraynew_expr($2, $6);}
+    | NEW_KW primitive_type '(' opt_endl expr_list opt_endl ')' collection_initializer  %prec NEW  {parser_print("NEW_KW primitive_type '(' opt_endl expr_list opt_endl ')' collection_initializer -> expr"); $$ = create_arraynew_expr($2, $5, $8);}
     | collection_initializer {parser_print("collection_initializer -> expr"); $$ = create_array_literal($1);}
     ;
 
@@ -411,40 +415,39 @@ expr_list: expr                             {parser_print("expr -> expr_list"); 
          | expr_list ',' opt_endl expr      {parser_print("expr_list ',' opt_endl expr -> expr_list"); $$ = $1; $$->add($4);}
          ;
 
-stmt: CALL_KW expr endl_list                        {parser_print("CALL_KW expr endl_list -> stmt"); $$ = create_call_stmt($2);}
+stmt: CALL_KW expr endl_list                        {parser_print("CALL_KW expr endl_list -> stmt"); $$ = create_call_stmt($2); new_stmt = true;}
     | expr '(' opt_endl expr_list opt_endl ')' endl_list       {parser_print("expr(expr_list) -> stmt"); $$ = create_call_stmt($1, $4);}
 	| expr '(' opt_endl ')' endl_list                          {parser_print("expr() -> stmt"); $$ = create_call_stmt($1, create_expr_list());}
-    | REDIM_KW redim_clause_list endl_list          {parser_print("REDIM_KW redim_clause_list endl_list -> stmt"); $$ = create_redim($2);}
-    | ERASE_KW expr_list endl_list                  {parser_print("ERASE_KW expr_list endl_list -> stmt"); $$ = create_erase($2);}
-    | if_stmt                                       {$$ = $1;}
-    | select_stmt                                   {$$ = $1;}
-    | for_stmt                                      {$$ = $1;}
-    | foreach_stmt                                  {$$ = $1;}
-    | DO_KW endl_list opt_block LOOP_KW endl_list   {parser_print("DO_KW endl_list opt_block LOOP_KW endl_list"); $$ = create_do_infinite_loop($3);}
-    | do_while_stmt                                 {$$ = $1;}
-    | do_until_stmt                                 {$$ = $1;}
-    | while_stmt                                    {$$ = $1;}
-    | var_declaration                               {$$ = $1;}
-    | expr '=' expr endl_list                       {parser_print("expr '=' expr endl_list -> stmt"); $$ = create_assign($1, $3, assignment_type::Assign);} 
-    | expr '=' ENDL expr endl_list                  {parser_print("expr '=' ENDL expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::Assign);}
-    | expr ADD_ASSIGN opt_endl expr endl_list       {parser_print("expr ADD_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::AddAssign);}
-    | expr SUB_ASSIGN opt_endl expr endl_list       {parser_print("expr SUB_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::SubAssign);}
-    | expr MUL_ASSIGN opt_endl expr endl_list       {parser_print("expr MUL_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::MulAssign);}
-    | expr DIV_ASSIGN opt_endl expr endl_list       {parser_print("expr DIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::DivAssign);}
-    | expr FLOORDIV_ASSIGN opt_endl expr endl_list  {parser_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::FloorDivAssign);} 
-    | expr EXP_ASSIGN opt_endl expr endl_list       {parser_print("expr EXP_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::ExpAssign);}
-    | expr STRCAT_ASSIGN opt_endl expr endl_list    {parser_print("expr STRCAT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::StrConcatAssign);}
-    | expr LSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::LshiftAssign);}
-    | expr RSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::RshiftAssign);}
-    | RETURN_KW endl_list                           {parser_print("RETURN_KW endl_list -> stmt"); $$ = create_return();}
-    | RETURN_KW expr endl_list                      {parser_print("RETURN_KW expr endl_list -> stmt"); $$ = create_return($2);}
-    | CONTINUE_KW DO_KW endl_list                   {parser_print("CONTINUE_KW DO_KW endl_list -> stmt"); $$ = create_continue(stmt_type::ContinueDo);}
-    | CONTINUE_KW FOR_KW endl_list                  {parser_print("CONTINUE_KW FOR_KW endl_list -> stmt"); $$ = create_continue(stmt_type::ContinueFor);}
-    | CONTINUE_KW WHILE_KW endl_list                {parser_print("CONTINUE_KW WHILE_KW endl_list -> stmt"); $$ = create_continue(stmt_type::ContinueWhile);}
-    | EXIT_KW DO_KW endl_list                       {parser_print("EXIT_KW DO_KW endl_list -> stmt"); $$ = create_exit(stmt_type::ExitDo);}
-    | EXIT_KW FOR_KW endl_list                      {parser_print("EXIT_KW FOR_KW endl_list -> stmt"); $$ = create_exit(stmt_type::ExitFor);}
-    | EXIT_KW WHILE_KW endl_list                    {parser_print("EXIT_KW WHILE_KW endl_list -> stmt");$$ = create_exit(stmt_type::ExitWhile);}
-    | EXIT_KW SELECT_KW endl_list                   {parser_print("EXIT_KW SELECT_KW endl_list -> stmt");$$ = create_exit(stmt_type::ExitSelect);}
+    | REDIM_KW redim_clause_list endl_list          {parser_print("REDIM_KW redim_clause_list endl_list -> stmt"); $$ = create_redim($2); new_stmt = true;}
+    | ERASE_KW expr_list endl_list                  {parser_print("ERASE_KW expr_list endl_list -> stmt"); $$ = create_erase($2); new_stmt = true;}
+    | if_stmt                                       {$$ = $1; new_stmt = true;}
+    | select_stmt                                   {$$ = $1; new_stmt = true;}
+    | for_stmt                                      {$$ = $1; new_stmt = true;}
+    | foreach_stmt                                  {$$ = $1; new_stmt = true;}
+    | DO_KW endl_list opt_block LOOP_KW endl_list   {parser_print("DO_KW endl_list opt_block LOOP_KW endl_list"); $$ = create_do_infinite_loop($3); new_stmt = true;}
+    | do_while_stmt                                 {$$ = $1; new_stmt = true;}
+    | do_until_stmt                                 {$$ = $1; new_stmt = true;}
+    | while_stmt                                    {$$ = $1; new_stmt = true;}
+    | var_declaration                               {$$ = $1; new_stmt = true;}
+    | expr '=' opt_endl expr endl_list              {parser_print("expr '=' opt_endl expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::Assign); new_stmt = true; } 
+    | expr ADD_ASSIGN opt_endl expr endl_list       {parser_print("expr ADD_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::AddAssign); new_stmt = true;}
+    | expr SUB_ASSIGN opt_endl expr endl_list       {parser_print("expr SUB_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::SubAssign); new_stmt = true;}
+    | expr MUL_ASSIGN opt_endl expr endl_list       {parser_print("expr MUL_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::MulAssign); new_stmt = true;}
+    | expr DIV_ASSIGN opt_endl expr endl_list       {parser_print("expr DIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::DivAssign); new_stmt = true;}
+    | expr FLOORDIV_ASSIGN opt_endl expr endl_list  {parser_print("expr FLOORDIV_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::FloorDivAssign); new_stmt = true;} 
+    | expr EXP_ASSIGN opt_endl expr endl_list       {parser_print("expr EXP_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::ExpAssign); new_stmt = true;}
+    | expr STRCAT_ASSIGN opt_endl expr endl_list    {parser_print("expr STRCAT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::StrConcatAssign); new_stmt = true;}
+    | expr LSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr LSHIFT_ASSIGN expr endl_list -> stmt");$$ = create_assign($1, $4, assignment_type::LshiftAssign); new_stmt = true;}
+    | expr RSHIFT_ASSIGN opt_endl expr endl_list    {parser_print("expr RSHIFT_ASSIGN expr endl_list -> stmt"); $$ = create_assign($1, $4, assignment_type::RshiftAssign); new_stmt = true;}
+    | RETURN_KW endl_list                           {parser_print("RETURN_KW endl_list -> stmt"); $$ = create_return(); new_stmt = true;}
+    | RETURN_KW expr endl_list                      {parser_print("RETURN_KW expr endl_list -> stmt"); $$ = create_return($2); new_stmt = true;}
+    | CONTINUE_KW DO_KW endl_list                   {parser_print("CONTINUE_KW DO_KW endl_list -> stmt"); $$ = create_continue(stmt_type::ContinueDo); new_stmt = true;}
+    | CONTINUE_KW FOR_KW endl_list                  {parser_print("CONTINUE_KW FOR_KW endl_list -> stmt"); $$ = create_continue(stmt_type::ContinueFor); new_stmt = true;}
+    | CONTINUE_KW WHILE_KW endl_list                {parser_print("CONTINUE_KW WHILE_KW endl_list -> stmt"); $$ = create_continue(stmt_type::ContinueWhile); new_stmt = true;}
+    | EXIT_KW DO_KW endl_list                       {parser_print("EXIT_KW DO_KW endl_list -> stmt"); $$ = create_exit(stmt_type::ExitDo); new_stmt = true;}
+    | EXIT_KW FOR_KW endl_list                      {parser_print("EXIT_KW FOR_KW endl_list -> stmt"); $$ = create_exit(stmt_type::ExitFor); new_stmt = true;}
+    | EXIT_KW WHILE_KW endl_list                    {parser_print("EXIT_KW WHILE_KW endl_list -> stmt");$$ = create_exit(stmt_type::ExitWhile); new_stmt = true;}
+    | EXIT_KW SELECT_KW endl_list                   {parser_print("EXIT_KW SELECT_KW endl_list -> stmt");$$ = create_exit(stmt_type::ExitSelect); new_stmt = true;}
     ;
 
 redim_clause: ID '(' opt_endl expr_list opt_endl ')'                 { parser_print("ID '(' opt_endl expr_list opt_endl ')' -> redim_clause"); $$ = create_redim_clause($1, $4); }
@@ -532,9 +535,6 @@ array_modifier: '(' opt_endl expr opt_endl ')' { parser_print("'(' ENDL ')' -> a
               | '(' ')'                        { parser_print("'(' ')' -> array_modifier"); $$ = NULL;}
               ;
 
-empty_array_modifier: '(' opt_endl ')'
-                    ;
-
 
 var_declarator: variable_name                                        { parser_print("variable_name -> var_declarator"); $$ = $1; }
               | variable_name AS_KW type_name                        { parser_print("variable_name AS_KW type_name -> var_declarator"); $$ = append_var_declarator($1, $3, NULL); }
@@ -546,14 +546,20 @@ var_declaration: DIM_KW var_declarator endl_list                     { parser_pr
                | CONST_KW var_declarator endl_list                   { parser_print("CONST_KW var_declarator endl_list -> var_declaration"); $$ = create_var_declaration($2, var_type::CONST); }
                ;
 
-array_type_name: simple_type_name empty_array_modifier                     { parser_print("simple_type_name array_modifier -> array_type_name"); $$ = create_array_type($1); }
-               ;
 
-simple_type_name: ID                     %prec TYPENAME                             { parser_print("ID -> simple_type_name"); $$ = create_type(datatype_type::UserType, $1); }
-                | ID '(' opt_endl OF_KW type_list opt_endl ')'   %prec TYPENAME     { parser_print("ID '(' opt_endl OF_KW type_list opt_endl ')' -> simple_type_name"); $$ = create_type(datatype_type::UserType, $1, $5); }
-                | primitive_type                                                    { parser_print("primitive_type -> simple_type_name"); $$ = $1; }
+type_name: ID {parser_print("ID -> type_name"); $$ = create_type(datatype_type::UserType, $1);}
+         | ID '(' opt_endl OF_KW type_list opt_endl ')' {parser_print("ID '(' opt_endl OF_KW type_list opt_endl ')' -> type_name"); $$ = create_type(datatype_type::UserType, $1, $5);}
+         | primitive_type {parser_print("primitive_type -> type_name"); $$ = $1;}
+         | ID '(' opt_endl ')' {parser_print("ID '(' opt_endl ')' -> type_name"); $$ = create_array_type(create_type(datatype_type::UserType, $1));}
+         | ID '(' opt_endl OF_KW type_list opt_endl ')' '(' opt_endl ')' {parser_print("ID '(' opt_endl OF_KW type_list opt_endl ')' '(' opt_endl ')'  -> type_name"); $$ = create_array_type(create_type(datatype_type::UserType, $1, $5));}
+         | primitive_type '(' opt_endl ')' {parser_print("primitive_type '(' opt_endl ')' -> type_name"); $$ = create_array_type($1);}
+         ;
+
+simple_type_name: ID        {parser_print("ID -> simple_type_name"); $$ = create_type(datatype_type::UserType, $1);}    
+                | ID '(' opt_endl OF_KW type_list opt_endl ')' {parser_print("ID '(' opt_endl OF_KW type_list opt_endl ')' -> simple_type_name"); $$ = create_type(datatype_type::UserType, $1, $5);}
+                | primitive_type   {parser_print("primitive_type -> simple_type_name"); $$ = $1;}
                 ;
-               
+
 primitive_type: BYTE_KW      { parser_print("BYTE_KW -> primitive_type"); $$ = create_type(datatype_type::Byte); }
               | SBYTE_KW     { parser_print("SBYTE_KW -> primitive_type"); $$ = create_type(datatype_type::SByte); }
               | USHORT_KW    { parser_print("USHORT_KW -> primitive_type"); $$ = create_type(datatype_type::UShort); }
@@ -618,8 +624,7 @@ function_parameters: function_parameter                               { parser_p
                    | function_parameters ',' function_parameter       { parser_print("function_parameters ',' function_parameter -> function_parameters"); $$ = $1; $$->add($3); }
                    ;
 
-function_parameter: variable_name AS_KW type_name '=' expr                     { parser_print("variable_name AS_KW type_name '=' expr -> function_parameter"); $$ = $1; $1->type = $3; $1->value = $5; }
-                  | variable_name AS_KW type_name                              { parser_print("variable_name AS_KW type_name -> function_parameter"); $$ = $1; $1->type = $3; }
+function_parameter: variable_name AS_KW type_name                              { parser_print("variable_name AS_KW type_name -> function_parameter"); $$ = $1; $1->type = $3; }
                   | variable_name                                              { parser_print("variable_name -> function_parameter"); $$ = $1; }
                   ;
 
@@ -657,6 +662,7 @@ void runParserTests() {
     std::vector<std::string> test_files = find_files("parser/tests", ".vb");
     for (std::string testpath : test_files) {
          yylineno = 1;
+         new_stmt = true;
          printf("Testing this file: %s\n\n", testpath.c_str());
          fs::path file_path = testpath;
          fopen_s(&yyin, testpath.c_str(), "r");
@@ -670,7 +676,7 @@ int main(int argc, char** argv) {
     if (argc > 1) {
         if (strcmp(argv[1], "--debug") == 0) {
             PARSER_DEBUG = true;
-            //LEXER_DEBUG = true;
+            LEXER_DEBUG = true;
             runParserTests();
             return 0;
         }

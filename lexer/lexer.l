@@ -18,6 +18,12 @@
     void printDateTimeLiteral(DateTime& datetime);
 
     bool LEXER_DEBUG = false;
+
+    // Система флагов, которая позволяет определять когда '=' это присваивание, а когда проверка равенства
+    bool new_stmt = true; // выставляется каждый раз, когда встречается новый statement
+    bool blocking_kw = false; // иногда у If, While и т.п. скобок у expr может не быть, и первое '=' учтется как присваивание, хотя это не так
+    bool in_brace = false; // определяет находится ли лексер внутри скобок, если да, то всегда = - это сравнение
+    bool in_compound = false; // гарантирует, чтобы первый statement внутри составных операторов (If, For, ...) мог быть присваиванием 
 %}
 
 
@@ -59,9 +65,9 @@ CInt { lexer_print("Found keyword : %s\n", yytext); return CINTEGER_KW; }
 Const { lexer_print("Found keyword : %s\n", yytext); return CONST_KW; }
 CSng { lexer_print("Found keyword : %s\n", yytext); return CSINGLE_KW; }
 CULng { lexer_print("Found keyword : %s\n", yytext); return CULONG_KW; }
-Else { lexer_print("Found keyword : %s\n", yytext); return ELSE_KW; }
+Else { lexer_print("Found keyword : %s\n", yytext); in_compound = true; return ELSE_KW; }
 Exit { lexer_print("Found keyword : %s\n", yytext); return EXIT_KW; }
-In { lexer_print("Found keyword : %s\n", yytext); return IN_KW; }
+In { lexer_print("Found keyword : %s\n", yytext); in_compound = true; return IN_KW; }
 Is { lexer_print("Found keyword : %s\n", yytext); return IS; }
 Like { lexer_print("Found keyword : %s\n", yytext); return LIKE; }
 Mod { lexer_print("Found keyword : %s\n", yytext); return MOD; }
@@ -71,7 +77,7 @@ Or { lexer_print("Found keyword : %s\n", yytext); return OR;  }
 ReadOnly { lexer_print("Found keyword : %s\n", yytext); return READONLY_KW; }
 Single { lexer_print("Found keyword : %s\n", yytext); return SINGLE_KW; }
 String { lexer_print("Found keyword : %s\n", yytext); return STRING_KW; }
-Then { lexer_print("Found keyword : %s\n", yytext); return THEN_KW; }
+Then { lexer_print("Found keyword : %s\n", yytext); new_stmt = true; return THEN_KW; }
 ULong { lexer_print("Found keyword : %s\n", yytext); return ULONG_KW; }
 As { lexer_print("Found keyword : %s\n", yytext); return AS_KW; }
 ByVal { lexer_print("Found keyword : %s\n", yytext); return BYVAL_KW; }
@@ -81,11 +87,11 @@ Class { lexer_print("Found keyword : %s\n", yytext); return CLASS_KW; }
 Continue { lexer_print("Found keyword : %s\n", yytext); return CONTINUE_KW; }
 CStr { lexer_print("Found keyword : %s\n", yytext); return CSTRING_KW; }
 CUShort { lexer_print("Found keyword : %s\n", yytext); return CUSHORT_KW; }
-Do { lexer_print("Found keyword : %s\n", yytext); return DO_KW; }
-ElseIf { lexer_print("Found keyword : %s\n", yytext); return ELSEIF_KW; }
+Do { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; in_compound = true; return DO_KW; }
+ElseIf { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; in_compound = true; return ELSEIF_KW; }
 Erase { lexer_print("Found keyword : %s\n", yytext); return ERASE_KW; }
 Function { lexer_print("Found keyword : %s\n", yytext); return FUNCTION_KW; }
-If { lexer_print("Found keyword : %s\n", yytext); return IF_KW; }
+If { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; in_compound = true; return IF_KW; }
 Inherits { lexer_print("Found keyword : %s\n", yytext); return INHERITS_KW;  }
 IsNot { lexer_print("Found keyword : %s\n", yytext); return ISNOT; }
 Long { lexer_print("Found keyword : %s\n", yytext); return LONG_KW; }
@@ -122,11 +128,11 @@ SByte { lexer_print("Found keyword : %s\n", yytext); return SBYTE_KW; }
 Shared { lexer_print("Found keyword : %s\n", yytext); return SHARED_KW; }
 Step { lexer_print("Found keyword : %s\n", yytext); return STEP_KW; }
 Sub { lexer_print("Found keyword : %s\n", yytext); return SUB_KW; }
-To { lexer_print("Found keyword : %s\n", yytext); return TO_KW; }
-While { lexer_print("Found keyword : %s\n", yytext); return WHILE_KW; }
+To { lexer_print("Found keyword : %s\n", yytext); in_compound = true; return TO_KW; }
+While { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; in_compound = true; return WHILE_KW; }
 And { lexer_print("Found keyword : %s\n", yytext); return AND; }
 ByRef { lexer_print("Found keyword : %s\n", yytext); return BYREF_KW; }
-Case { lexer_print("Found keyword : %s\n", yytext); return CASE_KW; }
+Case { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; in_compound = true; return CASE_KW; }
 CChar { lexer_print("Found keyword : %s\n", yytext); return CCHAR_KW; }
 Char { lexer_print("Found keyword : %s\n", yytext); return CHAR_KW; }
 CObj { lexer_print("Found keyword : %s\n", yytext); return COBJECT_KW; }
@@ -134,19 +140,19 @@ CShort { lexer_print("Found keyword : %s\n", yytext); return CSHORT_KW; }
 CUInt { lexer_print("Found keyword : %s\n", yytext); return CUINTEGER_KW; }
 Decimal { lexer_print("Found keyword : %s\n", yytext); return DECIMAL_KW; }
 Dim { lexer_print("Found keyword : %s\n", yytext); return DIM_KW; }
-Each { lexer_print("Found keyword : %s\n", yytext); return EACH_KW; }
-For { lexer_print("Found keyword : %s\n", yytext); return FOR_KW; }
+Each { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; return EACH_KW; }
+For { lexer_print("Found keyword : %s\n", yytext); in_compound = true; return FOR_KW; }
 GoTo { lexer_print("Found keyword : %s\n", yytext); return GOTO_KW; }
 Me { lexer_print("Found keyword : %s\n", yytext); return ME_KW; }
 Of { lexer_print("Found keyword : %s\n", yytext); return OF_KW; }
 Optional { lexer_print("Found keyword : %s\n", yytext); return OPTIONAL_KW; }
 Private { lexer_print("Found keyword : %s\n", yytext); return PRIVATE_KW; }
-Select { lexer_print("Found keyword : %s\n", yytext); return SELECT_KW; }
+Select { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; return SELECT_KW; }
 Short { lexer_print("Found keyword : %s\n", yytext); return SHORT_KW; }
 Stop { lexer_print("Found keyword : %s\n", yytext); return STOP_KW; }
 UInteger { lexer_print("Found keyword : %s\n", yytext); return UINTEGER_KW; }
 Xor { lexer_print("Found keyword : %s\n", yytext); return XOR; }
-Until { lexer_print("Found keyword : %s\n", yytext); return UNTIL_KW; }
+Until { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; return UNTIL_KW; }
 
 Nothing { lexer_print("Found nothing literal\n"); return NOTHING; }
 True { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = true; return BOOL; }
@@ -158,7 +164,19 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 \/ {lexer_print("Found a DIV operator: %s\n", yytext); return '/'; }
 \+ {lexer_print("Found a PLUS operator: %s\n", yytext); return '+'; }
 \- {lexer_print("Found a MINUS operator: %s\n", yytext); return '-'; }
-\= { lexer_print("Found an ASSIGNMENT operator: %s\n", yytext); return '='; }
+\= {
+    if (new_stmt && !in_brace && !blocking_kw) {
+        lexer_print("Found an assignment operator: %s\n", yytext); 
+        new_stmt = false;
+        return '='; 
+    }
+    if (blocking_kw) {
+        blocking_kw = false;
+        new_stmt = false;
+    }
+    lexer_print("Found an equality operator: %s\n", yytext); 
+    return EQ;
+}
 \^= {lexer_print("Found a XOR_ASSIGNMENT operator: %s\n", yytext); return EXP_ASSIGN; }
 \*= {lexer_print("Found a MUL_ASSIGNMENT operator: %s\n", yytext); return MUL_ASSIGN; }
 \+= {lexer_print("Found a ADD_ASSIGNMENT operator: %s\n", yytext); return ADD_ASSIGN; }
@@ -372,10 +390,10 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     if (!DEBUG) yyterminate();
 }
 
-\( { lexer_print("Found a separator left parenthesis: %s\n", yytext); return '(';}
-\) {lexer_print("Found a separator right parenthesis: %s\n", yytext); return ')';}
-\{ {lexer_print("Found a separator left curly brace: %s\n", yytext); return '{';}
-\} { lexer_print("Found a separator right curly brace: %s\n", yytext); return '}';}
+\( { lexer_print("Found a separator left parenthesis: %s\n", yytext); in_brace = true; return '(';}
+\) {lexer_print("Found a separator right parenthesis: %s\n", yytext); in_brace = false; return ')';}
+\{ {lexer_print("Found a separator left curly brace: %s\n", yytext); in_brace = true; return '{';}
+\} { lexer_print("Found a separator right curly brace: %s\n", yytext); in_brace = false; return '}';}
 \? {lexer_print("Found a separator question mark: %s\n", yytext); return '?';}
 \. {lexer_print("Found a separator point: %s\n", yytext); return '.';}
 \! {lexer_print("Found a separator exclamation mark: %s\n", yytext); return '!'; }
@@ -390,7 +408,16 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 
 [\r\t ]+ {}
 [\r\t ]_[\r\t ]+\n+ {lexer_print("Found a line continuation: %s\n", yytext);}
-\n+ {lexer_print("Found end of line %d\n\n", yylineno - 1); return ENDL; }
+\n+ {
+    lexer_print("Found end of line %d\n\n", yylineno - 1);
+    if (in_compound) {
+        in_compound = false;
+        new_stmt = true;
+        lexer_print("Set new statement in compound statement");
+    }
+    blocking_kw = false;
+    return ENDL; 
+}
 <<EOF>> {lexer_print("File ended\n"); yyterminate();}
 
 %%
