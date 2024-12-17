@@ -402,7 +402,13 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 
 \[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {
     lexer_print("Found a identifier: %s\n", yytext);
-    yylval.Id = new std::string(yytext);
+    if (endsWith(yytext, "]")) {
+        std::string buffer = yytext + 1;
+        buffer = buffer.substr(0, buffer.length() - 1);
+        yylval.Id = new std::string(buffer);
+    } else {
+        yylval.Id = new std::string(yytext);
+    }
     return ID;
 }
 

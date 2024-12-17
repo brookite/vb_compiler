@@ -15,9 +15,9 @@ Class Main
     
     Do
         x = 1 + 3
-    Loop Until [Call]()
+    Loop While [Call]()
     
-        Do While [Call]()
+    Do Until [Call]()
         x = 1 + 3
     Loop
     

@@ -1736,13 +1736,14 @@ char *yytext;
 
     bool LEXER_DEBUG = false;
 
-    bool new_stmt = true;
-    bool blocking_kw = false;
-    bool in_brace = false;
-    bool in_compound = false;
-#line 1743 "lexer.flex.cpp"
+    // Система флагов, которая позволяет определять когда '=' это присваивание, а когда проверка равенства
+    bool new_stmt = true; // выставляется каждый раз, когда встречается новый statement
+    bool blocking_kw = false; // иногда у If, While и т.п. скобок у expr может не быть, и первое '=' учтется как присваивание, хотя это не так
+    bool in_brace = false; // определяет находится ли лексер внутри скобок, если да, то всегда = - это сравнение
+    bool in_compound = false; // гарантирует, чтобы первый statement внутри составных операторов (If, For, ...) мог быть присваиванием 
+#line 1744 "lexer.flex.cpp"
 
-#line 1745 "lexer.flex.cpp"
+#line 1746 "lexer.flex.cpp"
 
 #define INITIAL 0
 #define STRING 1
@@ -1958,11 +1959,11 @@ YY_DECL
 		}
 
 	{
-#line 44 "lexer.l"
+#line 45 "lexer.l"
 
 
 
-#line 48 "lexer.l"
+#line 49 "lexer.l"
     std::string strLiteral;
     std::string comment;
     char charValue;
@@ -1976,7 +1977,7 @@ YY_DECL
 
 
 
-#line 1979 "lexer.flex.cpp"
+#line 1980 "lexer.flex.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -2041,527 +2042,527 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 61 "lexer.l"
+#line 62 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return AND_ALSO; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 62 "lexer.l"
+#line 63 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return BYTE_KW; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 63 "lexer.l"
+#line 64 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CDATE_KW; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 64 "lexer.l"
+#line 65 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CINTEGER_KW; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 65 "lexer.l"
+#line 66 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CONST_KW; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 66 "lexer.l"
+#line 67 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CSINGLE_KW; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 67 "lexer.l"
+#line 68 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CULONG_KW; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 68 "lexer.l"
+#line 69 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); in_compound = true; return ELSE_KW; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 69 "lexer.l"
+#line 70 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return EXIT_KW; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 70 "lexer.l"
+#line 71 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); in_compound = true; return IN_KW; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 71 "lexer.l"
+#line 72 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return IS; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 72 "lexer.l"
+#line 73 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return LIKE; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 73 "lexer.l"
+#line 74 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return MOD; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 74 "lexer.l"
+#line 75 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return MYBASE_KW; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 75 "lexer.l"
+#line 76 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return NEW_KW; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 76 "lexer.l"
+#line 77 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return OR;  }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 77 "lexer.l"
+#line 78 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return READONLY_KW; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 78 "lexer.l"
+#line 79 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return SINGLE_KW; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 79 "lexer.l"
+#line 80 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return STRING_KW; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 80 "lexer.l"
+#line 81 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); new_stmt = true; return THEN_KW; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 81 "lexer.l"
+#line 82 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return ULONG_KW; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 82 "lexer.l"
+#line 83 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return AS_KW; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 83 "lexer.l"
+#line 84 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return BYVAL_KW; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 84 "lexer.l"
+#line 85 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CBOOL_KW; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 85 "lexer.l"
+#line 86 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CDOUBLE_KW; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 86 "lexer.l"
+#line 87 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CLASS_KW; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 87 "lexer.l"
+#line 88 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CONTINUE_KW; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 88 "lexer.l"
+#line 89 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CSTRING_KW; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 89 "lexer.l"
+#line 90 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CUSHORT_KW; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 90 "lexer.l"
+#line 91 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; in_compound = true; return DO_KW; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 91 "lexer.l"
+#line 92 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; in_compound = true; return ELSEIF_KW; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 92 "lexer.l"
+#line 93 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return ERASE_KW; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 93 "lexer.l"
+#line 94 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return FUNCTION_KW; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 94 "lexer.l"
+#line 95 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; in_compound = true; return IF_KW; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 95 "lexer.l"
+#line 96 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return INHERITS_KW;  }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 96 "lexer.l"
+#line 97 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return ISNOT; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 97 "lexer.l"
+#line 98 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return LONG_KW; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 98 "lexer.l"
+#line 99 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return MYCLASS_KW;  }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 99 "lexer.l"
+#line 100 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return NEXT_KW; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 100 "lexer.l"
+#line 101 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return OR_ELSE; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 101 "lexer.l"
+#line 102 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return PARAMARRAY_KW; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 102 "lexer.l"
+#line 103 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return PROTECTED_KW; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 103 "lexer.l"
+#line 104 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return REDIM_KW; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 104 "lexer.l"
+#line 105 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return RETURN_KW; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 105 "lexer.l"
+#line 106 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return STATIC_KW; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 106 "lexer.l"
+#line 107 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return STRUCT_KW; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 107 "lexer.l"
+#line 108 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return USHORT_KW;  }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 108 "lexer.l"
+#line 109 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return BOOLEAN_KW; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 109 "lexer.l"
+#line 110 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CALL_KW; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 110 "lexer.l"
+#line 111 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CBYTE_KW; }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 111 "lexer.l"
+#line 112 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CLONG_KW; }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 112 "lexer.l"
+#line 113 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CSBYTE_KW;  }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 113 "lexer.l"
+#line 114 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CTYPE_KW; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 114 "lexer.l"
+#line 115 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return DATE_KW; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 115 "lexer.l"
+#line 116 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return DOUBLE_KW; }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 116 "lexer.l"
+#line 117 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return END_KW; }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 117 "lexer.l"
+#line 118 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return END_FUNCTION; }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 118 "lexer.l"
+#line 119 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return END_SELECT; }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 119 "lexer.l"
+#line 120 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return END_IF; }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 120 "lexer.l"
+#line 121 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return END_SUB; }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 121 "lexer.l"
+#line 122 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return END_WHILE; }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 122 "lexer.l"
+#line 123 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return INTEGER_KW; }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 123 "lexer.l"
+#line 124 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return LOOP_KW; }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 124 "lexer.l"
+#line 125 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return NOT; }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 125 "lexer.l"
+#line 126 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return OBJECT_KW; }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 126 "lexer.l"
+#line 127 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return PUBLIC_KW; }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 127 "lexer.l"
+#line 128 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return SBYTE_KW; }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 128 "lexer.l"
+#line 129 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return SHARED_KW; }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 129 "lexer.l"
+#line 130 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return STEP_KW; }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 130 "lexer.l"
+#line 131 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return SUB_KW; }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 131 "lexer.l"
+#line 132 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); in_compound = true; return TO_KW; }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 132 "lexer.l"
+#line 133 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; in_compound = true; return WHILE_KW; }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 133 "lexer.l"
+#line 134 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return AND; }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 134 "lexer.l"
+#line 135 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return BYREF_KW; }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 135 "lexer.l"
+#line 136 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; in_compound = true; return CASE_KW; }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 136 "lexer.l"
+#line 137 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CCHAR_KW; }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 137 "lexer.l"
+#line 138 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CHAR_KW; }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 138 "lexer.l"
+#line 139 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return COBJECT_KW; }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 139 "lexer.l"
+#line 140 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CSHORT_KW; }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 140 "lexer.l"
+#line 141 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return CUINTEGER_KW; }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 141 "lexer.l"
+#line 142 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return DECIMAL_KW; }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 142 "lexer.l"
+#line 143 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return DIM_KW; }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 143 "lexer.l"
+#line 144 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; return EACH_KW; }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 144 "lexer.l"
+#line 145 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); in_compound = true; return FOR_KW; }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 145 "lexer.l"
+#line 146 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return GOTO_KW; }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 146 "lexer.l"
+#line 147 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return ME_KW; }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 147 "lexer.l"
+#line 148 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return OF_KW; }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 148 "lexer.l"
+#line 149 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return OPTIONAL_KW; }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 149 "lexer.l"
+#line 150 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return PRIVATE_KW; }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 150 "lexer.l"
+#line 151 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; return SELECT_KW; }
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 151 "lexer.l"
+#line 152 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return SHORT_KW; }
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 152 "lexer.l"
+#line 153 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return STOP_KW; }
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 153 "lexer.l"
+#line 154 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return UINTEGER_KW; }
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 154 "lexer.l"
+#line 155 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); return XOR; }
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 155 "lexer.l"
+#line 156 "lexer.l"
 { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; return UNTIL_KW; }
 	YY_BREAK
 case 96:
 YY_RULE_SETUP
-#line 157 "lexer.l"
+#line 158 "lexer.l"
 { lexer_print("Found nothing literal\n"); return NOTHING; }
 	YY_BREAK
 case 97:
 YY_RULE_SETUP
-#line 158 "lexer.l"
+#line 159 "lexer.l"
 { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = true; return BOOL; }
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
-#line 159 "lexer.l"
+#line 160 "lexer.l"
 { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false; return BOOL; }
 	YY_BREAK
 case 99:
 YY_RULE_SETUP
-#line 161 "lexer.l"
+#line 162 "lexer.l"
 {lexer_print("Found a XOR operator: %s\n", yytext); return '^'; }
 	YY_BREAK
 case 100:
 YY_RULE_SETUP
-#line 162 "lexer.l"
+#line 163 "lexer.l"
 {lexer_print("Found a MUL operator: %s\n", yytext); return '*'; }
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
-#line 163 "lexer.l"
+#line 164 "lexer.l"
 {lexer_print("Found a FLOOR_DIV operator: %s\n", yytext); return '\\'; }
 	YY_BREAK
 case 102:
 YY_RULE_SETUP
-#line 164 "lexer.l"
+#line 165 "lexer.l"
 {lexer_print("Found a DIV operator: %s\n", yytext); return '/'; }
 	YY_BREAK
 case 103:
 YY_RULE_SETUP
-#line 165 "lexer.l"
+#line 166 "lexer.l"
 {lexer_print("Found a PLUS operator: %s\n", yytext); return '+'; }
 	YY_BREAK
 case 104:
 YY_RULE_SETUP
-#line 166 "lexer.l"
+#line 167 "lexer.l"
 {lexer_print("Found a MINUS operator: %s\n", yytext); return '-'; }
 	YY_BREAK
 case 105:
 YY_RULE_SETUP
-#line 167 "lexer.l"
+#line 168 "lexer.l"
 {
     if (new_stmt && !in_brace && !blocking_kw) {
         lexer_print("Found an assignment operator: %s\n", yytext); 
@@ -2578,132 +2579,132 @@ YY_RULE_SETUP
 	YY_BREAK
 case 106:
 YY_RULE_SETUP
-#line 180 "lexer.l"
+#line 181 "lexer.l"
 {lexer_print("Found a XOR_ASSIGNMENT operator: %s\n", yytext); return EXP_ASSIGN; }
 	YY_BREAK
 case 107:
 YY_RULE_SETUP
-#line 181 "lexer.l"
+#line 182 "lexer.l"
 {lexer_print("Found a MUL_ASSIGNMENT operator: %s\n", yytext); return MUL_ASSIGN; }
 	YY_BREAK
 case 108:
 YY_RULE_SETUP
-#line 182 "lexer.l"
+#line 183 "lexer.l"
 {lexer_print("Found a ADD_ASSIGNMENT operator: %s\n", yytext); return ADD_ASSIGN; }
 	YY_BREAK
 case 109:
 YY_RULE_SETUP
-#line 183 "lexer.l"
+#line 184 "lexer.l"
 {lexer_print("Found a SUB_ASSIGNMENT operator: %s\n", yytext); return SUB_ASSIGN; }
 	YY_BREAK
 case 110:
 YY_RULE_SETUP
-#line 184 "lexer.l"
+#line 185 "lexer.l"
 {lexer_print("Found a LESS_EQUAL to operator: %s\n", yytext); return LEQ; }
 	YY_BREAK
 case 111:
 YY_RULE_SETUP
-#line 185 "lexer.l"
+#line 186 "lexer.l"
 {lexer_print("Found a LESS operator: %s\n", yytext); return '<'; }
 	YY_BREAK
 case 112:
 YY_RULE_SETUP
-#line 186 "lexer.l"
+#line 187 "lexer.l"
 {lexer_print("Found a GREATER operator: %s\n", yytext); return '>'; }
 	YY_BREAK
 case 113:
 YY_RULE_SETUP
-#line 187 "lexer.l"
+#line 188 "lexer.l"
 {lexer_print("Found a GREATER_EQUAL to operator: %s\n", yytext); return GEQ; }
 	YY_BREAK
 case 114:
 YY_RULE_SETUP
-#line 188 "lexer.l"
+#line 189 "lexer.l"
 {lexer_print("Found a NOT_EQUAL to operator: %s\n", yytext); return NEQ; }
 	YY_BREAK
 case 115:
 YY_RULE_SETUP
-#line 189 "lexer.l"
+#line 190 "lexer.l"
 {lexer_print("Found a STR_CONCAT operator: %s\n", yytext); return '&'; }
 	YY_BREAK
 case 116:
 YY_RULE_SETUP
-#line 190 "lexer.l"
+#line 191 "lexer.l"
 {lexer_print("Found a STR_CONCAT_ASSIGNMENT operator: %s\n", yytext); return STRCAT_ASSIGN; }
 	YY_BREAK
 case 117:
 YY_RULE_SETUP
-#line 191 "lexer.l"
+#line 192 "lexer.l"
 {lexer_print("Found a RSHIFT operator: %s\n", yytext); return RSHIFT; }
 	YY_BREAK
 case 118:
 YY_RULE_SETUP
-#line 192 "lexer.l"
+#line 193 "lexer.l"
 {lexer_print("Found a LSHIFT operator: %s\n", yytext); return LSHIFT; }
 	YY_BREAK
 case 119:
 YY_RULE_SETUP
-#line 193 "lexer.l"
+#line 194 "lexer.l"
 {lexer_print("Found a LSHIFT_ASSIGNMENT operator: %s\n", yytext); return LSHIFT_ASSIGN; }
 	YY_BREAK
 case 120:
 YY_RULE_SETUP
-#line 194 "lexer.l"
+#line 195 "lexer.l"
 {lexer_print("Found a RSHIFT_ASSIGNMENT operator: %s\n", yytext); return RSHIFT_ASSIGN; }
 	YY_BREAK
 case 121:
 YY_RULE_SETUP
-#line 195 "lexer.l"
+#line 196 "lexer.l"
 { lexer_print("Found an FLOOR_DIV_ASSIGNMENT operator: %s\n", yytext); return FLOORDIV_ASSIGN; }
 	YY_BREAK
 case 122:
 YY_RULE_SETUP
-#line 196 "lexer.l"
+#line 197 "lexer.l"
 {lexer_print("Found a DIV_ASSIGNMENT operator: %s\n", yytext); return DIV_ASSIGN; }
 	YY_BREAK
 case 123:
 YY_RULE_SETUP
-#line 198 "lexer.l"
+#line 199 "lexer.l"
 {BEGIN(COMMENT); comment.clear(); }
 	YY_BREAK
 case 124:
 YY_RULE_SETUP
-#line 199 "lexer.l"
+#line 200 "lexer.l"
 {comment += yytext;}
 	YY_BREAK
 case 125:
 /* rule 125 can match eol */
 YY_RULE_SETUP
-#line 200 "lexer.l"
+#line 201 "lexer.l"
 {lexer_print("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
 	YY_BREAK
 case YY_STATE_EOF(COMMENT):
-#line 201 "lexer.l"
+#line 202 "lexer.l"
 {lexer_print("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
 	YY_BREAK
 case 126:
 YY_RULE_SETUP
-#line 203 "lexer.l"
+#line 204 "lexer.l"
 {BEGIN(STRING); strLiteral.clear();}
 	YY_BREAK
 case 127:
 YY_RULE_SETUP
-#line 204 "lexer.l"
+#line 205 "lexer.l"
 {strLiteral += yytext;}
 	YY_BREAK
 case 128:
 YY_RULE_SETUP
-#line 205 "lexer.l"
+#line 206 "lexer.l"
 {strLiteral += "\"";}
 	YY_BREAK
 case YY_STATE_EOF(STRING):
-#line 206 "lexer.l"
+#line 207 "lexer.l"
 {lexer_print("Error: String literal wasn't closed\n"); yyterminate();}
 	YY_BREAK
 case 129:
 /* rule 129 can match eol */
 YY_RULE_SETUP
-#line 207 "lexer.l"
+#line 208 "lexer.l"
 {
     lexer_print("Error: String literal wasn't closed at line %d\n", yylineno - 1); 
     if (!DEBUG) {
@@ -2716,7 +2717,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 130:
 YY_RULE_SETUP
-#line 216 "lexer.l"
+#line 217 "lexer.l"
 {
     if (strLiteral.length() == 1) {
         charValue = strLiteral.at(0);
@@ -2732,12 +2733,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 131:
 YY_RULE_SETUP
-#line 228 "lexer.l"
+#line 229 "lexer.l"
 {lexer_print("Found a string literal: %s\n", strLiteral.c_str()); yylval.Str = new std::string(strLiteral); BEGIN(INITIAL); lexer_print("%d", STR); return STR; }
 	YY_BREAK
 case 132:
 YY_RULE_SETUP
-#line 231 "lexer.l"
+#line 232 "lexer.l"
 {
     lexer_print("Error: invalid underscore character in number literal\n");
     if (!DEBUG) yyterminate();
@@ -2745,7 +2746,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 133:
 YY_RULE_SETUP
-#line 236 "lexer.l"
+#line 237 "lexer.l"
 {
     lexer_print("Error: invalid underscore character in number literal\n");
     if (!DEBUG) yyterminate();
@@ -2753,7 +2754,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 134:
 YY_RULE_SETUP
-#line 241 "lexer.l"
+#line 242 "lexer.l"
 {
     lexer_print("Error: invalid underscore character in number literal\n");
     if (!DEBUG) yyterminate();
@@ -2761,7 +2762,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 135:
 YY_RULE_SETUP
-#line 247 "lexer.l"
+#line 248 "lexer.l"
 {
     char intLiteral[10000];
     std::string lexeme(yytext);
@@ -2782,7 +2783,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 136:
 YY_RULE_SETUP
-#line 265 "lexer.l"
+#line 266 "lexer.l"
 {
     char intLiteral[10000];
     std::string lexeme(yytext);
@@ -2804,7 +2805,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 137:
 YY_RULE_SETUP
-#line 284 "lexer.l"
+#line 285 "lexer.l"
 {
     char intLiteral[10000];
     std::string lexeme(yytext);
@@ -2826,7 +2827,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 138:
 YY_RULE_SETUP
-#line 303 "lexer.l"
+#line 304 "lexer.l"
 {
     std::string lexeme(yytext);
     removeUnderline(&lexeme);
@@ -2838,7 +2839,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 139:
 YY_RULE_SETUP
-#line 312 "lexer.l"
+#line 313 "lexer.l"
 {
     char floatLiteral[10000];
     strncpy_s(floatLiteral, yytext, strlen(yytext) - 1);
@@ -2851,7 +2852,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 140:
 YY_RULE_SETUP
-#line 322 "lexer.l"
+#line 323 "lexer.l"
 {
     lexer_print("Invalid float literal: %s at line %d\n", yytext, yylineno);
     if (!DEBUG) yyterminate();
@@ -2860,7 +2861,7 @@ YY_RULE_SETUP
 case 141:
 /* rule 141 can match eol */
 YY_RULE_SETUP
-#line 327 "lexer.l"
+#line 328 "lexer.l"
 {
     std::regex date_regex(R"((\d{1,2})[\-\/](\d{1,2})[\-\/](\d{4}))");
     std::regex time_regex(R"((\d{1,2}):(\d{2})(:(\d{2}))?(\s*(AM|PM))?)");
@@ -2919,7 +2920,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 142:
 YY_RULE_SETUP
-#line 383 "lexer.l"
+#line 384 "lexer.l"
 {
     lexer_print("Invalid datetime literal: %s\n", yytext);
     if (!DEBUG) yyterminate();
@@ -2927,7 +2928,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 143:
 YY_RULE_SETUP
-#line 388 "lexer.l"
+#line 389 "lexer.l"
 {
     lexer_print("Datetime literal wasn't closed: %s\n", yytext);
     if (!DEBUG) yyterminate();
@@ -2935,73 +2936,79 @@ YY_RULE_SETUP
 	YY_BREAK
 case 144:
 YY_RULE_SETUP
-#line 393 "lexer.l"
+#line 394 "lexer.l"
 { lexer_print("Found a separator left parenthesis: %s\n", yytext); in_brace = true; return '(';}
 	YY_BREAK
 case 145:
 YY_RULE_SETUP
-#line 394 "lexer.l"
+#line 395 "lexer.l"
 {lexer_print("Found a separator right parenthesis: %s\n", yytext); in_brace = false; return ')';}
 	YY_BREAK
 case 146:
 YY_RULE_SETUP
-#line 395 "lexer.l"
+#line 396 "lexer.l"
 {lexer_print("Found a separator left curly brace: %s\n", yytext); in_brace = true; return '{';}
 	YY_BREAK
 case 147:
 YY_RULE_SETUP
-#line 396 "lexer.l"
+#line 397 "lexer.l"
 { lexer_print("Found a separator right curly brace: %s\n", yytext); in_brace = false; return '}';}
 	YY_BREAK
 case 148:
 YY_RULE_SETUP
-#line 397 "lexer.l"
+#line 398 "lexer.l"
 {lexer_print("Found a separator question mark: %s\n", yytext); return '?';}
 	YY_BREAK
 case 149:
 YY_RULE_SETUP
-#line 398 "lexer.l"
+#line 399 "lexer.l"
 {lexer_print("Found a separator point: %s\n", yytext); return '.';}
 	YY_BREAK
 case 150:
 YY_RULE_SETUP
-#line 399 "lexer.l"
+#line 400 "lexer.l"
 {lexer_print("Found a separator exclamation mark: %s\n", yytext); return '!'; }
 	YY_BREAK
 case 151:
 YY_RULE_SETUP
-#line 400 "lexer.l"
+#line 401 "lexer.l"
 { lexer_print("Found a separator comma: %s\n", yytext); return ','; }
 	YY_BREAK
 case 152:
 YY_RULE_SETUP
-#line 401 "lexer.l"
+#line 402 "lexer.l"
 {lexer_print("Found a separator colon: %s\n", yytext); return ':'; }
 	YY_BREAK
 case 153:
 YY_RULE_SETUP
-#line 403 "lexer.l"
+#line 404 "lexer.l"
 {
     lexer_print("Found a identifier: %s\n", yytext);
-    yylval.Id = new std::string(yytext);
+    if (endsWith(yytext, "]")) {
+        std::string buffer = yytext + 1;
+        buffer = buffer.substr(0, buffer.length() - 1);
+        yylval.Id = new std::string(buffer);
+    } else {
+        yylval.Id = new std::string(yytext);
+    }
     return ID;
 }
 	YY_BREAK
 case 154:
 YY_RULE_SETUP
-#line 409 "lexer.l"
+#line 416 "lexer.l"
 {}
 	YY_BREAK
 case 155:
 /* rule 155 can match eol */
 YY_RULE_SETUP
-#line 410 "lexer.l"
+#line 417 "lexer.l"
 {lexer_print("Found a line continuation: %s\n", yytext);}
 	YY_BREAK
 case 156:
 /* rule 156 can match eol */
 YY_RULE_SETUP
-#line 411 "lexer.l"
+#line 418 "lexer.l"
 {
     lexer_print("Found end of line %d\n\n", yylineno - 1);
     if (in_compound) {
@@ -3014,15 +3021,15 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 421 "lexer.l"
+#line 428 "lexer.l"
 {lexer_print("File ended\n"); yyterminate();}
 	YY_BREAK
 case 157:
 YY_RULE_SETUP
-#line 423 "lexer.l"
+#line 430 "lexer.l"
 ECHO;
 	YY_BREAK
-#line 3025 "lexer.flex.cpp"
+#line 3032 "lexer.flex.cpp"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -4038,7 +4045,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 423 "lexer.l"
+#line 430 "lexer.l"
 
 
 void removeUnderline(std::string* str) {

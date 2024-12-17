@@ -14,6 +14,7 @@ void DotWriter::appendOutput(std::string line) {
 
 void DotWriter::addStringList(list<std::string>* strings, bool add_indexes, bool ensure_nonempty) {
 	if (strings->isEmpty() && ensure_nonempty) return;
+	label(strings->id, "stringlist");
 	for (int i = 0; i < strings->size(); i++) {
 		size_t id = addStringNode(strings->get(i));
 		link(strings->id, id, add_indexes ? std::to_string(i) : "");

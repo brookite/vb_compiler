@@ -137,7 +137,7 @@ void expr_node::dot(DotWriter * out) {
         out->label(this->id, "Me");
         break;
     case expr_type::Char:
-        out->label(this->id, std::to_string(this->Char));
+        out->label(this->id, std::string({ this->Char }));
         break;
     case expr_type::Datetime:
         
@@ -289,7 +289,7 @@ std::string stmt_node::getName() {
                 prefix = "exp";
                 break;
             case assignment_type::StrConcatAssign:
-                prefix = "dot";
+                prefix = "strcat";
                 break;
             case assignment_type::LshiftAssign:
                 prefix = "lshift";
@@ -300,7 +300,7 @@ std::string stmt_node::getName() {
             default:
                 break;
         }
-        return prefix + "_" + "assignment_stmt";
+        return prefix + (prefix.length() == 0 ? "" : "_") + "assignment_stmt";
     case stmt_type::ContinueDo:
         return "continue_do";
     case stmt_type::ContinueWhile:
@@ -430,7 +430,7 @@ void stmt_node::dot(DotWriter* out) {
         
         out->addNode(var_decl);
         out->linkNodes(this, var_decl, "decl");
-        var = "dim";
+        var = var_type == var_type::DIM ? "dim" : "const";
         modId = out->addStringNode(var);
         out->link(((node*)this)->id, modId, "modifier");
         break;
@@ -568,6 +568,8 @@ void typed_value::dot(DotWriter* out) {
     out->linkNodes(this, type, "type");
     out->addNode(value);
     out->linkNodes(this, value, "value");
+    out->addNode(array_size);
+    out->linkNodes(this, array_size, "array_size");
 }
 
 void redim_clause_node::dot(DotWriter* out) {
