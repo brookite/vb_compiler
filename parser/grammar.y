@@ -28,7 +28,7 @@ void yyerror(char const* s) {
 
 bool PARSER_DEBUG = false;
 bool DEBUG = false;
-program_node * program = NULL;
+program_node * program = nullptr;
 
 %}
 
@@ -183,11 +183,40 @@ program_node * program = NULL;
 %type<Vars> function_parameters
 %type<Unknown> structure_member
 
+%code requires {
+    enum class IntType {
+        LONG_MOD, INT_MOD, SHORT_MOD, NO_SPEC
+    };
+
+    struct IntLiteral {
+        long long int Int;
+        IntType type;
+        bool isUnsigned = false;
+
+        IntLiteral() : Int(0), type(IntType::INT_MOD) {}
+
+        IntLiteral(long long int num, IntType type, bool isUnsigned) : Int(num), type(type), isUnsigned(isUnsigned) {}
+    };
+
+    enum class FloatType {
+        DECIMAL_MOD, FLOAT_MOD, DOUBLE_MOD, NO_SPEC
+    };
+
+    struct FloatLiteral {
+        double Float;
+        FloatType type;
+
+        FloatLiteral() : Float(0.0), type(FloatType::DOUBLE_MOD) {}
+
+        FloatLiteral(double Float, FloatType type) : Float(Float), type(type) {}
+    };
+}
+
 %union {
-    long long int Int;
+    IntLiteral * Int;
     std::string * Str;
     bool Bool;
-    double Float;
+    FloatLiteral * Float;
     DateTime * DateTime;
     std::string * Id;
     char Char;
@@ -331,6 +360,22 @@ expr: INT                                        {parser_print("INT -> expr"); $
     | CHAR                                       {parser_print("CHAR -> expr"); $$ = create_char($1);}
     | NOTHING                                    {parser_print("NOTHING -> expr"); $$ = create_nothing();}
     | ME_KW                                      {parser_print("ME_KW -> expr"); $$ = create_me();}
+    | BYTE_KW                                   {$$ = create_id("Byte");}
+    | SBYTE_KW                                  {$$ = create_id("SByte");}
+    | USHORT_KW                                 {$$ = create_id("UShort");}
+    | SHORT_KW                                  {$$ = create_id("Short");}
+    | UINTEGER_KW                               {$$ = create_id("UInteger");}
+    | INTEGER_KW                                {$$ = create_id("Integer");}
+    | ULONG_KW                                  {$$ = create_id("ULong");}
+    | LONG_KW                                   {$$ = create_id("Long");}
+    | BOOLEAN_KW                                {$$ = create_id("Boolean");}
+    | DATE_KW                                   {$$ = create_id("Date");}
+    | CHAR_KW                                   {$$ = create_id("Char");}
+    | STRING_KW                                 {$$ = create_id("String");}
+    | DECIMAL_KW                                {$$ = create_id("Decimal");}
+    | SINGLE_KW                                 {$$ = create_id("Single");}
+    | DOUBLE_KW                                 {$$ = create_id("Double");}
+    | OBJECT_KW                                 {$$ = create_id("Object");}
     | '(' opt_endl expr opt_endl ')'             {$$ = $3;}
     | expr '+' opt_endl expr                     {parser_print("expr + opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::AddOp);}
     | expr '-' opt_endl expr                     {parser_print("expr - opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::SubOp);}
@@ -458,16 +503,16 @@ redim_clause_list: redim_clause                                      { parser_pr
                  ;
 
 if_stmt: IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list block END_IF endl_list                      { parser_print("IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list block END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, $5, $6, $9); }
-	   | IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list                            { parser_print("IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, NULL, $5, $8); }
-	   | IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list                            { parser_print("IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, $5, $6, NULL); }
-	   | IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list                                  { parser_print("IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, NULL, $5, NULL); }
-       | IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list                                              { parser_print("IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, $5, $6, NULL); }
-	   | IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list                                                    { parser_print("IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, NULL, $5, NULL); }
+	   | IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list                            { parser_print("IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list block END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, nullptr, $5, $8); }
+	   | IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list                            { parser_print("IF_KW expr THEN_KW endl_list block else_if_stmts ELSE_KW endl_list END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, $5, $6, nullptr); }
+	   | IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list                                  { parser_print("IF_KW expr THEN_KW endl_list else_if_stmts ELSE_KW endl_list END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, nullptr, $5, nullptr); }
+       | IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list                                              { parser_print("IF_KW expr THEN_KW endl_list block else_if_stmts END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, $5, $6, nullptr); }
+	   | IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list                                                    { parser_print("IF_KW expr THEN_KW endl_list else_if_stmts END_IF endl_list -> if_stmt"); $$ = create_if_stmt($2, nullptr, $5, nullptr); }
        ;
 
 else_if_stmts: /* empty */                                                     { parser_print("empty -> else_if_stmts"); $$ = create_block(); }
              | else_if_stmts ELSEIF_KW expr THEN_KW endl_list block            { parser_print("else_if_stmts ELSEIF_KW expr THEN_KW endl_list block -> else_if_stmts"); $$ = $1; $$->add(create_elseif($3, $6)); }
-			 | else_if_stmts ELSEIF_KW expr THEN_KW endl_list                  { parser_print("else_if_stmts ELSEIF_KW expr THEN_KW endl_list -> else_if_stmts"); $$ = $1; $$->add(create_elseif($3, NULL)); }
+			 | else_if_stmts ELSEIF_KW expr THEN_KW endl_list                  { parser_print("else_if_stmts ELSEIF_KW expr THEN_KW endl_list -> else_if_stmts"); $$ = $1; $$->add(create_elseif($3, nullptr)); }
              ; 
 
 select_stmt: SELECT_KW expr endl_list case_stmts END_SELECT endl_list                    { parser_print("SELECT_KW expr endl_list case_stmts END_SELECT endl_list -> select_stmt"); $$ = create_select_stmt($2, $4); }
@@ -475,9 +520,9 @@ select_stmt: SELECT_KW expr endl_list case_stmts END_SELECT endl_list           
            ;
 
 case_condition_branch: CASE_KW expr endl_list block                                      { parser_print("CASE_KW expr endl_list block -> case_condition_branch"); $$ = create_case_condition_branch($2, $4); }
-					 | CASE_KW expr endl_list                                            { parser_print("CASE_KW expr endl_list -> case_condition_branch"); $$ = create_case_condition_branch($2, NULL); }
+					 | CASE_KW expr endl_list                                            { parser_print("CASE_KW expr endl_list -> case_condition_branch"); $$ = create_case_condition_branch($2, nullptr); }
                      | CASE_KW expr TO_KW expr endl_list block                           { parser_print("CASE_KW expr TO_KW expr endl_list block -> case_condition_branch"); $$ = create_case_range_branch($2, $4, $6); }
-					 | CASE_KW expr TO_KW expr endl_list                                 { parser_print("CASE_KW expr TO_KW expr endl_list -> case_condition_branch"); $$ = create_case_range_branch($2, $4, NULL); }
+					 | CASE_KW expr TO_KW expr endl_list                                 { parser_print("CASE_KW expr TO_KW expr endl_list -> case_condition_branch"); $$ = create_case_range_branch($2, $4, nullptr); }
                      ;
 
 case_condition_branches: case_condition_branch                                   { parser_print("case_condition_branch -> case_condition_branches"); $$ = create_block(); }
@@ -497,8 +542,8 @@ while_stmt: WHILE_KW expr endl_list block END_WHILE endl_list                   
           | WHILE_KW expr endl_list END_WHILE endl_list                          { parser_print("WHILE_KW expr endl_list END_WHILE endl_list -> while_stmt"); $$ = create_while_stmt($2, create_block()); }
           ;
 
-for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list                               { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, NULL, $9); }
-        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list                                     { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, NULL, create_block()); }
+for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list                               { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, nullptr, $9); }
+        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list                                     { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, nullptr, create_block()); }
         | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list                  { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, $9, $11); }
 		| FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list                        { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, $9, create_block()); }
         ;
@@ -532,13 +577,13 @@ variable_name: ID                             { parser_print("ID -> variable_nam
              ;
 
 array_modifier: '(' opt_endl expr opt_endl ')' { parser_print("'(' ENDL ')' -> array_modifier"); $$ = $3;}
-              | '(' ')'                        { parser_print("'(' ')' -> array_modifier"); $$ = NULL;}
+              | '(' ')'                        { parser_print("'(' ')' -> array_modifier"); $$ = nullptr;}
               ;
 
 
 var_declarator: variable_name                                        { parser_print("variable_name -> var_declarator"); $$ = $1; }
-              | variable_name AS_KW type_name                        { parser_print("variable_name AS_KW type_name -> var_declarator"); $$ = append_var_declarator($1, $3, NULL); }
-              | variable_name '=' expr                               { parser_print("variable_name '=' expr -> var_declarator"); $$ = append_var_declarator($1, NULL, $3); }
+              | variable_name AS_KW type_name                        { parser_print("variable_name AS_KW type_name -> var_declarator"); $$ = append_var_declarator($1, $3, nullptr); }
+              | variable_name '=' expr                               { parser_print("variable_name '=' expr -> var_declarator"); $$ = append_var_declarator($1, nullptr, $3); }
               | variable_name AS_KW type_name '=' expr               { parser_print("variable_name AS_KW type_name '=' expr -> var_declarator"); $$ = append_var_declarator($1, $3, $5); }
               ;
 
@@ -586,26 +631,17 @@ id_list: ID                                                   { parser_print("ID
        | id_list ',' opt_endl ID                              { parser_print("id_list ',' opt_endl ID -> id_list"); $$ = $1; $$->add(*$4); }
        ;
 
-function_signature: FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name                                  { parser_print("FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name -> function_signature"); $$ = create_function($2, $5, $9, NULL); }
-                  | FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')'                                                  { parser_print("FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' -> function_signature"); $$ = create_function($2, $5, object_type(), NULL); }
-                  | FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name                                                               { parser_print("FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name -> function_signature"); $$ = create_function($2, NULL, $7, NULL); }
-                  | FUNCTION_KW ID '(' opt_endl ')'                                                                               { parser_print("FUNCTION_KW ID '(' opt_endl ')' -> function_signature"); $$ = create_function($2, NULL, object_type(), NULL); }
-                  | FUNCTION_KW ID AS_KW type_name                                                                                { parser_print("FUNCTION_KW ID AS_KW type_name -> function_signature"); $$ = create_function($2, NULL, $4, NULL); }
-                  | FUNCTION_KW ID                                                                                                { parser_print("FUNCTION_KW ID -> function_signature"); $$ = create_function($2, NULL, object_type(), NULL); }
-                  | FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' AS_KW type_name               { parser_print("FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' AS_KW type_name -> function_signature"); $$ = create_function($2, $6, $10, $3); }
-                  | FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')'                               { parser_print("FUNCTION_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' -> function_signature"); $$ = create_function($2, $6, object_type(), $3); }
-                  | FUNCTION_KW ID generic_param_list '(' opt_endl ')' AS_KW type_name                                            { parser_print("FUNCTION_KW ID generic_param_list '(' opt_endl ')' AS_KW type_name -> function_signature"); $$ = create_function($2, NULL, $8, $3); }
-                  | FUNCTION_KW ID generic_param_list '(' opt_endl ')'                                                            { parser_print("FUNCTION_KW ID generic_param_list '(' opt_endl ')' -> function_signature"); $$ = create_function($2, NULL, object_type(), $3); }
-                  | FUNCTION_KW ID generic_param_list AS_KW type_name                                                             { parser_print("FUNCTION_KW ID generic_param_list AS_KW type_name -> function_signature"); $$ = create_function($2, NULL, $5, $3); }
-                  | FUNCTION_KW ID generic_param_list                                                                             { parser_print("FUNCTION_KW ID generic_param_list -> function_signature"); $$ = create_function($2, NULL, object_type(), $3); }
+function_signature: FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name                                  { parser_print("FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' AS_KW type_name -> function_signature"); $$ = create_function($2, $5, $9, false); }
+                  | FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')'                                                  { parser_print("FUNCTION_KW ID '(' opt_endl function_parameters opt_endl ')' -> function_signature"); $$ = create_function($2, $5, object_type(), false); }
+                  | FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name                                                               { parser_print("FUNCTION_KW ID '(' opt_endl ')' AS_KW type_name -> function_signature"); $$ = create_function($2, nullptr, $7, false); }
+                  | FUNCTION_KW ID '(' opt_endl ')'                                                                               { parser_print("FUNCTION_KW ID '(' opt_endl ')' -> function_signature"); $$ = create_function($2, nullptr, object_type(), false); }
+                  | FUNCTION_KW ID AS_KW type_name                                                                                { parser_print("FUNCTION_KW ID AS_KW type_name -> function_signature"); $$ = create_function($2, nullptr, $4, false); }
+                  | FUNCTION_KW ID                                                                                                { parser_print("FUNCTION_KW ID -> function_signature"); $$ = create_function($2, nullptr, object_type(), false); }
                   ;
 
-sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'                    { parser_print("SUB_KW ID '(' opt_endl function_parameters opt_endl ')' -> sub_signature"); $$ = create_function($2, $5, NULL, NULL); }
-             | SUB_KW ID '(' opt_endl ')'                                                 { parser_print("SUB_KW ID '(' opt_endl ')' -> sub_signature"); $$ = create_function($2, NULL, NULL, NULL);}
-             | SUB_KW ID                                                                  { parser_print("SUB_KW ID -> sub_signature"); $$ = create_function($2, NULL, NULL, NULL); }
-             | SUB_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' { parser_print("SUB_KW ID generic_param_list '(' opt_endl function_parameters opt_endl ')' -> sub_signature"); $$ = create_function($2, $6, NULL, $3);}
-             | SUB_KW ID generic_param_list '(' opt_endl ')'                              { parser_print("SUB_KW ID generic_param_list '(' opt_endl ')' -> sub_signature"); $$ = create_function($2, NULL, NULL, $3); }
-             | SUB_KW ID generic_param_list                                               { parser_print("SUB_KW ID generic_param_list -> sub_signature"); $$ = create_function($2, NULL, NULL, $3); }
+sub_signature: SUB_KW ID '(' opt_endl function_parameters opt_endl ')'                    { parser_print("SUB_KW ID '(' opt_endl function_parameters opt_endl ')' -> sub_signature"); $$ = create_function($2, $5, nullptr, true); }
+             | SUB_KW ID '(' opt_endl ')'                                                 { parser_print("SUB_KW ID '(' opt_endl ')' -> sub_signature"); $$ = create_function($2, nullptr, nullptr, true);}
+             | SUB_KW ID                                                                  { parser_print("SUB_KW ID -> sub_signature"); $$ = create_function($2, nullptr, nullptr, true); }
              ;
 
 function_declaration: opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list     { parser_print("opt_procedure_modifiers function_signature endl_list block END_FUNCTION endl_list -> function_declaration"); $$ = $2; $$->block = $4; $$->isStatic = $1; }
@@ -624,14 +660,14 @@ function_parameters: function_parameter                               { parser_p
                    | function_parameters ',' function_parameter       { parser_print("function_parameters ',' function_parameter -> function_parameters"); $$ = $1; $$->add($3); }
                    ;
 
-function_parameter: variable_name AS_KW type_name                              { parser_print("variable_name AS_KW type_name -> function_parameter"); $$ = $1; $1->type = $3; }
-                  | variable_name                                              { parser_print("variable_name -> function_parameter"); $$ = $1; }
+function_parameter: variable_name AS_KW type_name                              { parser_print("variable_name AS_KW type_name -> function_parameter"); $$ = append_var_declarator($1, $3, nullptr); }
+                  | variable_name                                              { parser_print("variable_name -> function_parameter"); $$ = $1; $$ = append_var_declarator($1, nullptr, nullptr); }
                   ;
 
-class_declaration: CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW                          { parser_print("CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, NULL, $5), $7); }
-                 | CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW                                                   { parser_print("CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, NULL, NULL), $4); }
+class_declaration: CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW                          { parser_print("CLASS_KW ID stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, nullptr, $5), $7); }
+                 | CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW                                                   { parser_print("CLASS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, nullptr, nullptr), $4); }
                  | CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW       { parser_print("CLASS_KW ID generic_param_list stmt_endl INHERITS_KW ID endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, $3, $6), $8); }
-                 | CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW                                { parser_print("CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, $3, NULL), $5); }
+                 | CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW                                { parser_print("CLASS_KW ID generic_param_list endl_list opt_structure_body END_KW CLASS_KW -> class_declaration"); $$ = parse_struct_body(create_class($2, $3, nullptr), $5); }
                  ;
  
 generic_param_list: '(' opt_endl OF_KW id_list opt_endl ')'                          { parser_print("ID '(' opt_endl OF_KW id_list opt_endl ')' -> generic_param_list"); $$ = $4; };
@@ -650,7 +686,9 @@ structure_member: function_declaration                   { parser_print("functio
                 | field_declaration                      { parser_print("field_declaration -> structure_member"); $$ = $1; }
                 ;
 
-field_declaration: DIM_KW var_declarator endl_list         { parser_print("DIM_KW var_declarator endl_list -> field_declaration"); $$ = create_field($2); }
+field_declaration: SHARED_KW DIM_KW var_declarator endl_list         { parser_print("SHARED_KW DIM_KW var_declarator endl_list -> field_declaration"); $$ = create_field($3, true); new_stmt = true; }
+                 | DIM_KW SHARED_KW var_declarator endl_list         { parser_print("DIM_KW SHARED_KW var_declarator endl_list -> field_declaration"); $$ = create_field($3, true); new_stmt = true; }
+                 | DIM_KW var_declarator endl_list                   { parser_print("DIM_KW var_declarator endl_list -> field_declaration"); $$ = create_field($2, false); new_stmt = true; }
                  ;
 
 %%
@@ -669,24 +707,5 @@ void runParserTests() {
          yyparse();
          fclose(yyin);
          outputDot(program, "parser/tests/output/" + file_path.stem().string() + ".png");
-    }
-}
-
-int main(int argc, char** argv) {
-    if (argc > 1) {
-        if (strcmp(argv[1], "--debug") == 0) {
-            PARSER_DEBUG = true;
-            LEXER_DEBUG = true;
-            runParserTests();
-            return 0;
-        }
-        fopen_s(&yyin, argv[1], "r");
-        if (argc > 2 && strcmp(argv[2], "--debug") == 0) {
-            DEBUG = true;
-        }
-        yyparse();
-    }
-    else {
-        printf("File not found");
     }
 }

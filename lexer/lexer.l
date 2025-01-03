@@ -101,7 +101,7 @@ OrElse { lexer_print("Found keyword : %s\n", yytext); return OR_ELSE; }
 ParamArray { lexer_print("Found keyword : %s\n", yytext); return PARAMARRAY_KW; }
 Protected { lexer_print("Found keyword : %s\n", yytext); return PROTECTED_KW; }
 ReDim { lexer_print("Found keyword : %s\n", yytext); return REDIM_KW; }
-Return { lexer_print("Found keyword : %s\n", yytext); return RETURN_KW; }
+Return { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; return RETURN_KW; }
 Static { lexer_print("Found keyword : %s\n", yytext); return STATIC_KW; }
 Structure { lexer_print("Found keyword : %s\n", yytext); return STRUCT_KW; }
 UShort { lexer_print("Found keyword : %s\n", yytext); return USHORT_KW;  }
@@ -139,7 +139,7 @@ CObj { lexer_print("Found keyword : %s\n", yytext); return COBJECT_KW; }
 CShort { lexer_print("Found keyword : %s\n", yytext); return CSHORT_KW; }
 CUInt { lexer_print("Found keyword : %s\n", yytext); return CUINTEGER_KW; }
 Decimal { lexer_print("Found keyword : %s\n", yytext); return DECIMAL_KW; }
-Dim { lexer_print("Found keyword : %s\n", yytext); return DIM_KW; }
+Dim { lexer_print("Found keyword : %s\n", yytext); blocking_kw = false; return DIM_KW; }
 Each { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; return EACH_KW; }
 For { lexer_print("Found keyword : %s\n", yytext); in_compound = true; return FOR_KW; }
 GoTo { lexer_print("Found keyword : %s\n", yytext); return GOTO_KW; }
@@ -197,15 +197,15 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 
 \'|REM {BEGIN(COMMENT); comment.clear(); }
 <COMMENT>[^\n]+ {comment += yytext;}
-<COMMENT>\n {lexer_print("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
-<COMMENT><<EOF>> {lexer_print("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL);}
+<COMMENT>\n {lexer_print("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL); return ENDL;}
+<COMMENT><<EOF>> {lexer_print("Found a comment: %s\n", comment.c_str()); BEGIN(INITIAL); return ENDL; }
 
 \" {BEGIN(STRING); strLiteral.clear();}
 <STRING>[^\n"]+ {strLiteral += yytext;}
 <STRING>\"\" {strLiteral += "\"";}
-<STRING><<EOF>>	{lexer_print("Error: String literal wasn't closed\n"); yyterminate();}
+<STRING><<EOF>>	{lexer_error("Error: String literal wasn't closed\n"); yyterminate();}
 <STRING>\n	{
-    lexer_print("Error: String literal wasn't closed at line %d\n", yylineno - 1); 
+    lexer_error("Error: String literal wasn't closed at line %d\n", yylineno - 1); 
     if (!DEBUG) {
         yyterminate();
     }
@@ -221,7 +221,7 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
         yylval.Char = charValue;
         return CHAR;
     } else {
-        lexer_print("Error: character literal can have only one character, not string, line: %d\n", yylineno);
+        lexer_error("Error: character literal can have only one character, not string, line: %d\n", yylineno);
         if (!DEBUG) yyterminate();
     }
 }
@@ -229,17 +229,17 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 
 
 {UNDERSCORE_NUMBER}\_+(S|US|I|UI|L|UL)? {
-    lexer_print("Error: invalid underscore character in number literal\n");
+    lexer_error("Error: invalid underscore character in number literal\n");
     if (!DEBUG) yyterminate();
 }
 
 &H{HEX_DIGIT}(\_*{HEX_DIGIT})*\_+(S|US|I|UI|L|UL)? {
-    lexer_print("Error: invalid underscore character in number literal\n");
+    lexer_error("Error: invalid underscore character in number literal\n");
     if (!DEBUG) yyterminate();
 }
 
 &O{OCT_DIGIT}(\_*{OCT_DIGIT})*\_+(S|US|I|UI|L|UL)? {
-    lexer_print("Error: invalid underscore character in number literal\n");
+    lexer_error("Error: invalid underscore character in number literal\n");
     if (!DEBUG) yyterminate();
 }
 
@@ -248,7 +248,9 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     char intLiteral[10000];
     std::string lexeme(yytext);
 
+    bool isUnsigned = false;
     if (endsWith(lexeme, "US") || endsWith(lexeme, "UI") || endsWith(lexeme, "UL")) {
+        isUnsigned = true;
         strncpy_s(intLiteral, yytext, strlen(yytext) - 2);
     } else if (endsWith(lexeme, "S") || endsWith(lexeme, "I") || endsWith(lexeme, "L")) {
         strncpy_s(intLiteral, yytext, strlen(yytext - 1));
@@ -256,9 +258,18 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
         strcpy_s(intLiteral, yytext);
     }
 
+
     removeUnderline(intLiteral);
     intValue = atoi(intLiteral); lexer_print("Found a integer value: %d\n", intValue);
-    yylval.Int = intValue;
+    IntType t = IntType::NO_SPEC;
+    if (endsWith(lexeme, "S")){
+        t = IntType::SHORT_MOD;
+    } else if (endsWith(lexeme, "L")) {
+        t = IntType::LONG_MOD;
+    } else if (endsWith(lexeme, "I")) {
+        t = IntType::INT_MOD;
+    }
+    yylval.Int = new IntLiteral(intValue, t, isUnsigned);
     return INT;
 }
 
@@ -266,7 +277,9 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     char intLiteral[10000];
     std::string lexeme(yytext);
 
+    bool isUnsigned = false;
     if (endsWith(lexeme, "US") || endsWith(lexeme, "UI") || endsWith(lexeme, "UL")) {
+        isUnsigned = true;
         strncpy_s(intLiteral, yytext, strlen(yytext) - 2);
     } else if (endsWith(lexeme, "S") || endsWith(lexeme, "I") || endsWith(lexeme, "L")) {
         strncpy_s(intLiteral, yytext, strlen(yytext - 1));
@@ -275,9 +288,17 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     }
 
     removeUnderline(intLiteral);
-    intValue = strtol(intLiteral + 2, NULL, 16);
+    intValue = strtol(intLiteral + 2, nullptr, 16);
     lexer_print("Found a hex integer value: %d\n", intValue);
-    yylval.Int = intValue;
+    IntType t = IntType::NO_SPEC;
+    if (endsWith(lexeme, "S")){
+        t = IntType::SHORT_MOD;
+    } else if (endsWith(lexeme, "L")) {
+        t = IntType::LONG_MOD;
+    } else if (endsWith(lexeme, "I")) {
+        t = IntType::INT_MOD;
+    }
+    yylval.Int = new IntLiteral(intValue, t, isUnsigned);
     return INT;
 }
 
@@ -285,7 +306,9 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     char intLiteral[10000];
     std::string lexeme(yytext);
 
+    bool isUnsigned = false;
     if (endsWith(lexeme, "US") || endsWith(lexeme, "UI") || endsWith(lexeme, "UL")) {
+        isUnsigned = true;
         strncpy_s(intLiteral, yytext, strlen(yytext) - 2);
     } else if (endsWith(lexeme, "S") || endsWith(lexeme, "I") || endsWith(lexeme, "L")) {
         strncpy_s(intLiteral, yytext, strlen(yytext - 1));
@@ -294,9 +317,17 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     }
 
     removeUnderline(intLiteral);
-    intValue = strtol(intLiteral + 2, NULL, 8);
+    intValue = strtol(intLiteral + 2, nullptr, 8);
     lexer_print("Found a oct integer value: %d\n", intValue);
-    yylval.Int = intValue;
+    IntType t = IntType::NO_SPEC;
+    if (endsWith(lexeme, "S")){
+        t = IntType::SHORT_MOD;
+    } else if (endsWith(lexeme, "L")) {
+        t = IntType::LONG_MOD;
+    }  else if (endsWith(lexeme, "I")) {
+        t = IntType::INT_MOD;
+    }
+    yylval.Int = new IntLiteral(intValue, t, isUnsigned);
     return INT;
 }
 
@@ -305,7 +336,7 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     removeUnderline(&lexeme);
     doubleValue = atof(lexeme.c_str());
     lexer_print("Found floating point literal: %f\n", doubleValue);
-    yylval.Float = doubleValue;
+    yylval.Float = new FloatLiteral(doubleValue, FloatType::NO_SPEC);
     return FLOAT;
 }
 
@@ -315,7 +346,15 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     removeUnderline(floatLiteral);
     doubleValue = atof(floatLiteral);
     lexer_print("Found floating point literal: %f\n", doubleValue);
-    yylval.Float = doubleValue;
+    FloatType ft = FloatType::NO_SPEC;
+    if (endsWith(std::string(yytext), "d") || endsWith(std::string(yytext), "D")) {
+        ft = FloatType::DECIMAL_MOD;
+    } else if (endsWith(std::string(yytext), "f") || endsWith(std::string(yytext), "F")) {
+        ft = FloatType::FLOAT_MOD;
+    } else if (endsWith(std::string(yytext), "R") || endsWith(std::string(yytext), "r")) {
+        ft = FloatType::DOUBLE_MOD;
+    }
+    yylval.Float = new FloatLiteral(doubleValue, ft);
     return FLOAT;
 }
 
@@ -381,12 +420,12 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 }
 
 \#[^\n]*\# {
-    lexer_print("Invalid datetime literal: %s\n", yytext);
+    lexer_error("Invalid datetime literal: %s\n", yytext);
     if (!DEBUG) yyterminate();
 }
 
 \#[^\n\#]* {
-    lexer_print("Datetime literal wasn't closed: %s\n", yytext);
+    lexer_error("Datetime literal wasn't closed: %s\n", yytext);
     if (!DEBUG) yyterminate();
 }
 
@@ -399,6 +438,8 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 \! {lexer_print("Found a separator exclamation mark: %s\n", yytext); return '!'; }
 \, { lexer_print("Found a separator comma: %s\n", yytext); return ','; }
 \: {lexer_print("Found a separator colon: %s\n", yytext); return ':'; }
+\; {lexer_error("Invalid semicolon character, not allowed at line %d", yylineno); if (!DEBUG) yyterminate();}
+\$ {lexer_error("Invalid dollar character, not allowed at line %d", yylineno); if (!DEBUG) yyterminate();}
 
 \[?({LETTER}|_[0-9A-Za-z_])[0-9A-Za-z_]*[%&@!#$]?\]? {
     lexer_print("Found a identifier: %s\n", yytext);

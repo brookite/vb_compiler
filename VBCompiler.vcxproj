@@ -137,8 +137,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="compiler\codegen\bytecode.cpp" />
+    <ClCompile Include="compiler\codegen\constants.cpp" />
+    <ClCompile Include="compiler\codegen\context.cpp" />
+    <ClCompile Include="compiler\codegen\record.cpp" />
+    <ClCompile Include="compiler\codegen\rtl.cpp" />
+    <ClCompile Include="compiler\codegen\types.cpp" />
     <ClCompile Include="compiler\dot.cpp" />
     <ClCompile Include="compiler\nodes.cpp" />
+    <ClCompile Include="compiler\semantics.cpp" />
     <ClCompile Include="compiler\utils.cpp" />
     <ClCompile Include="lexer\lexer.flex.cpp" />
     <ClCompile Include="parser\grammar.tab.cpp" />
@@ -157,8 +164,16 @@
     <Bison Include="parser\grammar.y" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="compiler\codegen\bytecode.hpp" />
+    <ClInclude Include="compiler\codegen\common.hpp" />
+    <ClInclude Include="compiler\codegen\constants.hpp" />
+    <ClInclude Include="compiler\codegen\context.hpp" />
+    <ClInclude Include="compiler\codegen\record.hpp" />
+    <ClInclude Include="compiler\codegen\rtl.hpp" />
+    <ClInclude Include="compiler\codegen\types.hpp" />
     <ClInclude Include="compiler\dot.hpp" />
     <ClInclude Include="compiler\nodes.hpp" />
+    <ClInclude Include="compiler\semantics.hpp" />
     <ClInclude Include="compiler\utils.hpp" />
     <ClInclude Include="parser\grammar.tab.h" />
   </ItemGroup>

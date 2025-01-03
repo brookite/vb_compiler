@@ -1,0 +1,9 @@
+class A
+    Shared Sub Main()
+        Const t as Date = # 01-01-2026 00:00:00 #
+        Const now As Date = Date.Now()
+        Dim timestamp As Long = t.ToTimestamp() - now.ToTimestamp()
+        Console.WriteLine("До нового года" & CStr(t.year) & "осталось " & CStr(timestamp) & " дней!")
+        Console.WriteLine("Он будет" & CStr(t.day) & "." & CStr(t.month))
+    End Sub
+end class

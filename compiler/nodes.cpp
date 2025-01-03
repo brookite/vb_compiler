@@ -1,5 +1,6 @@
 #include "nodes.hpp"
 #include "dot.hpp"
+#include "codegen/record.hpp"
 
 std::string expr_node::getName() {
     switch (type) {
@@ -105,7 +106,7 @@ std::string expr_node::getName() {
 }
 
 void expr_node::dot(DotWriter * out) {
-    size_t litId;
+    size_t litId, rightId;
 
     switch (type) {
     case expr_type::String:
@@ -159,15 +160,19 @@ void expr_node::dot(DotWriter * out) {
         out->addNode(this->argument);
         out->linkNodes(this, this->argument, "argument");
         break;
+    case expr_type::MemberAccess:
+        out->addNode(this->left);
+        out->linkNodes(this, this->left, "left");
+        rightId = out->addStringNode(this->String);
+        out->link(this->id, rightId, "right");
+        break;
     case expr_type::MyClassMemberAccess:
-        
-        out->addNode(this->right);
-        out->linkNodes(this, this->right, "right");
+        rightId = out->addStringNode(this->String);
+        out->link(this->id, rightId, "right");
         break;
     case expr_type::MyBaseMemberAccess:
-        
-        out->addNode(this->right);
-        out->linkNodes(this, this->right, "right");
+        rightId = out->addStringNode(this->String);
+        out->link(this->id, rightId, "right");
         break;
     case expr_type::CallOrIndex:
         
@@ -228,7 +233,6 @@ void expr_node::dot(DotWriter * out) {
         out->linkList(this, this->arg_list, "right");
         break;
     default:
-        
         out->addNode(this->left);
         out->linkNodes(this, this->left, "left");
         out->addNode(this->right);

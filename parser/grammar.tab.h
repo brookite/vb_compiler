@@ -47,8 +47,36 @@ extern int yydebug;
 /* "%code requires" blocks.  */
 #line 5 "grammar.y"
  #include "../compiler/nodes.hpp" 
+#line 186 "grammar.y"
 
-#line 52 "grammar.tab.h"
+    enum class IntType {
+        LONG_MOD, INT_MOD, SHORT_MOD, NO_SPEC
+    };
+
+    struct IntLiteral {
+        long long int Int;
+        IntType type;
+        bool isUnsigned = false;
+
+        IntLiteral() : Int(0), type(IntType::INT_MOD) {}
+
+        IntLiteral(long long int num, IntType type, bool isUnsigned) : Int(num), type(type), isUnsigned(isUnsigned) {}
+    };
+
+    enum class FloatType {
+        DECIMAL_MOD, FLOAT_MOD, DOUBLE_MOD, NO_SPEC
+    };
+
+    struct FloatLiteral {
+        double Float;
+        FloatType type;
+
+        FloatLiteral() : Float(0.0), type(FloatType::DOUBLE_MOD) {}
+
+        FloatLiteral(double Float, FloatType type) : Float(Float), type(type) {}
+    };
+
+#line 80 "grammar.tab.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -190,12 +218,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 186 "grammar.y"
+#line 215 "grammar.y"
 
-    long long int Int;
+    IntLiteral * Int;
     std::string * Str;
     bool Bool;
-    double Float;
+    FloatLiteral * Float;
     DateTime * DateTime;
     std::string * Id;
     char Char;
@@ -221,7 +249,7 @@ union YYSTYPE
     list<type_node *> * TypeList;
     list<typed_value*>* Vars;
 
-#line 225 "grammar.tab.h"
+#line 253 "grammar.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

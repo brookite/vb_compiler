@@ -1,6 +1,6 @@
 #include "../compiler/nodes.hpp"
 #include "../compiler/utils.hpp"
-
+#include "grammar.tab.h"
 
 program_node* create_program() {
 	program_node* node = new program_node();
@@ -33,9 +33,19 @@ expr_node* create_string(const char * value) {
 	return node;
 }
 
-expr_node* create_float(double value) {
+expr_node* create_float(FloatLiteral * value) {
 	expr_node* node = new expr_node(expr_type::Float);
-	node->Float = value;
+	node->Float = value->Float;
+	node->numericType = nullptr;
+	if (value->type == FloatType::DOUBLE_MOD) {
+		node->numericType = new type_node(datatype_type::Double);
+	}
+	if (value->type == FloatType::FLOAT_MOD) {
+		node->numericType = new type_node(datatype_type::Single);
+	}
+	else if (value->type == FloatType::DECIMAL_MOD) {
+		node->numericType = new type_node(datatype_type::Decimal);
+	}
 	return node;
 }
 
@@ -75,9 +85,34 @@ expr_node* create_binary(expr_node* left, expr_node * right, expr_type type) {
 	return node;
 }
 
-expr_node* create_int(long long value) {
+expr_node* create_int(IntLiteral * value) {
 	expr_node* node = new expr_node(expr_type::Int);
-	node->Int = value;
+	node->Int = value->Int;
+	node->numericType = nullptr;
+	if (value->type == IntType::LONG_MOD) {
+		if (value->isUnsigned) {
+			node->numericType = new type_node(datatype_type::ULong);
+		}
+		else {
+			node->numericType = new type_node(datatype_type::Long);
+		}
+	}
+	else if (value->type == IntType::SHORT_MOD) {
+		if (value->isUnsigned) {
+			node->numericType = new type_node(datatype_type::UShort);
+		}
+		else {
+			node->numericType = new type_node(datatype_type::Short);
+		}
+	}
+	else {
+		if (value->isUnsigned) {
+			node->numericType = new type_node(datatype_type::UInteger);
+		}
+		else {
+			node->numericType = new type_node(datatype_type::Integer);
+		}
+	}
 	return node;
 }
 
@@ -127,19 +162,20 @@ expr_node* create_if_expr(expr_node* expr2, expr_node* expr3) {
 expr_node* create_member_access(expr_node* expr, expr_node* id) {
 	expr_node* node = new expr_node(expr_type::MemberAccess);
 	node->left = expr;
-	node->right = id;
+	node->String = id->String;
 	return node;
 }
 
 expr_node* create_mybase_access(expr_node* id) {
 	expr_node* node = new expr_node(expr_type::MyBaseMemberAccess);
-	node->right = id;
+	node->String = id->String;
+	node->left = new expr_node(expr_type::MyBase);
 	return node;
 }
 
 expr_node* create_myclass_access(expr_node* id) {
 	expr_node* node = new expr_node(expr_type::MyClassMemberAccess);
-	node->right = id;
+	node->String = id->String;
 	return node;
 }
 
@@ -170,7 +206,7 @@ stmt_node* create_call_stmt(expr_node* expr) {
 }
 
 stmt_node* create_call_stmt(expr_node* call, list<expr_node*>* expr_list) {
-	expr_node* node = new expr_node(expr_type::Call);
+	expr_node* node = new expr_node(expr_type::CallOrIndex);
 	node->left = call;
 	node->arg_list = expr_list;
 	return create_call_stmt(node);
@@ -408,6 +444,7 @@ stmt_node* create_elseif(expr_node * expr, block * block) {
 typed_value* create_var_declarator(std::string* id) {
 	typed_value* node = new typed_value();
 	node->varName = *id;
+	node->type = new type_node(datatype_type::Object);
 	return node;
 }
 
@@ -415,6 +452,8 @@ typed_value* create_array_var_declarator(std::string* id) {
 	typed_value* node = new typed_value();
 	node->varName = *id;
 	node->isArray = true;
+	node->type = new type_node(datatype_type::Object);
+	node->type->isArray = true;
 	return node;
 }
 
@@ -423,21 +462,36 @@ typed_value* create_array_var_declarator(std::string* id, expr_node * size) {
 	node->varName = *id;
 	node->isArray = true;
 	node->array_size = size;
+	node->type = new type_node(datatype_type::Object);
+	node->type->isArray = true;
 	return node;
 }
 
 typed_value* create_var_declarator(type_node* type, std::string * id) {
 	typed_value* node = new typed_value();
 	node->varName = *id;
-	node->type = type;
+	if (type == nullptr) {
+		node->type = new type_node(datatype_type::Object);
+	}
+	else {
+		node->type = type;
+	}
 	return node;
 }
 
 typed_value* append_var_declarator(typed_value* var, type_node* node, expr_node* value) {
+	if (node == nullptr) {
+		node = new type_node(datatype_type::Object);
+	}
 	var->type = node;
 	var->value = value;
-	if (var->isArray && var->type != NULL) {
+	if (var->isArray && var->type != nullptr) {
 		var->type->isArray = true;
+	}
+	if (var->value == nullptr && var->isArray && var->array_size != nullptr) {
+		type_node* valueType = var->type->clone();
+		valueType->isArray = false;
+		var->value = create_arraynew_expr(valueType, new list<expr_node*>({ var->array_size }));
 	}
 	return var;
 }
@@ -451,12 +505,12 @@ list<std::string>* create_id_list() {
 }
 
 procedure_node* create_function(std::string * name,
-	list<typed_value*>* params, type_node* type, list<std::string> * generic) {
+	list<typed_value*>* params, type_node* type, bool isProcedure) {
 	procedure_node* node = new procedure_node();
 	node->name = *name;
-	node->arguments = params == NULL ? new list<typed_value*>() : params;
+	node->arguments = params == nullptr ? new list<typed_value*>() : params;
 	node->returnType = type;
-	node->generics = generic == NULL ? new list<std::string>() : generic;
+	node->isProcedure = isProcedure;
 	return node;
 }
 
@@ -467,10 +521,10 @@ struct_node* create_struct(std::string * name,
 ) {
 	struct_node* node = new struct_node();
 	node->name = *name;
-	node->generics = generics == NULL ? new list<std::string>() : generics;
+	node->generics = generics == nullptr ? new list<std::string>() : generics;
 	node->fields = new list<field_node*>();
 	node->methods = new list<procedure_node*>();
-	if (parent != NULL) node->parent_class = create_type(datatype_type::UserType, parent);
+	if (parent != nullptr) node->parent_class = create_type(datatype_type::UserType, parent);
 	return node;
 }
 
@@ -480,8 +534,8 @@ struct_node* create_class(std::string * name,
 ) {
 	struct_node* node = new struct_node();
 	node->name = *name;
-	if (parent != NULL) node->parent_class = create_type(datatype_type::UserType, parent);
-	node->generics = generics == NULL ? new list<std::string>() : generics;
+	if (parent != nullptr) node->parent_class = create_type(datatype_type::UserType, parent);
+	node->generics = generics == nullptr ? new list<std::string>() : generics;
 	node->fields = new list<field_node*>();
 	node->methods = new list<procedure_node*>();
 	return node;
@@ -489,9 +543,9 @@ struct_node* create_class(std::string * name,
 
 struct_node* parse_struct_body(struct_node* s, list<node*>* nodes) {
 	for (node* node : *nodes) {
-		if (dynamic_cast<procedure_node*>(node) != NULL) {
+		if (dynamic_cast<procedure_node*>(node) != nullptr) {
 			s->methods->add((procedure_node*)node);
-		} else if (dynamic_cast<field_node*>(node) != NULL) {
+		} else if (dynamic_cast<field_node*>(node) != nullptr) {
 			s->fields->add((field_node*)node);
 		}
 	}
@@ -502,9 +556,10 @@ list<node*>* create_node_list() {
 	return new list<node*>();
 }
 
-field_node* create_field(typed_value* val) {
+field_node* create_field(typed_value* val, bool isStatic) {
 	field_node* field = new field_node();
 	field->decl = val;
+	field->isStatic = isStatic;
 	return field;
 }
 

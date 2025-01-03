@@ -34,7 +34,7 @@ size_t DotWriter::addStringNode(int val) {
 }
 
 void DotWriter::addNode(node* node) {
-	if (node == NULL) return;
+	if (node == nullptr) return;
 	label(node->id, node->getName());
 	node->dot(this);
 }
@@ -44,7 +44,7 @@ void DotWriter::addNodeLabel(node* node) {
 }
 
 void DotWriter::linkNodes(node* node1, node* node2, std::string label) {
-	if (node1 == NULL || node2 == NULL) return;
+	if (node1 == nullptr || node2 == nullptr) return;
 	link(node1->id, node2->id, label);
 }
 
@@ -78,7 +78,7 @@ std::string DotWriter::write() {
 }
 
 void outputDot(node* node, std::string filename) {
-	if (node != NULL) {
+	if (node != nullptr) {
 		DotWriter writer;
 		char cmd[256];
 		sprintf(cmd, "dot -Tpng -o %s", filename.c_str());
