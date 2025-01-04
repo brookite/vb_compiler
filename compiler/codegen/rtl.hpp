@@ -22,14 +22,14 @@ struct rtl_class_record : struct_record {
 	static rtl_class_record* Boolean;
 	static rtl_class_record* Math;
 
-	static std::string jvmStdlibPackage() { return "java/lang"; }
-	static std::string vbPackage() { return "brookit/vb"; }
+	static std::string jvmStdlibPackage() { return "java/lang/"; }
+	static std::string vbPackage() { return "brookit/vb/"; }
 
 	rtl_class_record() {}
 	rtl_class_record(std::string name) { this->name = name; }
 
 	std::string jvmDescriptor() {
-		return "L" + vbPackage() + "/" + this->name + ";";
+		return "L" + vbPackage() + this->name + ";";
 	}
 };
 
@@ -44,6 +44,10 @@ struct rtl_type : struct_type {
 
 	virtual std::string readableName() const {
 		return record->name;
+	}
+
+	virtual std::string qualifiedName() const {
+		return rtl_class_record::vbPackage() + record->name;
 	}
 };
 
@@ -95,6 +99,20 @@ struct char_rtl_type : sized_rtl_type {
 	}
 
 	char_rtl_type(rtl_class_record* cls) : sized_rtl_type(cls) {}
+};
+
+struct number_rtl_type : rtl_type {
+	virtual std::string jvmDescriptor() const;
+
+	virtual std::string readableName() const {
+		return "Number";
+	}
+
+	virtual std::string qualifiedName() const {
+		return rtl_class_record::vbPackage() + "Number";
+	}
+
+	number_rtl_type(rtl_class_record* record) : rtl_type(record) {}
 };
 
 void initRTL();

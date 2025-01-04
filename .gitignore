@@ -398,4 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 parser/tests/output
+tests/const
 .megaignore

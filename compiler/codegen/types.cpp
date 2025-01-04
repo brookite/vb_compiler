@@ -2,6 +2,90 @@
 #include "rtl.hpp"
 #include "../semantics.hpp"
 
+
+method_record* operatorToMethod(expr_node* node, struct_record* record, rtl_type* type) {
+    method_record* method = nullptr;
+    if (node->type == expr_type::AddOp) {
+        method = type->record->resolveMethod("add");
+    }
+    else if (node->type == expr_type::AndAlsoOp) {
+        method = type->record->resolveMethod("andAlso");
+    }
+    else if (node->type == expr_type::AndOp) {
+        method = type->record->resolveMethod("and");
+    }
+    else if (node->type == expr_type::DivOp) {
+        method = type->record->resolveMethod("div");
+    }
+    else if (node->type == expr_type::FloorDivOp) {
+        method = type->record->resolveMethod("floorDiv");
+    }
+    else if (node->type == expr_type::MulOp) {
+        method = type->record->resolveMethod("mul");
+    }
+    else if (node->type == expr_type::ExpOp) {
+        method = type->record->resolveMethod("add");
+    }
+    else if (node->type == expr_type::DivOp) {
+        method = type->record->resolveMethod("div");
+    }
+    else if (node->type == expr_type::OrOp) {
+        method = type->record->resolveMethod("or");
+    }
+    else if (node->type == expr_type::OrElseOp) {
+        method = type->record->resolveMethod("orElse");
+    }
+    else if (node->type == expr_type::ModOp) {
+        method = type->record->resolveMethod("mod");
+    }
+    else if (node->type == expr_type::UnaryPlusOp) {
+        method = type->record->resolveMethod("unaryPlus");
+    }
+    else if (node->type == expr_type::UnaryMinusOp) {
+        method = type->record->resolveMethod("unaryMinus");
+    }
+    else if (node->type == expr_type::NotOp) {
+        method = type->record->resolveMethod("not");
+    }
+    else if (node->type == expr_type::LshiftOp) {
+        method = type->record->resolveMethod("lshift");
+    }
+    else if (node->type == expr_type::RshiftOp) {
+        method = type->record->resolveMethod("rshift");
+    }
+    else if (node->type == expr_type::LteOp) {
+        method = type->record->resolveMethod("lte");
+    }
+    else if (node->type == expr_type::GteOp) {
+        method = type->record->resolveMethod("gte");
+    }
+    else if (node->type == expr_type::LtOp) {
+        method = type->record->resolveMethod("lt");
+    }
+    else if (node->type == expr_type::GtOp) {
+        method = type->record->resolveMethod("gt");
+    }
+    else if (node->type == expr_type::IsOp) {
+        method = type->record->resolveMethod("is");
+    }
+    else if (node->type == expr_type::IsNotOp) {
+        method = type->record->resolveMethod("isNot");
+    }
+    else if (node->type == expr_type::EqOp) {
+        method = type->record->resolveMethod("equals");
+    }
+    else if (node->type == expr_type::XorOp) {
+        method = type->record->resolveMethod("xor");
+    }
+    else if (node->type == expr_type::NeqOp) {
+        method = type->record->resolveMethod("notEquals");
+    }
+    if (method != nullptr) {
+        record->addConstantBy(method);
+    }
+    return method;
+}
+
 bool type::operator==(const type& t) const
 {
     return t.jvmDescriptor() == jvmDescriptor();
@@ -296,6 +380,13 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
             type_error("Incompatible types for arithmetic or logical operator, '%s' and '%s'", leftT->readableName().c_str(), rightT->readableName().c_str());
             return new unknown_type();
         }
+        sized_rtl_type* maxT = nullptr;
+        for (sized_rtl_type* t : cmp) {
+            if ((t != nullptr && maxT == nullptr) || (maxT != nullptr && t != nullptr && maxT->byteSize() < t->byteSize())) {
+                maxT = t;
+            }
+        }
+        operatorToMethod(val, context, maxT);
         if (val->type == expr_type::AndAlsoOp
             || val->type == expr_type::OrElseOp
             || val->type == expr_type::OrOp
@@ -308,17 +399,12 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
             return rtl_class_record::Boolean->type;
         }
         else {
-            sized_rtl_type* maxT = nullptr;
-            for (sized_rtl_type* t : cmp) {
-                if ((t != nullptr && maxT == nullptr) || (maxT != nullptr && t != nullptr && maxT->byteSize() < t->byteSize())) {
-                    maxT = t;
-                }
-            }
             return maxT;
         }
         
     }
     else if (val->type == expr_type::NeqOp || val->type == expr_type::EqOp) {
+        operatorToMethod(val, context, (rtl_type*) rtl_class_record::Object->type);
         return rtl_class_record::Boolean->type;
     }
     else if (val->type == expr_type::If) {
@@ -374,6 +460,7 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
                 maxT = t;
             }
         }
+        operatorToMethod(val, context, maxT);
         return maxT;
 
     }
@@ -457,14 +544,20 @@ size_t intSizeOf(long long num)
     }
 }
 
-struct_record* arrayStructRecord(type* valueType) {
+struct_record* arrayStructRecord(jvm_array_type * arr, type* valueType) {
     struct_record * record = new struct_record();
-    record->name = valueType->readableName() + "[]";
+    record->name = valueType->readableName() + "()";
+    record->type = arr;
     record->parent = rtl_class_record::Object;
     record->fields["Length"] = new field_record("Length", false, rtl_class_record::UInteger->type, record);
     return record;
 }
 
-jvm_array_type::jvm_array_type(type* valueType) : valueType(valueType), struct_type(arrayStructRecord(valueType))
+jvm_array_type::jvm_array_type(type* valueType) : valueType(valueType), struct_type(arrayStructRecord(this, valueType))
 {
+}
+
+std::string struct_type::qualifiedName() const
+{
+    return "brookit/vb/code/" + record->name;
 }

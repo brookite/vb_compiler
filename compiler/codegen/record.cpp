@@ -52,7 +52,7 @@ constant_record* struct_record::constantAt(uint16_t num)
 constant_record* struct_record::addConstant(constant_record* record)
 {
     constant_record* found = findConstant(record);
-    if (found == nullptr) {
+    if (found != nullptr) {
         record->number = ++constantCounter;
         constant[record->number] = record;
         return record;
@@ -72,16 +72,19 @@ constant_record * struct_record::findConstant(constant_record* record)
 
 constant_record* struct_record::addConstantBy(struct_record* record)
 {
-    constant_class* cls = new constant_class(utf8ConstantOf(record->name));
+    if (dynamic_cast<jvm_array_type*>(record->type) != nullptr) {
+        return nullptr;
+    }
+    constant_class* cls = new constant_class(utf8ConstantOf(record->type->qualifiedName()));
     cls = (constant_class *) addConstant(cls);
     record->currentConstant = cls;
     return cls;
 }
 
-constant_record* struct_record::addConstantBy(field_record* record)
+constant_record* struct_record::addConstantBy(field_record* record, struct_record* strct)
 {
     constant_nameandtype * nt = new constant_nameandtype(utf8ConstantOf(record->name), utf8ConstantOf(record->type->jvmDescriptor()));
-    constant_class* cls = new constant_class(utf8ConstantOf(record->owner->name));
+    constant_class* cls = (constant_class*)addConstantBy(strct == nullptr ? record->owner : strct);
     constant_fieldref* fref = new constant_fieldref((constant_nameandtype*)addConstant(nt), (constant_class*)addConstant(cls));
     fref = (constant_fieldref*) addConstant(fref);
     record->constant = fref;
@@ -92,10 +95,10 @@ constant_utf8* struct_record::utf8ConstantOf(std::string name) {
     return (constant_utf8*) addConstant(new constant_utf8(name));
 }
 
-constant_record* struct_record::addConstantBy(method_record* record)
+constant_record* struct_record::addConstantBy(method_record* record, struct_record * strct)
 {
     constant_nameandtype* nt = new constant_nameandtype(utf8ConstantOf(record->name), utf8ConstantOf(record->jvmDescriptor()));
-    constant_class* cls = new constant_class(utf8ConstantOf(record->owner->name));
+    constant_class* cls = (constant_class*) addConstantBy(strct == nullptr ? record->owner : strct);
     constant_methodref* mref = new constant_methodref((constant_nameandtype*)addConstant(nt), (constant_class*)addConstant(cls));
     mref = (constant_methodref*)addConstant(mref);
     record->constant = mref;
@@ -104,6 +107,9 @@ constant_record* struct_record::addConstantBy(method_record* record)
 
 constant_record* struct_record::addConstantBy(struct type* type)
 {
+    if (dynamic_cast<jvm_array_type*>(type) != nullptr) {
+        return addConstantBy(dynamic_cast<jvm_array_type*>(type)->valueType);
+    }
     if (dynamic_cast<struct_type*>(type) != nullptr) {
         return addConstantBy(dynamic_cast<struct_type*>(type)->record);
     }
@@ -261,4 +267,14 @@ field_record::field_record(std::string name, bool isStatic, struct type* type, s
     this->node->decl->varName = name;
     this->node->isStatic = isStatic;
     this->node->record = this;
+}
+
+std::string printableConstant(std::string name, std::map<uint16_t, constant_record*> map)
+{
+    std::string s = name + ":\n\n";
+    for (auto& pair : map) {
+        s += pair.second->printable();
+        s += "\n\n";
+    }
+    return s;
 }

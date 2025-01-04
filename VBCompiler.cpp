@@ -2,6 +2,7 @@
 #include "parser/grammar.tab.h"
 #include "compiler/nodes.hpp"
 #include "compiler/semantics.hpp"
+#include "compiler/codegen/rtl.hpp"
 
 extern FILE * yyin;
 extern int yylineno;
@@ -11,13 +12,29 @@ extern void runParserTests();
 
 extern program_node* program;
 
-void runCompile(const char* path) {
+void runCompile(const char* path, const char * outDir) {
+    fs::path file_path = path;
+    if (!fs::exists(outDir)) {
+        fs::create_directories(outDir);
+    }
     fopen_s(&yyin, path, "r");
     yyparse();
     semantic_analyzer analyzer;
     analyzer.analyzeProgram(program);
+    if (DEBUG) {
+        std::string constantFile = std::string(outDir) + "/" + file_path.stem().string() + ".constant.txt";
+        std::string text = path;
+        text += ":\n\n";
+        for (auto& pair : analyzer.ctx.classes) {
+            if (dynamic_cast<rtl_class_record*>(pair.second) != nullptr) continue;
+            text += printableConstant(pair.second->name, pair.second->constant);
+            text += "\n\n";
+        }
+        FILE* out = fopen(constantFile.c_str(), "w");
+        fwrite(text.c_str(), sizeof(char), text.length(), out);
+        fclose(out);
+    }
     if (yyin != 0) fclose(yyin);
-    program = nullptr;
 }
 
 
@@ -29,13 +46,15 @@ static void runTests() {
         yylineno = 1;
         new_stmt = true;
         printf("Processing %s\n\n", testpath.c_str());
-        runCompile(testpath.c_str());
+        runCompile(testpath.c_str(), "tests/const");
+        program = nullptr;
         printf("\n\n\n");
     }
 }
 
 int main(int argc, char** argv) {
     if (argc > 1) {
+        const char * cwd = fs::current_path().string().c_str();
         if (strcmp(argv[1], "--test-parser") == 0) {
             PARSER_DEBUG = true;
             LEXER_DEBUG = true;
@@ -46,7 +65,7 @@ int main(int argc, char** argv) {
             runTests();
             return 0;
         }
-        runCompile(argv[1]);
+        runCompile(argv[1], cwd);
         if (argc > 2 && strcmp(argv[2], "--debug") == 0) {
             DEBUG = true;
         }

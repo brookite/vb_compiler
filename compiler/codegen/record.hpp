@@ -10,6 +10,7 @@ struct constant_fieldref;
 struct constant_methodref;
 struct constant_class;
 struct type;
+struct struct_type;
 struct semantic_context;
 
 struct record {
@@ -80,13 +81,14 @@ private:
 struct constant_record : public byte_record {
 	uint16_t number = 0;
 	virtual bool operator== (const constant_record& t) const = 0;
+	virtual std::string printable() = 0;
 };
 
 struct struct_record : record {
 public:
 	std::string name;
 	struct_node* node = nullptr;
-	type* type = nullptr;
+	struct_type* type = nullptr;
 	struct_record* parent = nullptr;
 	std::map<std::string, struct type*>* typeMap = nullptr;
 	constant_class* currentConstant = nullptr;
@@ -98,9 +100,9 @@ public:
 	virtual constant_record* constantAt(uint16_t num);
 	virtual constant_record* addConstant(constant_record* record);
 	virtual constant_record* findConstant(constant_record* record);
-	virtual constant_record* addConstantBy(field_record* record);
+	virtual constant_record* addConstantBy(field_record* record, struct_record* strct = nullptr);
 	virtual constant_record* addConstantBy(struct_record* record);
-	virtual constant_record* addConstantBy(method_record* record);
+	virtual constant_record* addConstantBy(method_record* record, struct_record * strct = nullptr);
 	virtual constant_record* addConstantBy(struct type* type);
 	virtual constant_record* addLiteralConstant(long long value);
 	virtual constant_record* addLiteralConstant(double value);
@@ -160,3 +162,4 @@ private:
 };
 
 bytearray_t* asBytes(std::map<uint16_t, constant_record*>);
+std::string printableConstant(std::string, std::map<uint16_t, constant_record*>);

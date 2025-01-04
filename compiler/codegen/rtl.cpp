@@ -48,7 +48,7 @@ rtl_class_record* initObject() {
 
 rtl_class_record* initNumber() {
 	rtl_class_record* rec = rtl_class_record::Number;
-	rec->type = new jvm_type("Number", vbDescriptor("Number"));
+	rec->type = new number_rtl_type(rec);
 	rec->parent = rtl_class_record::Object;
 
 	rec->methods["add"] = new method_record("add", rec, rec->type, false, {new parameter_record("left", rec->type, nullptr), 
@@ -254,7 +254,7 @@ rtl_class_record* initConsole() {
 
 rtl_class_record* initSingle() {
 	rtl_class_record* rec = rtl_class_record::Single;
-	rec->type = new jvm_type(rec->name, vbDescriptor(rec->name));
+	rec->type = new float_rtl_type(rec);
 	rec->parent = rtl_class_record::Number;
 
 	rec->methods["numberValue"] = new method_record("numberValue", rec, rtl_class_record::Number->type, false, {});
@@ -352,4 +352,9 @@ void initRTL() {
 	rtl_class_record::Console = initConsole();
 	rtl_class_record::DateTime = initDatetime();
 	rtl_class_record::Math = initMath();
+}
+
+std::string number_rtl_type::jvmDescriptor() const
+{
+	return vbDescriptor("Number");
 }

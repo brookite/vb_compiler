@@ -43,6 +43,8 @@ struct struct_type : public jvm_type {
 	virtual std::string readableName() const {
 		return record->name;
 	}
+
+	virtual std::string qualifiedName() const;
 };
 
 struct jvm_array_type : public struct_type {
@@ -56,6 +58,11 @@ struct jvm_array_type : public struct_type {
 
 	virtual std::string readableName() const {
 		return valueType->readableName() + "()";
+	}
+
+	virtual std::string qualifiedName() const {
+		internal_error("Array has not qualified name");
+		return "";
 	}
 };
 
