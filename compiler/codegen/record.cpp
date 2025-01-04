@@ -52,7 +52,7 @@ constant_record* struct_record::constantAt(uint16_t num)
 constant_record* struct_record::addConstant(constant_record* record)
 {
     constant_record* found = findConstant(record);
-    if (found != nullptr) {
+    if (found == nullptr) {
         record->number = ++constantCounter;
         constant[record->number] = record;
         return record;
@@ -85,6 +85,9 @@ constant_record* struct_record::addConstantBy(field_record* record, struct_recor
 {
     constant_nameandtype * nt = new constant_nameandtype(utf8ConstantOf(record->name), utf8ConstantOf(record->type->jvmDescriptor()));
     constant_class* cls = (constant_class*)addConstantBy(strct == nullptr ? record->owner : strct);
+    if (nt == nullptr || cls == nullptr) {
+        return nullptr;
+    }
     constant_fieldref* fref = new constant_fieldref((constant_nameandtype*)addConstant(nt), (constant_class*)addConstant(cls));
     fref = (constant_fieldref*) addConstant(fref);
     record->constant = fref;

@@ -49,7 +49,7 @@ struct field_record : var_record {
 	struct_record* owner = nullptr;
 	field_node* node = nullptr;
 	constant_fieldref* constant = nullptr;
-	bool isStatic;
+	bool isStatic = false;
 
 	field_record();
 	field_record(std::string name, bool isStatic, struct type* type, struct_record* owner);
