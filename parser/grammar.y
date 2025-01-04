@@ -686,9 +686,12 @@ structure_member: function_declaration                   { parser_print("functio
                 | field_declaration                      { parser_print("field_declaration -> structure_member"); $$ = $1; }
                 ;
 
-field_declaration: SHARED_KW DIM_KW var_declarator endl_list         { parser_print("SHARED_KW DIM_KW var_declarator endl_list -> field_declaration"); $$ = create_field($3, true); new_stmt = true; }
-                 | DIM_KW SHARED_KW var_declarator endl_list         { parser_print("DIM_KW SHARED_KW var_declarator endl_list -> field_declaration"); $$ = create_field($3, true); new_stmt = true; }
-                 | DIM_KW var_declarator endl_list                   { parser_print("DIM_KW var_declarator endl_list -> field_declaration"); $$ = create_field($2, false); new_stmt = true; }
+field_declaration: SHARED_KW DIM_KW var_declarator endl_list         { parser_print("SHARED_KW DIM_KW var_declarator endl_list -> field_declaration"); $$ = create_field($3, true, false); new_stmt = true; }
+                 | DIM_KW SHARED_KW var_declarator endl_list         { parser_print("DIM_KW SHARED_KW var_declarator endl_list -> field_declaration"); $$ = create_field($3, true, false); new_stmt = true; }
+                 | DIM_KW var_declarator endl_list                   { parser_print("DIM_KW var_declarator endl_list -> field_declaration"); $$ = create_field($2, false, false); new_stmt = true; }
+                 | SHARED_KW CONST_KW var_declarator endl_list         { parser_print("SHARED_KW DIM_KW var_declarator endl_list -> field_declaration"); $$ = create_field($3, true, true); new_stmt = true; }
+                 | CONST_KW SHARED_KW var_declarator endl_list         { parser_print("DIM_KW SHARED_KW var_declarator endl_list -> field_declaration"); $$ = create_field($3, true, true); new_stmt = true; }
+                 | CONST_KW var_declarator endl_list                   { parser_print("DIM_KW var_declarator endl_list -> field_declaration"); $$ = create_field($2, false, true); new_stmt = true; }
                  ;
 
 %%

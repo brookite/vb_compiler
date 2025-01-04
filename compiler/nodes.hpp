@@ -7,6 +7,7 @@ extern class DotWriter;
 extern struct field_record;
 extern struct method_record;
 extern struct struct_record;
+extern struct constant_record;
 
 struct stmt_node;
 typedef list<stmt_node*> block;
@@ -139,6 +140,8 @@ struct expr_node : public node {
 	type_node* datatype = nullptr;
 	list<expr_node*>* collection = new list<expr_node*>(); // for collection initializer
 
+	constant_record* constant = nullptr;
+
 	// Cast expr: always use datatype field and argument field for expr
 
 	virtual void dot(DotWriter* writer);
@@ -151,6 +154,7 @@ struct expr_node : public node {
 		res->Float = Float;
 		res->Char = Char;
 		res->Bool = Bool;
+		res->constant = constant;
 		res->DateTime = DateTime != nullptr ? DateTime->clone() : nullptr;
 		res->left = left != nullptr ? left->clone() : nullptr;
 		res->right = right != nullptr ? right->clone() : nullptr;
@@ -313,7 +317,8 @@ struct procedure_node: node {
 		clone->returnType = returnType != nullptr ? returnType->clone() : nullptr;
 		clone->generics = new list<std::string>();
 		clone->generics->addAll(*generics);
-		clone->record = nullptr;
+		clone->record = record;
+		clone->isProcedure = isProcedure;
 		clone->name = name;
 		clone->arguments = new list<typed_value*>();
 		for (typed_value* expr : *arguments) {
@@ -333,6 +338,7 @@ struct procedure_node: node {
 struct field_node : node {
 	typed_value* decl = nullptr;
 	field_record* record = nullptr;
+	var_type type = var_type::DIM;
 
 	bool isStatic = false;
 
@@ -343,6 +349,8 @@ struct field_node : node {
 		node->decl = decl != nullptr ? decl->clone() : nullptr;
 		node->record = nullptr;
 		node->isStatic = isStatic;
+		node->type = type;
+		node->record = record;
 
 		return node;
 	}
@@ -362,6 +370,7 @@ struct struct_node : node {
 	virtual struct_node* clone() {
 		struct_node* copy = new struct_node();
 		copy->name = name;
+		copy->record = record;
 		copy->generics = new list<std::string>();
 		copy->generics->addAll(*generics);
 		copy->fields = new list<field_node*>();

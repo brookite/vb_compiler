@@ -70,8 +70,14 @@ bool type::isAssignableFrom(type * t, semantic_context& context) const
         struct_record* parent = s->record->parent;
 
         while (parent != nullptr) {
-            if (*parent->type == *this) {
+            if (*(parent->type) == *this) {
                 return true;
+            }
+            if (dynamic_cast<struct_type*>(parent->type) != nullptr) {
+                parent = dynamic_cast<struct_type*>(parent->type)->record->parent;
+            }
+            else {
+                parent = nullptr;
             }
         }
     }
@@ -183,8 +189,40 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
     else if (val->type == expr_type::Datetime) {
         return rtl_class_record::DateTime->type;
     }
-    else if (val->type == expr_type::New || val->type == expr_type::Cast) {
+    else if (val->type == expr_type::New) {
         return inferType(val->datatype, semanticContext, context->typeMap);
+    }
+    else if (val->type == expr_type::Cast) {
+        type* castType = inferType(val->datatype, semanticContext, context->typeMap);
+        type* exprType = inferType(val->argument, context, methodContext, semanticContext);
+        if (castType == rtl_class_record::String->type || 
+            castType == rtl_class_record::Object->type || 
+            dynamic_cast<nullptr_reference*>(exprType) != nullptr ||
+            exprType == rtl_class_record::Object->type ||
+            (dynamic_cast<sized_rtl_type*>(castType) != nullptr && exprType == rtl_class_record::String->type)
+          ) {
+            // любой тип может быть к ним приведен
+            // в любой тип можно привести Object
+            // строки можно преобразовать в числа, символы или логический тип
+        }
+        else if (
+            dynamic_cast<unknown_type*>(castType) != nullptr ||
+            dynamic_cast<unknown_type*>(exprType) != nullptr ||
+            dynamic_cast<jvm_array_type*>(castType) != nullptr && dynamic_cast<jvm_array_type*>(exprType) == nullptr  ||
+            dynamic_cast<jvm_array_type*>(castType) == nullptr && dynamic_cast<jvm_array_type*>(exprType) != nullptr  ||
+            dynamic_cast<sized_rtl_type*>(castType) == nullptr && dynamic_cast<sized_rtl_type*>(exprType) != nullptr  ||
+            dynamic_cast<sized_rtl_type*>(castType) != nullptr && dynamic_cast<sized_rtl_type*>(exprType) == nullptr  ||
+            !castType->isAssignableFrom(exprType, semanticContext) && !exprType->isAssignableFrom(castType, semanticContext) ||
+            !exprType->isAssignableFrom(castType, semanticContext) && !castType->isAssignableFrom(exprType, semanticContext) ||
+            // проверка ковариантности массивов
+            (dynamic_cast<jvm_array_type*>(castType) != nullptr && dynamic_cast<jvm_array_type*>(exprType) != nullptr && (
+                !dynamic_cast<jvm_array_type*>(castType)->valueType->isAssignableFrom(dynamic_cast<jvm_array_type*>(exprType)->valueType, semanticContext) ||
+                !dynamic_cast<jvm_array_type*>(exprType)->valueType->isAssignableFrom(dynamic_cast<jvm_array_type*>(castType)->valueType, semanticContext)
+                ))
+        ) {
+            type_error("Cast unsupported from '%s' to '%s'", exprType->readableName().c_str(), castType->readableName().c_str());
+        }
+        return castType;
     }
     else if (val->type == expr_type::ArrayNew) {
         return new jvm_array_type(inferType(val->datatype, semanticContext, context->typeMap));

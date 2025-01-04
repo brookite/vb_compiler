@@ -6,6 +6,9 @@
 #include "../nodes.hpp"
 
 struct constant_utf8;
+struct constant_fieldref;
+struct constant_methodref;
+struct constant_class;
 struct type;
 struct semantic_context;
 
@@ -22,6 +25,7 @@ struct var_record : record {
 	std::string name;
 	typed_value* valueNode;
 	struct type* type;
+	bool isConst = false;
 
 	std::string jvmDescriptor();
 };
@@ -43,6 +47,7 @@ struct parameter_record : localvar_record {
 struct field_record : var_record {
 	struct_record* owner = nullptr;
 	field_node* node = nullptr;
+	constant_fieldref* constant = nullptr;
 	bool isStatic;
 
 	field_record();
@@ -55,6 +60,7 @@ public:
 	struct_record* owner = nullptr;
 	procedure_node* node = nullptr;
 	type* returnType = nullptr;
+	constant_methodref* constant = nullptr;
 
 	bool isStatic;
 	list<parameter_record*> args;
@@ -83,6 +89,7 @@ public:
 	type* type = nullptr;
 	struct_record* parent = nullptr;
 	std::map<std::string, struct type*>* typeMap = nullptr;
+	constant_class* currentConstant = nullptr;
 
 	std::map<std::string, field_record*> fields;
 	std::map<std::string, method_record*> methods;
@@ -92,6 +99,7 @@ public:
 	virtual constant_record* addConstant(constant_record* record);
 	virtual constant_record* findConstant(constant_record* record);
 	virtual constant_record* addConstantBy(field_record* record);
+	virtual constant_record* addConstantBy(struct_record* record);
 	virtual constant_record* addConstantBy(method_record* record);
 	virtual constant_record* addConstantBy(struct type* type);
 	virtual constant_record* addLiteralConstant(long long value);

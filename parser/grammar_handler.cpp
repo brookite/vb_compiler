@@ -556,10 +556,11 @@ list<node*>* create_node_list() {
 	return new list<node*>();
 }
 
-field_node* create_field(typed_value* val, bool isStatic) {
+field_node* create_field(typed_value* val, bool isStatic, bool isConst) {
 	field_node* field = new field_node();
 	field->decl = val;
 	field->isStatic = isStatic;
+	field->type = isConst ? var_type::CONST : var_type::DIM;
 	return field;
 }
 

@@ -284,6 +284,8 @@ semantic_analyzer::semantic_analyzer()
 
 void semantic_analyzer::analyzeProgram(program_node* node)
 {
+	list<method_record*> * mainMethods = new list<method_record*>();
+
 	// Сбор первоначальной информации о классах и методах
 	target = node;
 	for (struct_node* cls : *node->nodes) {
@@ -302,7 +304,7 @@ void semantic_analyzer::analyzeProgram(program_node* node)
 		if (clsRecord->parent == nullptr && clsRecord->node->parent_class != nullptr) {
 			type* t = inferType(clsRecord->node->parent_class, this->ctx, nullptr);
 			struct_type* stype = dynamic_cast<struct_type*>(t);
-			if (stype == nullptr) {
+			if (stype == nullptr || *t == *cls->record->type) {
 				type_error("Inheritance from unknown or unsupported type '%s'", t->readableName().c_str());
 				return;
 			}
@@ -316,8 +318,21 @@ void semantic_analyzer::analyzeProgram(program_node* node)
 		}
 		// Сначала соберем информацию о всех методах
 		for (procedure_node* proc : *cls->methods) {
-			clsRecord->addMethod(proc, ctx);
+			method_record * rec = clsRecord->addMethod(proc, ctx);
+			if (rec->name == "Main" && rec->isStatic) {
+				mainMethods->add(rec);
+			}
 		}
+	}
+
+	if (mainMethods->size() == 0) {
+		name_error("Entry point is missing in this program. Shared Main method is needed");
+	}
+	else if (mainMethods->size() > 1) {
+		name_error("Too many entry points. Program must have only one Shared Main method in one of classes of program");
+	}
+	else {
+		entryPoint = mainMethods->get(0);
 	}
 
 	// Повторный проход после собранных имен методов и классов, чтобы можно было ссылаться на еще необъявленные классы
@@ -333,22 +348,28 @@ void semantic_analyzer::analyzeProgram(program_node* node)
 
 void semantic_analyzer::processMethod(struct_record* structRecord, method_record* method)
 {
+	size_t returnCount = 0;
 	for (parameter_record* param : method->args) {
 		method->locals[param->name] = param;
 	}
 	for (stmt_node* stmt : *(method->node->block)) {
-		processStmt(structRecord, method, stmt);
+		processStmt(structRecord, method, stmt, &returnCount);
+	}
+	if (method->returnType == nullptr) internal_error("Return type isn't specified");
+
+	if (dynamic_cast<void_type*>(method->returnType) == nullptr && returnCount == 0) {
+		type_error("Function '%s' must return object of type '%s'", method->name.c_str(), method->returnType->readableName().c_str());
 	}
 }
 
-void semantic_analyzer::processStmtList(struct_record* structRecord, method_record* method, block* block) {
+void semantic_analyzer::processStmtList(struct_record* structRecord, method_record* method, block* block, size_t* returnCount) {
 	for (stmt_node* node : *block) {
-		processStmt(structRecord, method, node);
+		processStmt(structRecord, method, node, returnCount);
 	}
 }
 
 // Возвращает новые добавленные локальные переменные в метод
-void semantic_analyzer::processStmt(struct_record* structRecord, method_record * method, stmt_node* stmt)
+void semantic_analyzer::processStmt(struct_record* structRecord, method_record * method, stmt_node* stmt, size_t* returnCount)
 {
 	if (stmt->type == stmt_type::Call) {
 		if (stmt->target_expr->type != expr_type::CallOrIndex && stmt->target_expr->type != expr_type::Call) {
@@ -373,9 +394,13 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 	for (std::string unknownId : idents) {
 		expr_node* id = new expr_node(expr_type::Id);
 		id->String = unknownId;
-		if (ctx.resolveId(id, structRecord, method).first == nullptr) {
+		std::pair<record*, access_target> pair = ctx.resolveId(id, structRecord, method);
+		if (pair.first == nullptr) {
 			name_error("Unknown identifier '%s'", unknownId.c_str());
 			return;
+		}
+		if (pair.second == STRUCT || pair.second == STATIC_STRUCT) {
+			structRecord->addConstantBy((struct_record*)pair.first);
 		}
 	}
 	
@@ -406,9 +431,12 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 	
 	// check type for var decl
 	if (stmt->type == stmt_type::VarDecl) {
-
+		if (method->locals.count(stmt->var_decl->varName)) {
+			name_error("Variable '%s' already declared (re-declaraton)", stmt->var_decl->varName.c_str());
+		}
 		localvar_record* varRecord = new localvar_record();
 		varRecord->name = stmt->var_decl->varName;
+		varRecord->isConst = stmt->var_type == var_type::CONST;
 		bool cond = strcmp("t", varRecord->name.c_str()) == 0;
 		varRecord->type = inferType(stmt->var_decl->type, ctx, structRecord->typeMap);
 		varRecord->owner = method;
@@ -470,6 +498,22 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 			return;
 		}
 
+		if (stmt->lvalue->type != expr_type::Index) {
+			std::pair<record*, access_target> res = ctx.resolveMemberAccess(stmt->lvalue, structRecord, method);
+			if (res.second == LOCAL_VAR) {
+				localvar_record* rec = (localvar_record*)res.first;
+				if (rec->isConst) {
+					value_error("Const variables cannot be redefined");
+				}
+			}
+			else if (res.second == FIELD || res.second == STATIC_FIELD) {
+				field_record* field = (field_record*)res.first;
+				if (field->isConst) {
+					value_error("Const fields cannot be redefined");
+				}
+			}
+		}
+
 		type* lvalueType = inferType(stmt->lvalue, structRecord, method, this->ctx);
 		type* rvalueType = inferType(stmt->rvalue, structRecord, method, this->ctx);
 		if (!lvalueType->isAssignableFrom(rvalueType, this->ctx)) {
@@ -502,6 +546,10 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 				method->returnType->readableName().c_str(), inferredRetType->readableName().c_str());
 			return;
 		}
+		if (dynamic_cast<void_type*>(method->returnType) != nullptr && stmt->target_expr != nullptr) {
+				type_error("'%s' function doesn't return any type", structRecord->name.c_str());
+		}
+		(*returnCount)++;
 	}
 
 	if (stmt->block != nullptr) {
@@ -510,7 +558,7 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 		}
 		list<std::string> locals;
 		for (stmt_node* innerStmt : *stmt->block) {
-			processStmt(structRecord, method, innerStmt);
+			processStmt(structRecord, method, innerStmt, returnCount);
 			if (innerStmt->type == stmt_type::VarDecl) {
 				locals.add(innerStmt->var_decl->varName);
 			}
@@ -526,7 +574,7 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 	if (stmt->else_block != nullptr) {
 		list<std::string> locals;
 		for (stmt_node* innerStmt : *stmt->else_block) {
-			processStmt(structRecord, method, innerStmt);
+			processStmt(structRecord, method, innerStmt, returnCount);
 			if (innerStmt->type == stmt_type::VarDecl) {
 				locals.add(innerStmt->var_decl->varName);
 			}
@@ -539,7 +587,7 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 	if (stmt->condition_nodes != nullptr) {
 		list<std::string> locals;
 		for (stmt_node* innerStmt : *stmt->condition_nodes) {
-			processStmt(structRecord, method, innerStmt);
+			processStmt(structRecord, method, innerStmt, returnCount);
 			if (innerStmt->type == stmt_type::VarDecl) {
 				locals.add(innerStmt->var_decl->varName);
 			}
@@ -557,19 +605,24 @@ void semantic_analyzer::processExpr(struct_record* structRecord, method_record *
 
 	// avoid recursive subexprs changes here
 	
+	constant_record * constant = nullptr;
 	if (expr->type == expr_type::Int && intSizeOf(expr->Int) >= 2) {
-		structRecord->addLiteralConstant(expr->Int);
+		constant = structRecord->addLiteralConstant(expr->Int);
 	}
 	else if (expr->type == expr_type::String) {
-		structRecord->addLiteralConstant(expr->String);
+		constant = structRecord->addLiteralConstant(expr->String);
 	}
 	else if (expr->type == expr_type::Float) {
 		if (expr->Float <= FLT_MAX && expr->Float >= FLT_MIN) {
-			structRecord->addLiteralConstant((float) expr->Float);
+			constant = structRecord->addLiteralConstant((float) expr->Float);
 		}
 		else {
-			structRecord->addLiteralConstant(expr->Float);
+			constant = structRecord->addLiteralConstant(expr->Float);
 		}
+	}
+
+	if (constant != nullptr) {
+		expr->constant = constant;
 	}
 
 	// myclass

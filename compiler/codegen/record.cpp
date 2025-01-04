@@ -51,11 +51,13 @@ constant_record* struct_record::constantAt(uint16_t num)
 
 constant_record* struct_record::addConstant(constant_record* record)
 {
-    if (findConstant(record) == nullptr) {
+    constant_record* found = findConstant(record);
+    if (found == nullptr) {
         record->number = ++constantCounter;
         constant[record->number] = record;
+        return record;
     }
-    return record;
+    return found;
 }
 
 constant_record * struct_record::findConstant(constant_record* record)
@@ -68,11 +70,22 @@ constant_record * struct_record::findConstant(constant_record* record)
     return nullptr;
 }
 
+constant_record* struct_record::addConstantBy(struct_record* record)
+{
+    constant_class* cls = new constant_class(utf8ConstantOf(record->name));
+    cls = (constant_class *) addConstant(cls);
+    record->currentConstant = cls;
+    return cls;
+}
+
 constant_record* struct_record::addConstantBy(field_record* record)
 {
     constant_nameandtype * nt = new constant_nameandtype(utf8ConstantOf(record->name), utf8ConstantOf(record->type->jvmDescriptor()));
     constant_class* cls = new constant_class(utf8ConstantOf(record->owner->name));
-    return addConstant(new constant_fieldref((constant_nameandtype*)addConstant(nt), (constant_class*)addConstant(cls)));
+    constant_fieldref* fref = new constant_fieldref((constant_nameandtype*)addConstant(nt), (constant_class*)addConstant(cls));
+    fref = (constant_fieldref*) addConstant(fref);
+    record->constant = fref;
+    return fref;
 }
 
 constant_utf8* struct_record::utf8ConstantOf(std::string name) {
@@ -83,11 +96,17 @@ constant_record* struct_record::addConstantBy(method_record* record)
 {
     constant_nameandtype* nt = new constant_nameandtype(utf8ConstantOf(record->name), utf8ConstantOf(record->jvmDescriptor()));
     constant_class* cls = new constant_class(utf8ConstantOf(record->owner->name));
-    return addConstant(new constant_fieldref((constant_nameandtype*)addConstant(nt), (constant_class*)addConstant(cls)));
+    constant_methodref* mref = new constant_methodref((constant_nameandtype*)addConstant(nt), (constant_class*)addConstant(cls));
+    mref = (constant_methodref*)addConstant(mref);
+    record->constant = mref;
+    return mref;
 }
 
 constant_record* struct_record::addConstantBy(struct type* type)
 {
+    if (dynamic_cast<struct_type*>(type) != nullptr) {
+        return addConstantBy(dynamic_cast<struct_type*>(type)->record);
+    }
     return addConstant(new constant_class(utf8ConstantOf(type->readableName())));
 }
 
@@ -124,6 +143,9 @@ field_record* struct_record::addField(field_node* node, semantic_context & conte
     field->node->record = field;
     field->valueNode = node->decl;
     field->type = inferType(node->decl->type, context, typeMap);
+    if (dynamic_cast<struct_type*>(field->type) != nullptr) {
+        addConstantBy(dynamic_cast<struct_type*>(field->type)->record);
+    }
     if (resolveMethod(field->name) != nullptr) {
         name_error("'%s' member already declared as method in %s", field->name.c_str(), this->type->readableName().c_str());
         return nullptr;
@@ -148,11 +170,17 @@ method_record* struct_record::addMethod(procedure_node* procNode, semantic_conte
     }
     else {
         method->returnType = inferType(procNode->returnType, context, typeMap);
+        if (dynamic_cast<struct_type*>(method->returnType) != nullptr) {
+            addConstantBy(dynamic_cast<struct_type*>(method->returnType)->record);
+        }
     }
     for (typed_value * val : *procNode->arguments) {
         parameter_record* param = new parameter_record();
         param->name = val->varName;
         param->type = inferType(val->type, context, typeMap);
+        if (dynamic_cast<struct_type*>(param->type) != nullptr) {
+            addConstantBy(dynamic_cast<struct_type*>(param->type)->record);
+        }
         param->valueNode = val;
         param->owner = method;
         method->args.add(param);
@@ -226,6 +254,7 @@ field_record::field_record(std::string name, bool isStatic, struct type* type, s
     this->name = name;
     this->type = type;
     this->owner = owner;
+    this->isConst = false;
     this->isStatic = isStatic;
     this->node = new field_node();
     this->node->decl = new typed_value();
