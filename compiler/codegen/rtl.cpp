@@ -21,9 +21,8 @@ rtl_class_record* initString() {
 	rec->parent = rtl_class_record::Object;
 
 	rec->methods["Length"] = new method_record("Length", rec, rtl_class_record::ULong->type, false, {});
-	rec->methods["toJvmString"] = new method_record("toJvmString", rec, new jvm_type("String", jvmStdlibDescriptor("String")), false, {});
-	rec->methods["concat"] = new method_record("concat", rec, rec->type, false, {});
-	rec->methods["equals"] = new method_record("concat", rec, rtl_class_record::Boolean->type, false, {});
+	rec->methods["Concat"] = new method_record("Concat", rec, rec->type, false, {new parameter_record("other", rec->type, nullptr)});
+	rec->methods["Format"] = new method_record("Format", rec, rec->type, false, { new parameter_record("fmt", new jvm_array_type(rtl_class_record::Object->type), nullptr)});
 	rec->methods["Get"] = new method_record("Get", rec, rtl_class_record::Char->type, false, {new parameter_record("index", rtl_class_record::ULong->type, nullptr)});
 	
 	rec->node = createDummyStructNode(rec);
@@ -140,8 +139,10 @@ rtl_class_record* initMath() {
 	rec->type = new rtl_type(rec);
 	rec->parent = rtl_class_record::Object;
 
-	rec->methods["Sin"] = new method_record("Sin", rec, rtl_class_record::Double->type, true, {});
-	rec->methods["Cos"] = new method_record("Cos", rec, rtl_class_record::Double->type, true, { });
+	rec->methods["Sin"] = new method_record("Sin", rec, rtl_class_record::Double->type, true, { new parameter_record("a", rtl_class_record::Number->type, nullptr) });
+	rec->methods["Cos"] = new method_record("Cos", rec, rtl_class_record::Double->type, true, { new parameter_record("a", rtl_class_record::Number->type, nullptr) });
+	rec->methods["Abs"] = new method_record("Abs", rec, rtl_class_record::Double->type, true, { new parameter_record("a", rtl_class_record::Number->type, nullptr) });
+
 	rec->methods["RandomInt"] = new method_record("RandomInt", rec, rtl_class_record::Integer->type, true, {new parameter_record("val", 
 		rtl_class_record::Integer->type, nullptr)});
 	rec->methods["Random"] = new method_record("Random", rec, rtl_class_record::Double->type, true, { });
