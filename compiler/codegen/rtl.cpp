@@ -143,8 +143,8 @@ rtl_class_record* initMath() {
 	rec->methods["Cos"] = new method_record("Cos", rec, rtl_class_record::Double->type, true, { new parameter_record("a", rtl_class_record::Number->type, nullptr) });
 	rec->methods["Abs"] = new method_record("Abs", rec, rtl_class_record::Double->type, true, { new parameter_record("a", rtl_class_record::Number->type, nullptr) });
 
-	rec->methods["RandomInt"] = new method_record("RandomInt", rec, rtl_class_record::Integer->type, true, {new parameter_record("val", 
-		rtl_class_record::Integer->type, nullptr)});
+	rec->methods["RandomInt"] = new method_record("RandomInt", rec, rtl_class_record::Long->type, true, {new parameter_record("val", 
+		rtl_class_record::Long->type, nullptr)});
 	rec->methods["Random"] = new method_record("Random", rec, rtl_class_record::Double->type, true, { });
 	rec->methods["Min"] = new method_record("Min", rec, rtl_class_record::Number->type, true, { new parameter_record("a", rtl_class_record::Number->type, nullptr),
 		new parameter_record("b", rtl_class_record::Number->type, nullptr) });

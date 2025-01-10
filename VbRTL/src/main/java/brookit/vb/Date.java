@@ -1,6 +1,7 @@
 package brookit.vb;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 public class Date {
@@ -27,7 +28,12 @@ public class Date {
     }
 
     public Date(int year, int month, int day, int hour, int minute, int second) {
-
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        this.hour = hour;
+        this.minute = minute;
+        this.second = second;
     }
 
     public static Date fromTime(int hour, int minute, int second) {
@@ -38,15 +44,19 @@ public class Date {
         return new Long(toJavaDate().toEpochSecond(ZoneOffset.UTC));
     }
 
-    public Date FromTimestamp(Long val) {
+    public static Date FromTimestamp(Long val) {
         return fromJavaDate(LocalDateTime.ofEpochSecond(val.getInteger(), 0, ZoneOffset.UTC));
     }
 
-    private Date fromJavaDate(LocalDateTime dt) {
+    private static Date fromJavaDate(LocalDateTime dt) {
         return new Date(dt.getYear(), dt.getMonthValue(), dt.getDayOfMonth(), dt.getHour(), dt.getMinute(), dt.getSecond());
     }
 
     private LocalDateTime toJavaDate() {
         return LocalDateTime.of(year, month, day, hour, minute, second);
+    }
+
+    public static Date Now() {
+        return fromJavaDate(LocalDateTime.now());
     }
 }
