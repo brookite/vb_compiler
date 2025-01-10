@@ -5,6 +5,10 @@ import java.lang.String;
 public class Byte extends Number {
     byte _src;
 
+    public Byte(Number n) {
+        _src = (byte) n.getInteger();
+    }
+
     public Byte(long num) {
         _src = (byte) num;
     }

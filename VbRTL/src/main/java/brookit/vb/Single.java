@@ -13,6 +13,10 @@ public class Single extends Number {
         _src = (float) num;
     }
 
+    public Single(Number n) {
+        _src = (float) n.getFloat();
+    }
+
     public Single(boolean num) {
         _src = num ? 1 : 0;
     }

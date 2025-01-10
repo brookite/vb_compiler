@@ -26,6 +26,10 @@ public class ULong extends Number {
         return 8;
     }
 
+    public ULong(Number n) {
+        _src = n.getInteger();
+    }
+
     @Override
     public boolean isUnsigned() {
         return true;

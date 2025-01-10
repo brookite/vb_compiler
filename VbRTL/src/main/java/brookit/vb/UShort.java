@@ -9,6 +9,10 @@ public class UShort extends Number {
         _src = (short) num;
     }
 
+    public UShort(Number n) {
+        _src = (short) n.getInteger();
+    }
+
     public UShort(double num) {
         _src = (short) num;
     }

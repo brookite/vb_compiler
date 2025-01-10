@@ -13,6 +13,10 @@ public class SByte extends Number {
         _src = (byte) num;
     }
 
+    public SByte(Number n) {
+        _src = (byte) n.getInteger();
+    }
+
     public SByte(boolean num) {
         _src = (byte) (num ? 1 : 0);
     }

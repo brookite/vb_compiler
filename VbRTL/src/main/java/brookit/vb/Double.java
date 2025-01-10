@@ -9,6 +9,10 @@ public class Double extends Number {
         _src = num;
     }
 
+    public Double(Number n) {
+        _src = n.getFloat();
+    }
+
     public Double(long num) {
         _src = (double) num;
     }

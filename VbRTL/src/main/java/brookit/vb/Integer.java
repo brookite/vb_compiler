@@ -9,6 +9,10 @@ public class Integer extends Number {
         _src = (int) num;
     }
 
+    public Integer(Number n) {
+        _src = (int) n.getInteger();
+    }
+
     public Integer(double num) {
         _src = (int) num;
     }

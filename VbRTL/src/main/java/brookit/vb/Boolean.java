@@ -5,6 +5,10 @@ import java.lang.String;
 public class Boolean extends Number {
     boolean _src;
 
+    public Boolean(Number n) {
+        _src = n.getBoolean();
+    }
+
     public Boolean(long num) {
         _src = num != 0;
     }

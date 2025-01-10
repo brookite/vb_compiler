@@ -9,6 +9,10 @@ public class UInteger extends Number {
         _src = (int) num;
     }
 
+    public UInteger(Number n) {
+        _src = (int) n.getInteger();
+    }
+
     public UInteger(double num) {
         _src = (int) num;
     }

@@ -13,6 +13,10 @@ public class Long extends Number {
         _src = (int) num;
     }
 
+    public Long(Number n) {
+        _src = n.getInteger();
+    }
+
     public Long(boolean num) {
         _src = num ? 1 : 0;
     }

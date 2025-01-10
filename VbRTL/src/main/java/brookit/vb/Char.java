@@ -5,6 +5,10 @@ import java.lang.String;
 public class Char extends Number {
     char _src;
 
+    public Char(Number n) {
+        _src = (char) n.getInteger();
+    }
+
     public Char(long num) {
         _src = (char) num;
     }

@@ -13,6 +13,10 @@ public class Short extends Number {
         _src = (short) num;
     }
 
+    public Short(Number n) {
+        _src = (short) n.getInteger();
+    }
+
     public Short(boolean num) {
         _src = (short) (num ? 1 : 0);
     }
