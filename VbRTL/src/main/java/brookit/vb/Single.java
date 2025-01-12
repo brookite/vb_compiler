@@ -25,6 +25,10 @@ public class Single extends Number {
         _src = num;
     }
 
+    public Single() {
+        _src = 0;
+    }
+
     @Override
     public int byteSize() {
         return 4;

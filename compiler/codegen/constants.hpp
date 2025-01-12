@@ -5,7 +5,7 @@ struct constant_utf8 : public constant_record {
 public:
 	std::string value;
 	constant_utf8(std::string str) : value(str) {};
-	virtual bytearray_t* toBytes();
+	virtual bytearray_t toBytes();
 	virtual std::string printable();
 	bool operator== (const constant_record& t) const {
 		const constant_utf8 * other = dynamic_cast<const constant_utf8*>(&t);
@@ -21,7 +21,7 @@ private:
 struct constant_class : public constant_record {
 public:
 	constant_utf8* name;
-	virtual bytearray_t* toBytes();
+	virtual bytearray_t toBytes();
 	virtual std::string printable();
 	constant_class(constant_utf8* name) : name(name) {}
 	bool operator== (const constant_record& t) const {
@@ -39,7 +39,7 @@ struct constant_string : public constant_record {
 public:
 	constant_utf8* name;
 	constant_string(constant_utf8* name) : name(name) {}
-	virtual bytearray_t* toBytes();
+	virtual bytearray_t toBytes();
 	virtual std::string printable();
 	bool operator== (const constant_record& t) const {
 		const constant_string* other = dynamic_cast<const constant_string*>(&t);
@@ -57,7 +57,7 @@ public:
 	constant_utf8* name;
 	constant_utf8* type;
 	constant_nameandtype(constant_utf8* name, constant_utf8* type) : name(name), type(type) {}
-	virtual bytearray_t* toBytes();
+	virtual bytearray_t toBytes();
 	virtual std::string printable();
 
 	bool operator== (const constant_record& t) const {
@@ -76,7 +76,7 @@ public:
 	constant_nameandtype * nt;
 	constant_class* cls;
 	constant_methodref(constant_nameandtype* nt, constant_class* cls) : nt(nt), cls(cls) {}
-	virtual bytearray_t* toBytes();
+	virtual bytearray_t toBytes();
 	virtual std::string printable();
 	bool operator== (const constant_record& t) const {
 		const constant_methodref* other = dynamic_cast<const constant_methodref*>(&t);
@@ -93,7 +93,7 @@ struct constant_fieldref : public constant_record {
 public:
 	constant_nameandtype* nt;
 	constant_class* cls;
-	virtual bytearray_t* toBytes();
+	virtual bytearray_t toBytes();
 	virtual std::string printable();
 	constant_fieldref(constant_nameandtype* nt, constant_class* cls) : nt(nt), cls(cls) {}
 	bool operator== (const constant_record& t) const {
@@ -110,7 +110,7 @@ private:
 struct constant_int : public constant_record {
 public:
 	int32_t value;
-	virtual bytearray_t* toBytes();
+	virtual bytearray_t toBytes();
 	virtual std::string printable();
 	constant_int(int32_t value) : value(value) {};
 	bool operator== (const constant_record& t) const {
@@ -127,7 +127,7 @@ private:
 struct constant_float : public constant_record {
 public:
 	float value;
-	virtual bytearray_t* toBytes();
+	virtual bytearray_t toBytes();
 	virtual std::string printable();
 	constant_float(float value) : value(value) {};
 	bool operator== (const constant_record& t) const {
@@ -144,7 +144,7 @@ private:
 struct constant_long : public constant_record {
 public:
 	int64_t value;
-	virtual bytearray_t* toBytes();
+	virtual bytearray_t toBytes();
 	virtual std::string printable();
 	constant_long(int64_t value) : value(value) {};
 	bool operator== (const constant_record& t) const {
@@ -163,7 +163,7 @@ public:
 	double value;
 	constant_double(double value) : value(value) {};
 	virtual std::string printable();
-	virtual bytearray_t* toBytes();
+	virtual bytearray_t toBytes();
 	bool operator== (const constant_record& t) const {
 		const constant_double* other = dynamic_cast<const constant_double*>(&t);
 		if (other != nullptr) {

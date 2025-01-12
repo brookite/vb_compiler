@@ -346,11 +346,23 @@ void semantic_analyzer::analyzeProgram(program_node* node)
 	flushErrorBuffer();
 }
 
+std::map<std::string, bytearray_t>* semantic_analyzer::compile()
+{
+	std::map<std::string, bytearray_t>* result = new std::map<std::string, bytearray_t>();
+	for (auto& pair : this->ctx.classes) {
+		if (dynamic_cast<rtl_class_record*>(pair.second) == nullptr) {
+			(*result)[pair.first] = pair.second->toBytes();
+		}
+	}
+	return result;
+}
+
 void semantic_analyzer::processMethod(struct_record* structRecord, method_record* method)
 {
 	size_t returnCount = 0;
 	for (parameter_record* param : method->args) {
 		method->locals[param->name] = param;
+		param->number = ++method->localvarCounter;
 	}
 	for (stmt_node* stmt : *(method->node->block)) {
 		processStmt(structRecord, method, stmt, &returnCount);
@@ -376,6 +388,10 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 			value_error("Call statement must have only callable expressions");
 			return;
 		}
+	}
+
+	if (stmt->type == stmt_type::Select) {
+		internal_error("Select cases are not supported in this version. Please remove it from code");
 	}
 
 	list<expr_node*> exprs = collectExprs(stmt);
@@ -405,16 +421,17 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 	}
 	
 	for (expr_node* memAccess : memAccessNodes) {
-		std::pair<record *, access_target> record = ctx.resolveMemberAccess(memAccess, structRecord, method);
+		type* ownerType = nullptr;
+		std::pair<record *, access_target> record = ctx.resolveMemberAccess(memAccess, structRecord, method, &ownerType);
 		if (record.first == nullptr) {
 			continue;
 		}
 		
 		if (record.second == STATIC_METHOD || record.second == METHOD) {
-			structRecord->addConstantBy((method_record*) record.first);
+			structRecord->addConstantBy((method_record*) record.first, ownerType == nullptr ? nullptr : ((struct_type*)ownerType)->record);
 		}
 		else if (record.second == STATIC_FIELD || record.second == FIELD) {
-			structRecord->addConstantBy((field_record*) record.first);
+			structRecord->addConstantBy((field_record*) record.first, ownerType == nullptr ? nullptr : ((struct_type*)ownerType)->record);
 		}
 	}
 
@@ -441,6 +458,8 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 		varRecord->type = inferType(stmt->var_decl->type, ctx, structRecord->typeMap);
 		varRecord->owner = method;
 		varRecord->valueNode = stmt->var_decl;
+		varRecord->number = ++method->localvarCounter;
+		stmt->localvarNum = varRecord->number;
 		method->locals[varRecord->name] = varRecord;
 
 		type* declaredType = inferType(stmt->var_decl->type, this->ctx, structRecord->typeMap);
@@ -466,6 +485,53 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 		inferType(stmt->target_expr, structRecord, method, ctx);
 		if (stmt->target_expr->type == expr_type::Index) {
 			type_error("Index cannot be in call statement");
+		}
+	}
+
+	if (stmt->type == stmt_type::ForEach) {
+		type* containerInferredType = inferType(stmt->container_expr, structRecord, method, this->ctx);
+		type* declaredType = inferType(stmt->id_type, this->ctx, structRecord->typeMap);
+		if (dynamic_cast<jvm_array_type*>(containerInferredType) == nullptr) {
+			type_error("ForEach can be only applied to arrays");
+		}
+		if (*(dynamic_cast<jvm_array_type*>(containerInferredType)->valueType) != *declaredType) {
+			type_error("Incompatible types in for-header %s (declared) and %s (arrayType)", declaredType->readableName().c_str(),
+				containerInferredType->readableName().c_str());
+		}
+	}
+
+	if (stmt->type == stmt_type::Redim) {
+		for (redim_clause_node* redimCl : *stmt->redim) {
+			expr_node* id = new expr_node(expr_type::Id);
+			id->String = redimCl->Id;
+			type* varType = inferType(id, structRecord, method, this->ctx);
+			if (dynamic_cast<jvm_array_type*>(varType) == nullptr) {
+				type_error("Redim is supported only for arrays");
+			}
+			for (int i = 0; i < redimCl->arg->size(); i++) {
+				expr_node* arg = redimCl->arg->get(i);
+				type* argType = inferType(arg, structRecord, method, this->ctx);
+				if (dynamic_cast<sized_rtl_type*>(argType) == nullptr) {
+					type_error("Argument %d of Redim is not number", i);
+				}
+			}
+		}
+	}
+
+	if (stmt->type == stmt_type::Erase) {
+		for (expr_node* id : *stmt->expr_list) {
+			type* varType = inferType(id, structRecord, method, this->ctx);
+			if (dynamic_cast<jvm_array_type*>(varType) == nullptr) {
+				type_error("Erase is supported only for arrays");
+			}
+		}
+	}
+
+	if (stmt->type == stmt_type::If || stmt->type == stmt_type::ElseIf || stmt->type == stmt_type::While ||
+		stmt->type == stmt_type::DoUntil || stmt->type == stmt_type::DoWhile) {
+		type* condType = inferType(stmt->condition, structRecord, method, this->ctx);
+		if (dynamic_cast<bool_rtl_type*>(condType) == nullptr) {
+			type_error("This type of loop or if must have boolean condition");
 		}
 	}
 
@@ -498,6 +564,7 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 			return;
 		}
 
+
 		if (stmt->lvalue->type != expr_type::Index) {
 			std::pair<record*, access_target> res = ctx.resolveMemberAccess(stmt->lvalue, structRecord, method);
 			if (res.second == LOCAL_VAR) {
@@ -521,14 +588,15 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 				rvalueType->readableName().c_str(), lvalueType->readableName().c_str());
 			return;
 		}
-		
+
 		if (stmt->lvalue->type == expr_type::Index) {
 			stmt->type = stmt_type::ArrayAssign;
 		}
-		else if (stmt->lvalue->type == expr_type::MemberAccess 
+		else if (stmt->lvalue->type == expr_type::MemberAccess
 			|| stmt->lvalue->type == expr_type::MyClassMemberAccess
 			|| stmt->lvalue->type == expr_type::MyBaseMemberAccess
-		) {
+			|| dynamic_cast<field_record *>(ctx.resolveMemberAccess(stmt->lvalue, structRecord, method).first) != nullptr
+			) {
 			stmt->type = stmt_type::FieldAssign;
 		}
 	}
@@ -555,6 +623,11 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 	if (stmt->block != nullptr) {
 		if (stmt->type == stmt_type::For || stmt->type == stmt_type::ForEach) {
 			method->locals[stmt->Id] = new localvar_record(stmt->Id, inferType(stmt->id_type, ctx, structRecord->typeMap), method);
+			method->locals[stmt->Id]->number = ++method->localvarCounter;
+			stmt->localvarNum = method->locals[stmt->Id]->number;
+			if (stmt->type == stmt_type::ForEach) {
+				++method->localvarCounter;
+			}
 		}
 		list<std::string> locals;
 		for (stmt_node* innerStmt : *stmt->block) {
@@ -632,6 +705,11 @@ void semantic_analyzer::processExpr(struct_record* structRecord, method_record *
 		expr->type = expr_type::MemberAccess;
 	}
 
+	if (method != nullptr && (expr->type == expr_type::ArrayNew || expr->type == expr_type::Collection)) {
+		expr->localvarNum = ++method->localvarCounter;
+		method->localvarCounter++;
+	}
+
 	// detect index and call expr
 	// separate call into method call and function call
 	ctx.processCallOrIndex(expr, structRecord, method);
@@ -660,6 +738,7 @@ void semantic_analyzer::processStruct(struct_record* clsRecord)
 			return;
 		}
 	}
+	clsRecord->makeInit(ctx);
 	for (const auto& pair : clsRecord->methods) {
 		method_record* method = pair.second;
 		processMethod(clsRecord, method);

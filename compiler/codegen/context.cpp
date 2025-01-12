@@ -18,7 +18,7 @@ std::pair<record*, access_target> semantic_context::resolveId(expr_node* value, 
 			return std::pair<record*, access_target>(nullptr, FIELD);
 		} else if (context->resolveMethod(member) != nullptr) {
 			rec = context->resolveMethod(member);
-			acc = METHOD;
+			acc = ((method_record*)rec)->isStatic ? STATIC_METHOD : METHOD;
 		}
 		else if (context->resolveField(member) != nullptr) {
 			rec = context->resolveField(member);
@@ -53,7 +53,7 @@ std::pair<record*, access_target> semantic_context::resolveId(expr_node* value, 
 }
 
 std::pair<record*, access_target> semantic_context::resolveMember(record * record, std::string member, struct_record* context,
-	expr_type memAccessType, bool isStatic) {
+	expr_type memAccessType, bool isStatic, type** ownerType) {
 	std::string accessType = isStatic ? "static" : "instance or static";
 	if (record == nullptr) {
 		return std::pair(nullptr, FIELD);
@@ -64,6 +64,7 @@ std::pair<record*, access_target> semantic_context::resolveMember(record * recor
 		struct_type* typeRec = dynamic_cast<struct_type*>(rec->type);
 		if (typeRec != nullptr) {
 			struct_record* record = typeRec->record;
+			if (ownerType != nullptr) *ownerType = record->type;
 			if (record->resolveField(member) != nullptr && record->resolveMethod(member) != nullptr) {
 				name_error("Member '%s' in type %s declared twice", member.c_str(), record->type->readableName().c_str());
 			} else if (record->resolveField(member) != nullptr) {
@@ -79,6 +80,7 @@ std::pair<record*, access_target> semantic_context::resolveMember(record * recor
 		}
 	} else if (dynamic_cast<struct_record*>(record) != nullptr) {
 		struct_record* rec = dynamic_cast<struct_record*>(record);
+		if (ownerType != nullptr) *ownerType = rec->type;
 		if (isStatic) {
 			rec = new static_struct_record_wrapper(rec);
 		}
@@ -106,10 +108,10 @@ std::pair<record*, access_target> semantic_context::resolveMember(record * recor
 				name_error("Member %s '%s' in type %s declared twice", accessType.c_str(), member.c_str(), record->type->readableName().c_str());
 			}
 			else if (record->resolveField(member) != nullptr) {
-				return std::pair(record->resolveField(member), FIELD);
+				return std::pair(record->resolveField(member), isStatic ? STATIC_FIELD : FIELD);
 			}
 			else if (record->resolveMethod(member) != nullptr) {
-				return std::pair(record->resolveMethod(member), METHOD);
+				return std::pair(record->resolveMethod(member), isStatic ? STATIC_METHOD : METHOD);
 			}
 			else {
 				name_error("Type '%s' doesn't contain '%s' %s member (local variable %s)", rec->type->readableName().c_str(),
@@ -123,6 +125,7 @@ std::pair<record*, access_target> semantic_context::resolveMember(record * recor
 	} else if (dynamic_cast<method_record*>(record) != nullptr) {
 		method_record* rec = dynamic_cast<method_record*>(record);
 		struct_type* typeRec = dynamic_cast<struct_type*>(rec->returnType);
+		if (ownerType != nullptr) *ownerType = typeRec;
 		if (memAccessType != expr_type::MethodCall) {
 			name_error("Method '%s' is not structure object", rec->name.c_str());
 			return std::pair(nullptr, METHOD);
@@ -132,10 +135,10 @@ std::pair<record*, access_target> semantic_context::resolveMember(record * recor
 			if (record->resolveField(member) != nullptr && record->resolveMethod(member) != nullptr) {
 				name_error("Member %s '%s' in type %s declared twice", accessType.c_str(), member.c_str(), record->type->readableName().c_str());
 			} else if (record->resolveField(member) != nullptr) {
-				return std::pair(record->resolveField(member), FIELD);
+				return std::pair(record->resolveField(member), isStatic ? STATIC_FIELD : FIELD);
 			}
 			else if (record->resolveMethod(member) != nullptr) {
-				return std::pair(record->resolveMethod(member), METHOD);
+				return std::pair(record->resolveMethod(member), isStatic ? STATIC_METHOD : METHOD);
 			}
 			else {
 				name_error("Type '%s' doesn't contain '%s' %s member", rec->returnType->readableName().c_str(), member.c_str(), accessType.c_str());
@@ -180,10 +183,12 @@ void semantic_context::processCallOrIndex(expr_node* expr, struct_record * struc
 			expr->type = expr_type::Index;
 			processCallOrIndex(expr->left, structRecord, method);
 			inferType(expr, structRecord, method, *this);
+			expr->argument = expr->arg_list->first();
 			return;
 		}
 		else if (expr->left->type == expr_type::Call) {
 			expr->type = expr_type::Index;
+			expr->argument = expr->arg_list->first();
 			inferType(expr, structRecord, method, *this);
 			return;
 		}
@@ -217,13 +222,14 @@ void semantic_context::processCallOrIndex(expr_node* expr, struct_record * struc
 		}
 		else {
 			expr->type = expr_type::Index;
+			expr->argument = expr->arg_list->first();
 			inferType(expr, structRecord, method, *this);
 		}
 
 	}
 }
 
-std::pair<record*, access_target> semantic_context::resolveMemberAccess(expr_node* memAccess, struct_record* context, method_record * method)
+std::pair<record*, access_target> semantic_context::resolveMemberAccess(expr_node* memAccess, struct_record* context, method_record * method, type ** ownerType)
 {
 	if (memAccess->type == expr_type::Id || memAccess->type == expr_type::Me || memAccess->type == expr_type::MyBase) {
 		return resolveId(memAccess, context, method);
@@ -244,12 +250,12 @@ std::pair<record*, access_target> semantic_context::resolveMemberAccess(expr_nod
 	buf = resolveId(left, context, method);
 	rec = buf.first;
 	acc = buf.second;
-	buf = resolveMember(rec, member, context, plain.first()->type, acc == STATIC_STRUCT);
+	buf = resolveMember(rec, member, context, plain.first()->type, acc == STATIC_STRUCT, ownerType);
 	rec = buf.first;
 	acc = buf.second;
 
 	for (int i = 1; i < plain.size(); i++) {
-		buf = resolveMember(rec, plain.get(i)->String, context, plain.get(i)->type);
+		buf = resolveMember(rec, plain.get(i)->String, context, plain.get(i)->type, ownerType);
 		rec = buf.first;
 		acc = buf.second;
 		if (rec == nullptr) {

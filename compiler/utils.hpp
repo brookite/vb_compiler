@@ -25,6 +25,7 @@ void syntax_error(const char* msg, ...);
 void type_error(const char* msg, ...);
 void name_error(const char* msg, ...);
 void value_error(const char* msg, ...);
+void codegen_error(const char* msg, ...);
 
 void flushErrorBuffer();
 
@@ -302,6 +303,9 @@ struct bytearray_t {
     size_t length;
     byte_t* bytes;
 
+    bytearray_t() { length = 0; bytes = nullptr; }
+    bytearray_t(size_t length, byte_t* content) : length(length), bytes(content) {}
+
     void reverseByteOrder();
 };
 
@@ -317,10 +321,15 @@ public:
     void addInt64(int64_t num, bool big_endian = true);
     void addBytes(byte_t* start, size_t count);
     void addBytes(char* bytes, size_t count);
+    void addBytes(bytearray_t & array);
+    void addBytes(bytearray_t && array);
     void addFloat(float value);
     void addDouble(double value);
+    void setBytes(size_t from, size_t to, void* val);
+    size_t offset();
 
-    bytearray_t* getByteArray();
+    bytearray_t getByteArray();
+    bytearray_t getByteArray(size_t from, size_t to);
 
     ~byte_writer();
 private:

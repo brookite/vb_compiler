@@ -138,6 +138,13 @@ void value_error(const char* msg, ...) {
     va_end(args);
 }
 
+void codegen_error(const char* msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    compiler_error("CompileError", 5, msg, args);
+    va_end(args);
+}
+
 
 bool endsWith(const std::string& str, const std::string& suffix)
 {
@@ -238,6 +245,16 @@ void byte_writer::addBytes(char* bytes, size_t count) {
     position += count;
 }
 
+void byte_writer::addBytes(bytearray_t& array)
+{
+    addBytes(array.bytes, array.length);
+}
+
+void byte_writer::addBytes(bytearray_t && array)
+{
+    addBytes(array.bytes, array.length);
+}
+
 void byte_writer::addFloat(float value) {
     ensureCapacity(sizeof(float));
     std::memcpy(buffer + position, &value, sizeof(value));
@@ -250,12 +267,31 @@ void byte_writer::addDouble(double value) {
     position += sizeof(double);
 }
 
-bytearray_t * byte_writer::getByteArray() {
+void byte_writer::setBytes(size_t from, size_t to, void* val)
+{
+    std::memcpy(buffer + from, val, to - from);
+}
+
+size_t byte_writer::offset()
+{
+    return position;
+}
+
+bytearray_t byte_writer::getByteArray() {
     byte_t* result = new byte_t[position];
     std::memcpy(result, buffer, position);
-    bytearray_t* arr = new bytearray_t();
-    arr->bytes = result;
-    arr->length = position;
+    bytearray_t arr;
+    arr.bytes = result;
+    arr.length = position;
+    return arr;
+}
+
+bytearray_t byte_writer::getByteArray(size_t from, size_t to) {
+    byte_t* result = new byte_t[to - from];
+    std::memcpy(result, buffer + from, to - from);
+    bytearray_t arr;
+    arr.bytes = result;
+    arr.length = to - from;
     return arr;
 }
 

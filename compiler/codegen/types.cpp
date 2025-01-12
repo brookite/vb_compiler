@@ -91,6 +91,11 @@ bool type::operator==(const type& t) const
     return t.jvmDescriptor() == jvmDescriptor();
 }
 
+bool type::operator!=(const type& t) const
+{
+    return t.jvmDescriptor() != jvmDescriptor();
+}
+
 bool type::isValueType() const
 {
     return dynamic_cast<const sized_rtl_type*>(this) != nullptr;
@@ -334,7 +339,7 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
             return new jvm_array_type(generalType);
         }
         else {
-            return new jvm_array_type(new unknown_type());
+            return new jvm_array_type(rtl_class_record::Object->type);
         }
         
     }
@@ -351,8 +356,8 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
         || val->type == expr_type::OrElseOp
         || val->type == expr_type::OrOp
         || val->type == expr_type::AndOp
-        || val->type == expr_type::GeqOp
-        || val->type == expr_type::LeqOp
+        || val->type == expr_type::GteOp
+        || val->type == expr_type::LteOp
         || val->type == expr_type::LtOp
         || val->type == expr_type::GtOp
     ) {
@@ -365,6 +370,8 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
         float_rtl_type* rightFloat = dynamic_cast<float_rtl_type*>(rightT);
         bool_rtl_type* leftBool = dynamic_cast<bool_rtl_type*>(leftT);
         bool_rtl_type* rightBool = dynamic_cast<bool_rtl_type*>(leftT);
+        char_rtl_type* leftChar = dynamic_cast<char_rtl_type*>(leftT);
+        char_rtl_type* rightChar = dynamic_cast<char_rtl_type*>(leftT);
 
         list<sized_rtl_type*> cmp;
         if (leftFloat != nullptr || rightFloat != nullptr) {
@@ -373,7 +380,9 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
         else {
             cmp = { (sized_rtl_type*)leftInt, (sized_rtl_type*)rightInt, 
                 (sized_rtl_type*)leftFloat, (sized_rtl_type*)rightFloat,
-                (sized_rtl_type*)leftBool, (sized_rtl_type*)rightBool };
+                (sized_rtl_type*)leftBool, (sized_rtl_type*)rightBool,
+                (sized_rtl_type*)leftChar, (sized_rtl_type*)rightChar
+            };
         }
 
         if ((cmp.size() - cmp.countNotNull()) == cmp.size()) {
@@ -391,8 +400,8 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
             || val->type == expr_type::OrElseOp
             || val->type == expr_type::OrOp
             || val->type == expr_type::AndOp
-            || val->type == expr_type::GeqOp
-            || val->type == expr_type::LeqOp
+            || val->type == expr_type::GteOp
+            || val->type == expr_type::LteOp
             || val->type == expr_type::LtOp
             || val->type == expr_type::GtOp)
         {

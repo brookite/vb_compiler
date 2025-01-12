@@ -90,6 +90,10 @@ rtl_class_record* initNumber() {
 	rec->methods["xor"] = new method_record("xor", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
 		new parameter_record("right", rec->type, nullptr) });
 
+	rec->methods["getBoolean"] = new method_record("getBoolean", rec, new jvm_type("Boolean", "Z"), false, {});
+	rec->methods["getDouble"] = new method_record("getDouble", rec, new jvm_type("Double", "D"), false, {});
+	rec->methods["getInteger"] = new method_record("getInteger", rec, new jvm_type("Long", "L"), false, {});
+
 	rec->node = createDummyStructNode(rec);
 	return rec;
 }
@@ -314,6 +318,18 @@ rtl_class_record* initDatetime() {
 	return rec;
 }
 
+rtl_class_record* initUtils() {
+	rtl_class_record* rec = rtl_class_record::Console;
+	rec->type = new rtl_type(rec);
+	rec->parent = rtl_class_record::Object;
+
+	rec->methods["erase"] = new method_record("erase", rec, new void_type(), true, { new parameter_record("array", new jvm_array_type(rtl_class_record::Object->type), nullptr) });
+	rec->methods["redim"] = new method_record("redim", rec, new jvm_array_type(rtl_class_record::Object->type), true, { new parameter_record("array", new jvm_array_type(rtl_class_record::Object->type), nullptr),
+		 new parameter_record("size", new jvm_array_type(rtl_class_record::Number->type), nullptr)});
+	rec->node = createDummyStructNode(rec);
+	return rec;
+}
+
 rtl_class_record* rtl_class_record::Object = new rtl_class_record("Object");
 rtl_class_record* rtl_class_record::Boolean = new rtl_class_record("Boolean");
 rtl_class_record* rtl_class_record::String = new rtl_class_record("String");
@@ -332,13 +348,14 @@ rtl_class_record* rtl_class_record::Char = new rtl_class_record("Char");
 rtl_class_record* rtl_class_record::Console = new rtl_class_record("Console");
 rtl_class_record* rtl_class_record::DateTime = new rtl_class_record("Date");
 rtl_class_record* rtl_class_record::Math = new rtl_class_record("Math");
+rtl_class_record* rtl_class_record::CompilerUtils = new rtl_class_record("<CompilerUtils>");
 
 
 void initRTL() {
-	rtl_class_record::Object = initObject();
-	rtl_class_record::Boolean = initBoolean();
-	rtl_class_record::String = initString();
 	rtl_class_record::Number = initNumber();
+	rtl_class_record::Boolean = initBoolean();
+	rtl_class_record::Object = initObject();
+	rtl_class_record::String = initString();
 	rtl_class_record::Integer = initInteger();
 	rtl_class_record::Long = initLong();
 	rtl_class_record::ULong = initULong();
@@ -353,6 +370,7 @@ void initRTL() {
 	rtl_class_record::Console = initConsole();
 	rtl_class_record::DateTime = initDatetime();
 	rtl_class_record::Math = initMath();
+	rtl_class_record::CompilerUtils = initUtils();
 }
 
 std::string number_rtl_type::jvmDescriptor() const

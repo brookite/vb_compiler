@@ -25,6 +25,10 @@ public class UShort extends Number {
         _src = (short) num;
     }
 
+    public UShort() {
+        _src = 0;
+    }
+
     @Override
     public int byteSize() {
         return 2;

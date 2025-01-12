@@ -9,6 +9,8 @@ extern struct method_record;
 extern struct struct_record;
 extern struct constant_record;
 
+extern struct Bytecode;
+
 struct stmt_node;
 typedef list<stmt_node*> block;
 
@@ -25,7 +27,7 @@ enum class expr_type {
 	String, Id, Int, Bool, Float, Nothing, Me, Char, Datetime,
 	AddOp, SubOp, MulOp, DivOp, FloorDivOp, ExpOp, StrConcatOp, 
 	LtOp, GtOp, GteOp, LteOp, EqOp, NeqOp,
-	AndOp, AndAlsoOp, OrOp, OrElseOp, LeqOp, GeqOp, XorOp, ModOp, 
+	AndOp, AndAlsoOp, OrOp, OrElseOp, XorOp, ModOp, 
 	LshiftOp, RshiftOp, IsOp, IsNotOp,
 	UnaryMinusOp, UnaryPlusOp, NotOp,
 	MemberAccess, MyClassMemberAccess,
@@ -37,7 +39,7 @@ enum class expr_type {
 
 enum class stmt_type {
 	Call, If, ElseIf, For, ForEach, Select, Case, CaseRange,
-	CaseElse, While, DoWhile, DoUntil, Label, VarDecl, Assignment,
+	CaseElse, While, DoWhile, DoUntil, VarDecl, Assignment,
 	ContinueDo, ContinueWhile, ContinueFor, ExitDo, ExitWhile, ExitFor, ExitSelect, //TODO: нужно?
 	Redim, Erase, Return,
 	FieldAssign, ArrayAssign // for semantic analysis
@@ -141,11 +143,13 @@ struct expr_node : public node {
 	list<expr_node*>* collection = new list<expr_node*>(); // for collection initializer
 
 	constant_record* constant = nullptr;
+	uint16_t localvarNum = 0; // for array new and collection
 
 	// Cast expr: always use datatype field and argument field for expr
 
 	virtual void dot(DotWriter* writer);
 	virtual std::string getName();
+	virtual void bytecode(Bytecode *);
 	virtual expr_node* clone() {
 		expr_node* res = new expr_node(type);
 		res->Int = Int;
@@ -155,6 +159,7 @@ struct expr_node : public node {
 		res->Char = Char;
 		res->Bool = Bool;
 		res->constant = constant;
+		res->localvarNum = localvarNum;
 		res->DateTime = DateTime != nullptr ? DateTime->clone() : nullptr;
 		res->left = left != nullptr ? left->clone() : nullptr;
 		res->right = right != nullptr ? right->clone() : nullptr;
@@ -243,12 +248,19 @@ struct stmt_node : node {
 	expr_node* to_expr = nullptr;
 	expr_node* container_expr = nullptr; // for-each
 
+	uint16_t localvarNum = 0;
+
+	size_t beginOffset = 0;
+	int64_t endFutureJump = -1;
+
 	// Use condition for loops while and do-until, do-while
 
 	// Block for If, For, While, etc.
 	block * block = nullptr;
 
 	// For select use condition_nodes as cases, in case stmt use condition and block
+
+	virtual void bytecode(Bytecode*);
 
 	virtual stmt_node* clone() {
 		stmt_node* stmt = new stmt_node(type);
@@ -260,6 +272,7 @@ struct stmt_node : node {
 			}
 		}
 		stmt->redim = new list<redim_clause_node*>();
+		stmt->localvarNum = localvarNum;
 		for (redim_clause_node* expr : *redim) {
 			stmt->redim->add(expr != nullptr ? expr->clone() : nullptr);
 		}
@@ -273,6 +286,8 @@ struct stmt_node : node {
 		stmt->lvalue = lvalue != nullptr ? lvalue->clone() : nullptr;
 		stmt->rvalue = rvalue != nullptr ? rvalue->clone() : nullptr;
 		stmt->assign_type = assign_type;
+		stmt->beginOffset = beginOffset;
+		stmt->endFutureJump = endFutureJump;
 		stmt->id_type = id_type != nullptr ? id_type->clone() : nullptr;
 		stmt->Id = Id;
 		stmt->step_node = step_node != nullptr ? step_node->clone() : nullptr;
@@ -347,7 +362,7 @@ struct field_node : node {
 	virtual field_node* clone() {
 		field_node* node = new field_node();
 		node->decl = decl != nullptr ? decl->clone() : nullptr;
-		node->record = nullptr;
+		node->record = record;
 		node->isStatic = isStatic;
 		node->type = type;
 		node->record = record;

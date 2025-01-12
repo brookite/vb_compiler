@@ -9,6 +9,7 @@ public:
 	semantic_analyzer(); 
 
 	void analyzeProgram(program_node* node);
+	std::map<std::string, bytearray_t>* compile();
 
 	semantic_context ctx;
 	method_record* entryPoint;

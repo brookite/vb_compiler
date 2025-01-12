@@ -19,7 +19,7 @@ struct record {
 };
 
 struct byte_record : public record {
-	virtual bytearray_t* toBytes() = 0;
+	virtual bytearray_t toBytes() = 0;
 };
 
 struct var_record : record {
@@ -33,6 +33,7 @@ struct var_record : record {
 
 struct localvar_record : var_record {
 	method_record* owner;
+	uint16_t number;
 
 	localvar_record();
 	localvar_record(std::string name, struct type* type, method_record* owner);
@@ -48,20 +49,19 @@ struct parameter_record : localvar_record {
 struct field_record : var_record {
 	struct_record* owner = nullptr;
 	field_node* node = nullptr;
-	constant_fieldref* constant = nullptr;
 	bool isStatic = false;
 
 	field_record();
 	field_record(std::string name, bool isStatic, struct type* type, struct_record* owner);
+	virtual constant_fieldref* getConstantFor(struct_record* record, struct_type* trueOwner = nullptr);
 };
 
-struct method_record : record {
+struct method_record : byte_record {
 public:
 	std::string name;
 	struct_record* owner = nullptr;
 	procedure_node* node = nullptr;
 	type* returnType = nullptr;
-	constant_methodref* constant = nullptr;
 
 	bool isStatic;
 	list<parameter_record*> args;
@@ -71,11 +71,13 @@ public:
 	method_record(std::string, struct_record* owner, type* retType, bool isStatic, list<parameter_record*> args);
 
 	localvar_record* resolveLocal(std::string id);
+	virtual constant_methodref* getConstantFor(struct_record* record, struct_type* trueOwner = nullptr);
 
 	std::string jvmDescriptor();
+	bytearray_t bytecode();
+	virtual bytearray_t toBytes();
 
-private:
-	uint32_t localVarCounter = 0;
+	uint16_t localvarCounter = 0;
 };
 
 struct constant_record : public byte_record {
@@ -84,19 +86,19 @@ struct constant_record : public byte_record {
 	virtual std::string printable() = 0;
 };
 
-struct struct_record : record {
+struct struct_record : byte_record {
 public:
 	std::string name;
 	struct_node* node = nullptr;
 	struct_type* type = nullptr;
 	struct_record* parent = nullptr;
 	std::map<std::string, struct type*>* typeMap = nullptr;
-	constant_class* currentConstant = nullptr;
 
 	std::map<std::string, field_record*> fields;
 	std::map<std::string, method_record*> methods;
 	std::map<uint16_t, constant_record*> constant;
 
+	struct_record();
 	virtual constant_record* constantAt(uint16_t num);
 	virtual constant_record* addConstant(constant_record* record);
 	virtual constant_record* findConstant(constant_record* record);
@@ -108,6 +110,9 @@ public:
 	virtual constant_record* addLiteralConstant(double value);
 	virtual constant_record* addLiteralConstant(float value);
 	virtual constant_record* addLiteralConstant(std::string value);
+	virtual constant_methodref* getConstructorConstant(list<std::string> descriptors, struct_record * dst);
+	virtual constant_class* getConstantFor(struct_record* record);
+	virtual void makeInit(semantic_context & context);
 
 	virtual field_record * addField(field_node* node, semantic_context & context);
 	virtual method_record * addMethod(procedure_node* procNode, semantic_context& context);
@@ -115,6 +120,7 @@ public:
 	virtual field_record * resolveField(std::string id);
 	virtual method_record* resolveStaticMethod(std::string id);
 	virtual field_record* resolveStaticField(std::string id);
+	virtual bytearray_t toBytes();
 	bool isGeneric() const { return node->generics != nullptr && !node->generics->isEmpty(); };
 
 	std::string jvmDescriptor() {
@@ -123,7 +129,7 @@ public:
 
 protected:
 	constant_utf8* utf8ConstantOf(std::string name);
-	uint16_t constantCounter = 1;
+	uint16_t constantCounter = 0;
 };
 
 struct static_struct_record_wrapper : public struct_record {
@@ -161,5 +167,7 @@ private:
 	struct_record* source;
 };
 
-bytearray_t* asBytes(std::map<uint16_t, constant_record*>);
+bytearray_t asBytes(std::map<uint16_t, constant_record*>*);
+bytearray_t asBytes(std::map<std::string, field_record*>*);
+bytearray_t asBytes(std::map<std::string, method_record*>*);
 std::string printableConstant(std::string, std::map<uint16_t, constant_record*>);

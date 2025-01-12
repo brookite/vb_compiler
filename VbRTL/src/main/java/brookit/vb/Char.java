@@ -13,6 +13,10 @@ public class Char extends Number {
         _src = (char) num;
     }
 
+    public Char() {
+        _src = 0;
+    }
+
     public Char(double num) {
         _src = (char) num;
     }

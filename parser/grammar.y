@@ -386,10 +386,10 @@ expr: INT                                        {parser_print("INT -> expr"); $
     | expr '&' opt_endl expr                      {parser_print("expr & opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::StrConcatOp);}  
     | expr '>' opt_endl expr                      {parser_print("expr > opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::GtOp);}  
     | expr '<' opt_endl expr                      {parser_print("expr < opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::LtOp);}  
-    | expr EQ opt_endl expr                          {parser_print("expr = opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::EqOp);}         
+    | expr EQ opt_endl expr                       {parser_print("expr = opt_endl expr -> expr"); $$ = create_binary($1, $4, expr_type::EqOp);}         
     | expr NEQ opt_endl expr                      {parser_print("expr NEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::NeqOp);} 
-    | expr LEQ opt_endl expr                      {parser_print("expr LEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::LeqOp);} 
-    | expr GEQ opt_endl expr                      {parser_print("expr GEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::GeqOp);} 
+    | expr LEQ opt_endl expr                      {parser_print("expr LEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::LteOp);} 
+    | expr GEQ opt_endl expr                      {parser_print("expr GEQ expr -> expr"); $$ = create_binary($1, $4, expr_type::GteOp);} 
     | expr AND opt_endl expr                      {parser_print("expr AND expr -> expr"); $$ = create_binary($1, $4, expr_type::AndOp);} 
     | expr AND_ALSO opt_endl expr                 {parser_print("expr AND_ALSO expr -> expr"); $$ = create_binary($1, $4, expr_type::AndAlsoOp);} 
     | expr OR_ELSE opt_endl expr                  {parser_print("expr OR_ELSE expr -> expr"); $$ = create_binary($1, $4, expr_type::OrElseOp);} 
@@ -542,8 +542,8 @@ while_stmt: WHILE_KW expr endl_list block END_WHILE endl_list                   
           | WHILE_KW expr endl_list END_WHILE endl_list                          { parser_print("WHILE_KW expr endl_list END_WHILE endl_list -> while_stmt"); $$ = create_while_stmt($2, create_block()); }
           ;
 
-for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list                               { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, nullptr, $9); }
-        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list                                     { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, nullptr, create_block()); }
+for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list                               { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, create_int(1), $9); }
+        | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list                                     { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, create_int(1), create_block()); }
         | FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list                  { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, $9, $11); }
 		| FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list                        { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr STEP_KW expr endl_list NEXT_KW endl_list -> for_stmt"); $$ = create_for_stmt($2->type, $2->varName, $5, $7, $9, create_block()); }
         ;

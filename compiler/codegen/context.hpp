@@ -16,8 +16,8 @@ struct semantic_context {
 	struct_record* addClass(struct_node* cls);
 	rtl_class_record* addRTL(rtl_class_record* record);
 	std::pair<record*, access_target> resolveId(expr_node* left, struct_record* context, method_record* methodContext);
-	std::pair<record*, access_target> resolveMember(record* record, std::string member, struct_record* context, expr_type memAccessType, bool onlyStatic = false);
-	std::pair<record*, access_target> resolveMemberAccess(expr_node* memAccess, struct_record* context, method_record* methodContext);
+	std::pair<record*, access_target> resolveMember(record* record, std::string member, struct_record* context, expr_type memAccessType, bool onlyStatic = false, type** ownerType = nullptr);
+	std::pair<record*, access_target> resolveMemberAccess(expr_node* memAccess, struct_record* context, method_record* methodContext, type** ownerType = nullptr);
 	void processCallOrIndex(expr_node* expr, struct_record* structRecord, method_record* method);
 	type* specializeType(type_node* node);
 	void setAnalyzer(semantic_analyzer* analyzer) {

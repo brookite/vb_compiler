@@ -9,6 +9,10 @@ public class Boolean extends Number {
         _src = n.getBoolean();
     }
 
+    public Boolean() {
+        _src = false;
+    }
+
     public Boolean(long num) {
         _src = num != 0;
     }

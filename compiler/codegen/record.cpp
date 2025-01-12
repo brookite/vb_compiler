@@ -33,6 +33,11 @@ localvar_record* method_record::resolveLocal(std::string id)
     return nullptr;
 }
 
+constant_methodref* method_record::getConstantFor(struct_record* record, struct_type* trueOwner)
+{
+    return (constant_methodref*) record->addConstantBy(this, trueOwner != nullptr ? trueOwner->record : nullptr);
+}
+
 std::string method_record::jvmDescriptor()
 {
     std::string descr = "(";
@@ -42,6 +47,43 @@ std::string method_record::jvmDescriptor()
     descr += ")";
     descr += returnType->jvmDescriptor();
     return descr;
+}
+
+bytearray_t method_record::bytecode()
+{
+    return bytearray_t();
+}
+
+bytearray_t method_record::toBytes()
+{
+    byte_writer* writer = new byte_writer();
+    writer->addInt16(0x0001 |
+        (isStatic ? 0x0008 : 0)
+    );
+    writer->addInt16(getConstantFor(owner)->nt->name->number);
+    writer->addInt16(getConstantFor(owner)->nt->type->number);
+    writer->addInt16(1);
+
+    byte_writer* codeWriter = new byte_writer();
+    codeWriter->addInt16(1000);
+    codeWriter->addInt16(localvarCounter + 1);
+    bytearray_t bytecode = this->bytecode();
+    codeWriter->addInt32(bytecode.length);
+    codeWriter->addBytes(bytecode);
+    codeWriter->addInt16(0);
+    codeWriter->addInt16(0);
+
+    bytearray_t code = codeWriter->getByteArray();
+    writer->addInt16(1); // Code constant always 1
+    writer->addInt32(code.length);
+    writer->addBytes(code);
+
+    return writer->getByteArray();
+}
+
+struct_record::struct_record()
+{
+    addConstant(utf8ConstantOf("Code"));
 }
 
 constant_record* struct_record::constantAt(uint16_t num)
@@ -77,7 +119,6 @@ constant_record* struct_record::addConstantBy(struct_record* record)
     }
     constant_class* cls = new constant_class(utf8ConstantOf(record->type->qualifiedName()));
     cls = (constant_class *) addConstant(cls);
-    record->currentConstant = cls;
     return cls;
 }
 
@@ -90,7 +131,6 @@ constant_record* struct_record::addConstantBy(field_record* record, struct_recor
     }
     constant_fieldref* fref = new constant_fieldref((constant_nameandtype*)addConstant(nt), (constant_class*)addConstant(cls));
     fref = (constant_fieldref*) addConstant(fref);
-    record->constant = fref;
     return fref;
 }
 
@@ -104,7 +144,6 @@ constant_record* struct_record::addConstantBy(method_record* record, struct_reco
     constant_class* cls = (constant_class*) addConstantBy(strct == nullptr ? record->owner : strct);
     constant_methodref* mref = new constant_methodref((constant_nameandtype*)addConstant(nt), (constant_class*)addConstant(cls));
     mref = (constant_methodref*)addConstant(mref);
-    record->constant = mref;
     return mref;
 }
 
@@ -137,6 +176,60 @@ constant_record* struct_record::addLiteralConstant(float value)
 constant_record* struct_record::addLiteralConstant(std::string value)
 {
     return addConstant(new constant_string(utf8ConstantOf(value)));
+}
+
+constant_methodref* struct_record::getConstructorConstant(list<std::string> descriptors, struct_record * dst)
+{
+    std::string descr = "(";
+    for (std::string arg : descriptors) {
+        descr += arg;
+    }
+    descr += ")";
+    descr += "V";
+    constant_nameandtype* nt = new constant_nameandtype(dst->utf8ConstantOf("<init>"), dst->utf8ConstantOf(descr));
+    constant_class* cls = (constant_class*)dst->addConstantBy(type);
+    constant_methodref* mref = new constant_methodref((constant_nameandtype*)dst->addConstant(nt), (constant_class*)dst->addConstant(cls));
+    mref = (constant_methodref*)dst->addConstant(mref);
+    return mref;
+}
+
+constant_class* struct_record::getConstantFor(struct_record* record)
+{
+   return (constant_class*) record->addConstantBy(record->type);
+}
+
+void struct_record::makeInit(semantic_context & ctx)
+{
+    procedure_node* proc = new procedure_node();
+    proc->name = "<clinit>";
+    proc->returnType = nullptr;
+    proc->isStatic = true;
+    proc->isProcedure = true;
+    proc->block = new list<stmt_node*>();
+
+    procedure_node* insproc = new procedure_node();
+    insproc->name = "<init>";
+    insproc->returnType = nullptr;
+    insproc->isStatic = false;
+    insproc->isProcedure = true;
+    insproc->block = new list<stmt_node*>();
+
+    for (auto& pair : fields) {
+        expr_node* lvalue = new expr_node(expr_type::Id);
+        lvalue->String = pair.first;
+        stmt_node* assign = new stmt_node(stmt_type::FieldAssign);
+        assign->lvalue = lvalue;
+        assign->rvalue = pair.second->valueNode->value;
+        if (pair.second->isStatic) {
+            proc->block->add(assign);
+        }
+        else {
+            insproc->block->add(assign);
+        }
+        
+    }
+    addMethod(proc, ctx);
+    addMethod(insproc, ctx);
 }
 
 field_record* struct_record::addField(field_node* node, semantic_context & context)
@@ -174,6 +267,7 @@ method_record* struct_record::addMethod(procedure_node* procNode, semantic_conte
     method->node = procNode;
     method->node->record = method;
     method->isStatic = procNode->isStatic;
+    method->localvarCounter = method->isStatic ? -1 : 0;
     if (procNode->isProcedure) {
         method->returnType = new void_type();
     }
@@ -238,6 +332,25 @@ field_record* struct_record::resolveStaticField(std::string id)
     return record;
 }
 
+bytearray_t struct_record::toBytes()
+{
+    byte_writer* writer = new byte_writer();
+    bytearray_t fields = asBytes(&this->fields);
+    bytearray_t methods = asBytes(&this->methods);
+
+    writer->addInt32((uint32_t)0xCAFEBABE);
+    writer->addInt32((uint32_t)0x00000041);
+    writer->addBytes(asBytes(&this->constant));
+    writer->addInt16(0x0001 | 0x0002);
+    writer->addInt16(getConstantFor(this)->number);
+    writer->addInt16(parent == nullptr ? 0 : getConstantFor(parent)->number);
+    writer->addInt16(0);
+    writer->addBytes(fields);
+    writer->addBytes(methods);
+    writer->addInt16(0);
+    return writer->getByteArray();
+}
+
 std::string var_record::jvmDescriptor()
 {
     return type->jvmDescriptor();
@@ -272,6 +385,24 @@ field_record::field_record(std::string name, bool isStatic, struct type* type, s
     this->node->record = this;
 }
 
+constant_fieldref* field_record::getConstantFor(struct_record* record, struct_type* trueOwner)
+{
+    return (constant_fieldref*)record->addConstantBy(this, trueOwner != nullptr ? trueOwner->record : nullptr);
+}
+
+bytearray_t asBytes(std::map<uint16_t, constant_record*>* table)
+{
+    byte_writer* writer = new byte_writer();
+    writer->addInt16(table->size() + 1);
+    for (auto& pair : *table) {
+        if (pair.first != pair.second->number) {
+            internal_error("Inconsistent constant numbers");
+        }
+        writer->addBytes(pair.second->toBytes());
+    }
+    return writer->getByteArray();
+}
+
 std::string printableConstant(std::string name, std::map<uint16_t, constant_record*> map)
 {
     std::string s = name + ":\n\n";
@@ -280,4 +411,28 @@ std::string printableConstant(std::string name, std::map<uint16_t, constant_reco
         s += "\n\n";
     }
     return s;
+}
+
+bytearray_t asBytes(std::map<std::string, field_record*>* table) {
+    byte_writer* writer = new byte_writer();
+    writer->addInt16(table->size());
+    for (auto& pair : *table) {
+        writer->addInt16(0x0001 |
+            (pair.second->isStatic ? 0x0008 : 0) |
+            (pair.second->isConst ? 0x0010 : 0)
+        );
+        writer->addInt16(pair.second->getConstantFor(pair.second->owner)->nt->name->number);
+        writer->addInt16(pair.second->getConstantFor(pair.second->owner)->nt->type->number);
+        writer->addInt16(0);
+    }
+    return writer->getByteArray();
+}
+
+bytearray_t asBytes(std::map<std::string, method_record*>* table) {
+    byte_writer* writer = new byte_writer();
+    writer->addInt16(table->size());
+    for (auto& pair : *table) {
+        writer->addBytes(pair.second->toBytes());
+    }
+    return writer->getByteArray();
 }

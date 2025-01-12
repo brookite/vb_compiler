@@ -85,6 +85,13 @@ expr_node* create_binary(expr_node* left, expr_node * right, expr_type type) {
 	return node;
 }
 
+expr_node* create_int(int value) {
+	expr_node* node = new expr_node(expr_type::Int);
+	node->Int = value;
+	node->numericType = new type_node(datatype_type::Integer);
+	return node;
+}
+
 expr_node* create_int(IntLiteral * value) {
 	expr_node* node = new expr_node(expr_type::Int);
 	node->Int = value->Int;

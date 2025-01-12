@@ -7,6 +7,10 @@ public class String extends Object {
         _jvm = str;
     }
 
+    public String() {
+        _jvm = "";
+    }
+
     public ULong Length() {
         return new ULong(_jvm.length());
     }

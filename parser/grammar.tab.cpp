@@ -3679,7 +3679,7 @@ yyreduce:
 
   case 129: /* expr: expr EQ opt_endl expr  */
 #line 389 "grammar.y"
-                                                     {parser_print("expr = opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::EqOp);}
+                                                  {parser_print("expr = opt_endl expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::EqOp);}
 #line 3684 "grammar.tab.cpp"
     break;
 
@@ -3691,13 +3691,13 @@ yyreduce:
 
   case 131: /* expr: expr LEQ opt_endl expr  */
 #line 391 "grammar.y"
-                                                  {parser_print("expr LEQ expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::LeqOp);}
+                                                  {parser_print("expr LEQ expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::LteOp);}
 #line 3696 "grammar.tab.cpp"
     break;
 
   case 132: /* expr: expr GEQ opt_endl expr  */
 #line 392 "grammar.y"
-                                                  {parser_print("expr GEQ expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::GeqOp);}
+                                                  {parser_print("expr GEQ expr -> expr"); (yyval.Expr) = create_binary((yyvsp[-3].Expr), (yyvsp[0].Expr), expr_type::GteOp);}
 #line 3702 "grammar.tab.cpp"
     break;
 
@@ -4423,13 +4423,13 @@ yyreduce:
 
   case 253: /* for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list  */
 #line 545 "grammar.y"
-                                                                                                                                { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-9].Var)->type, (yyvsp[-9].Var)->varName, (yyvsp[-6].Expr), (yyvsp[-4].Expr), nullptr, (yyvsp[-2].Block)); }
+                                                                                                                                { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list block NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-9].Var)->type, (yyvsp[-9].Var)->varName, (yyvsp[-6].Expr), (yyvsp[-4].Expr), create_int(1), (yyvsp[-2].Block)); }
 #line 4428 "grammar.tab.cpp"
     break;
 
   case 254: /* for_stmt: FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list  */
 #line 546 "grammar.y"
-                                                                                                                                { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-8].Var)->type, (yyvsp[-8].Var)->varName, (yyvsp[-5].Expr), (yyvsp[-3].Expr), nullptr, create_block()); }
+                                                                                                                                { parser_print("FOR_KW for_loop_variable '=' opt_endl expr TO_KW expr endl_list NEXT_KW endl_list -> for_stmt"); (yyval.Stmt) = create_for_stmt((yyvsp[-8].Var)->type, (yyvsp[-8].Var)->varName, (yyvsp[-5].Expr), (yyvsp[-3].Expr), create_int(1), create_block()); }
 #line 4434 "grammar.tab.cpp"
     break;
 

@@ -21,6 +21,10 @@ public class Short extends Number {
         _src = (short) (num ? 1 : 0);
     }
 
+    public Short() {
+        _src = 0;
+    }
+
     public Short(char num) {
         _src = (short) num;
     }

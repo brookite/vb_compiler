@@ -21,6 +21,7 @@ struct rtl_class_record : struct_record {
 	static rtl_class_record* Double;
 	static rtl_class_record* Boolean;
 	static rtl_class_record* Math;
+	static rtl_class_record* CompilerUtils;
 
 	static std::string jvmStdlibPackage() { return "java/lang/"; }
 	static std::string vbPackage() { return "brookit/vb/"; }

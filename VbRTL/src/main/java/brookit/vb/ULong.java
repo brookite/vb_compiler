@@ -30,6 +30,10 @@ public class ULong extends Number {
         _src = n.getInteger();
     }
 
+    public ULong() {
+        _src = 0;
+    }
+
     @Override
     public boolean isUnsigned() {
         return true;

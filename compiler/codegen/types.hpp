@@ -8,6 +8,7 @@ struct type {
 	bool nullptrable = true;
 	virtual std::string jvmDescriptor() const = 0;
 	bool operator== (const type& t) const;
+	bool operator!= (const type& t) const;
 	bool isValueType() const;
 
 	// Проверяет, что переданный в аргумент класс является потомком данного

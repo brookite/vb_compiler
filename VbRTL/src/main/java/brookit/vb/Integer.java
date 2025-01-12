@@ -13,6 +13,10 @@ public class Integer extends Number {
         _src = (int) n.getInteger();
     }
 
+    public Integer() {
+        _src = 0;
+    }
+
     public Integer(double num) {
         _src = (int) num;
     }

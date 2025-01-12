@@ -34,6 +34,16 @@ void runCompile(const char* path, const char * outDir) {
         fwrite(text.c_str(), sizeof(char), text.length(), out);
         fclose(out);
     }
+    std::map<std::string, bytearray_t>* code = analyzer.compile();
+    std::string dir = std::string(outDir) + "/out/brookit/vb/code/";
+    if (!fs::exists(dir)) {
+        fs::create_directories(dir);
+    }
+    for (auto& pair : *code) {
+        FILE* file = fopen((dir + pair.first + ".class").c_str(), "w");
+        fwrite(pair.second.bytes, sizeof(byte_t), pair.second.length, file);
+        fclose(file);
+    }
     if (yyin != 0) fclose(yyin);
 }
 

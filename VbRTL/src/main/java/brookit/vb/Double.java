@@ -13,6 +13,10 @@ public class Double extends Number {
         _src = n.getFloat();
     }
 
+    public Double() {
+        _src = 0.0;
+    }
+
     public Double(long num) {
         _src = (double) num;
     }

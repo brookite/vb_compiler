@@ -17,6 +17,10 @@ public class Long extends Number {
         _src = n.getInteger();
     }
 
+    public Long() {
+        _src = 0;
+    }
+
     public Long(boolean num) {
         _src = num ? 1 : 0;
     }

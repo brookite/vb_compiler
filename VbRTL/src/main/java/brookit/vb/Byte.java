@@ -9,6 +9,10 @@ public class Byte extends Number {
         _src = (byte) n.getInteger();
     }
 
+    public Byte() {
+        _src = 0;
+    }
+
     public Byte(long num) {
         _src = (byte) num;
     }
