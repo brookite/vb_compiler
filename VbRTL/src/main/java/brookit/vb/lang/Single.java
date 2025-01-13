@@ -1,32 +1,32 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.String;
 
-public class Integer extends Number {
-    int _src;
+public class Single extends Number {
+    float _src;
 
-    public Integer(long num) {
-        _src = (int) num;
+    public Single(double num) {
+        _src = (float) num;
     }
 
-    public Integer(Number n) {
-        _src = (int) n.getInteger();
+    public Single(long num) {
+        _src = (float) num;
     }
 
-    public Integer() {
+    public Single(Number n) {
+        _src = (float) n.getFloat();
+    }
+
+    public Single(boolean num) {
+        _src = num ? 1 : 0;
+    }
+
+    public Single(char num) {
+        _src = num;
+    }
+
+    public Single() {
         _src = 0;
-    }
-
-    public Integer(double num) {
-        _src = (int) num;
-    }
-
-    public Integer(boolean num) {
-        _src = (int) (num ? 1 : 0);
-    }
-
-    public Integer(char num) {
-        _src = (int) num;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class Integer extends Number {
 
     @Override
     public boolean isInteger() {
-        return true;
+        return false;
     }
 
     @Override
@@ -56,11 +56,11 @@ public class Integer extends Number {
 
     @Override
     public long getInteger() {
-        return _src;
+        return (long) _src;
     }
 
     @Override
     public String toJvmString() {
-        return java.lang.Long.toString(getInteger());
+        return java.lang.Double.toString(getFloat());
     }
 }

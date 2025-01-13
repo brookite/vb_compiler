@@ -143,7 +143,7 @@ struct expr_node : public node {
 	list<expr_node*>* collection = new list<expr_node*>(); // for collection initializer
 
 	constant_record* constant = nullptr;
-	uint16_t localvarNum = 0; // for array new and collection
+	uint16_t localvarNum = UINT16_MAX; // for array new and collection
 
 	// Cast expr: always use datatype field and argument field for expr
 
@@ -198,7 +198,7 @@ struct typed_value : node {
 };
 
 struct redim_clause_node : node {
-	std::string Id;
+	expr_node * Id;
 	list<expr_node*>* arg = new list<expr_node*>();
 
 	virtual void dot(DotWriter* writer);
@@ -248,7 +248,7 @@ struct stmt_node : node {
 	expr_node* to_expr = nullptr;
 	expr_node* container_expr = nullptr; // for-each
 
-	uint16_t localvarNum = 0;
+	uint16_t localvarNum = UINT16_MAX;
 
 	size_t beginOffset = 0;
 	int64_t endFutureJump = -1;
@@ -417,3 +417,5 @@ struct program_node : node {
 		return copy;
 	}
 };
+
+void bytecodeBlock(block* block, Bytecode* code, stmt_node* parent);

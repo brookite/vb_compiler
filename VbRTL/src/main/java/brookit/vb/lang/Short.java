@@ -1,32 +1,32 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.String;
 
-public class UShort extends Number {
+public class Short extends Number {
     short _src;
 
-    public UShort(long num) {
+    public Short(long num) {
         _src = (short) num;
     }
 
-    public UShort(Number n) {
+    public Short(double num) {
+        _src = (short) num;
+    }
+
+    public Short(Number n) {
         _src = (short) n.getInteger();
     }
 
-    public UShort(double num) {
-        _src = (short) num;
-    }
-
-    public UShort(boolean num) {
+    public Short(boolean num) {
         _src = (short) (num ? 1 : 0);
     }
 
-    public UShort(char num) {
-        _src = (short) num;
+    public Short() {
+        _src = 0;
     }
 
-    public UShort() {
-        _src = 0;
+    public Short(char num) {
+        _src = (short) num;
     }
 
     @Override
@@ -61,6 +61,6 @@ public class UShort extends Number {
 
     @Override
     public String toJvmString() {
-        return java.lang.Long.toUnsignedString(getInteger());
+        return java.lang.Long.toString(getInteger());
     }
 }

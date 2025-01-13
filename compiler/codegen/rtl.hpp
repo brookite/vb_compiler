@@ -24,7 +24,7 @@ struct rtl_class_record : struct_record {
 	static rtl_class_record* CompilerUtils;
 
 	static std::string jvmStdlibPackage() { return "java/lang/"; }
-	static std::string vbPackage() { return "brookit/vb/"; }
+	static std::string vbPackage() { return "brookit/vb/lang/"; }
 
 	rtl_class_record() {}
 	rtl_class_record(std::string name) { this->name = name; }

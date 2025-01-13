@@ -1,37 +1,37 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.String;
 
-public class Long extends Number {
-    long _src;
+public class Char extends Number {
+    char _src;
 
-    public Long(long num) {
-        _src = (int) num;
+    public Char(Number n) {
+        _src = (char) n.getInteger();
     }
 
-    public Long(double num) {
-        _src = (int) num;
+    public Char(long num) {
+        _src = (char) num;
     }
 
-    public Long(Number n) {
-        _src = n.getInteger();
-    }
-
-    public Long() {
+    public Char() {
         _src = 0;
     }
 
-    public Long(boolean num) {
-        _src = num ? 1 : 0;
+    public Char(double num) {
+        _src = (char) num;
     }
 
-    public Long(char num) {
-        _src = num;
+    public Char(boolean num) {
+        _src = (char) (num ? 1 : 0);
+    }
+
+    public Char(char num) {
+        _src = (char) num;
     }
 
     @Override
     public int byteSize() {
-        return 8;
+        return 2;
     }
 
     @Override
@@ -61,6 +61,6 @@ public class Long extends Number {
 
     @Override
     public String toJvmString() {
-        return java.lang.Long.toString(getInteger());
+        return java.lang.Character.toString(_src);
     }
 }

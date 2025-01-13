@@ -8,7 +8,7 @@ class semantic_analyzer {
 public:
 	semantic_analyzer(); 
 
-	void analyzeProgram(program_node* node);
+	bool analyzeProgram(program_node* node);
 	std::map<std::string, bytearray_t>* compile();
 
 	semantic_context ctx;

@@ -1,4 +1,4 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;

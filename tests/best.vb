@@ -1,4 +1,4 @@
-Class Main
+Class Best
     Shared Sub Main()
         Console.Write("Input name: ")
         Dim person as String = Console.ReadLine()

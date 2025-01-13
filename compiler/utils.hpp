@@ -28,6 +28,7 @@ void value_error(const char* msg, ...);
 void codegen_error(const char* msg, ...);
 
 void flushErrorBuffer();
+bool hasCompilerErrors();
 
 
 namespace fs = std::filesystem;
@@ -320,7 +321,7 @@ public:
     void addInt32(int32_t num, bool big_endian = true);
     void addInt64(int64_t num, bool big_endian = true);
     void addBytes(byte_t* start, size_t count);
-    void addBytes(char* bytes, size_t count);
+    void addBytes(const char* bytes, size_t count);
     void addBytes(bytearray_t & array);
     void addBytes(bytearray_t && array);
     void addFloat(float value);

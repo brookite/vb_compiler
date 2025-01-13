@@ -1,9 +1,12 @@
 #include "bytecode.hpp"
 #include "types.hpp"
+#include "constants.hpp"
 
-Bytecode::Bytecode()
+Bytecode::Bytecode(semantic_context * context, method_record * method)
 {
     writer = new byte_writer();
+    this->method = method;
+    this->context = context;
 }
 
 void Bytecode::writeSimple(Instruction instr)

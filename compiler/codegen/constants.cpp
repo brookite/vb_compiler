@@ -18,7 +18,7 @@ bytearray_t constant_class::toBytes()
 {
     byte_writer writer;
     writer.addByte(TAG);
-    writer.addInt16(this->number);
+    writer.addInt16(this->name->number);
     return writer.getByteArray();
 }
 
@@ -31,7 +31,7 @@ bytearray_t constant_string::toBytes()
 {
     byte_writer writer;
     writer.addByte(TAG);
-    writer.addInt16(this->number);
+    writer.addInt16(this->name->number);
     return writer.getByteArray();
 }
 

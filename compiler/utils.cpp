@@ -2,6 +2,7 @@
 #include <winsock2.h>  
 #pragma comment(lib, "ws2_32.lib") 
 
+#define INITIAL_CAPACITY 128
 
 static size_t IdCounter = 0;
 list<std::string> * errorBuffer = new list<std::string>();
@@ -94,6 +95,11 @@ void flushErrorBuffer() {
     }
 }
 
+bool hasCompilerErrors()
+{
+    return !errorBuffer->isEmpty();
+}
+
 void lexer_error(const char* msg, ...) {
     va_list args;
     va_start(args, msg);
@@ -134,7 +140,7 @@ void name_error(const char* msg, ...) {
 void value_error(const char* msg, ...) {
     va_list args;
     va_start(args, msg);
-    cumulative_compiler_error("NameError", 4, msg, args);
+    cumulative_compiler_error("ValueError", 4, msg, args);
     va_end(args);
 }
 
@@ -175,7 +181,7 @@ byte_writer::byte_writer(byte_t* initial, size_t len)
 }
 
 
-byte_writer::byte_writer() : buffer(new byte_t[64]), capacity(64), position(0) {}
+byte_writer::byte_writer() : buffer(new byte_t[INITIAL_CAPACITY]), capacity(INITIAL_CAPACITY), position(0) {}
 
 
 void byte_writer::ensureCapacity(size_t additional) {
@@ -198,39 +204,35 @@ void byte_writer::addUTF8(std::string str) {
 
 void byte_writer::addByte(byte_t num) {
     ensureCapacity(1);
-    buffer[position++] = num;
+    buffer[position] = num;
+    position++;
 }
 
 void byte_writer::addInt16(int16_t num, bool big_endian) {
     if (big_endian) {
         num = htons(num);
     }
-    ensureCapacity(2);
+    ensureCapacity(sizeof(num));
     std::memcpy(buffer + position, &num, sizeof(num));
-    position += 2;
+    position += sizeof(num);
 }
 
 void byte_writer::addInt32(int32_t num, bool big_endian) {
     if (big_endian) {
         num = htonl(num);
     }
-    ensureCapacity(4);
+    ensureCapacity(sizeof(num));
     std::memcpy(buffer + position, &num, sizeof(num));
-    position += 4;
+    position += sizeof(num);
 }
 
 void byte_writer::addInt64(int64_t num, bool big_endian) {
     if (big_endian) {
-        uint32_t high = static_cast<uint32_t>((num >> 32) & 0xFFFFFFFF); 
-        uint32_t low = static_cast<uint32_t>(num & 0xFFFFFFFF); 
-
-        high = htonl(high);
-        low = htonl(low);
-        num = (static_cast<int64_t>(high) << 32) | low;
+        num = htonll(num);
     }
-    ensureCapacity(8);
+    ensureCapacity(sizeof(num));
     std::memcpy(buffer + position, &num, sizeof(num));
-    position += 8;
+    position += sizeof(num);
 }
 
 void byte_writer::addBytes(byte_t* start, size_t count) {
@@ -239,7 +241,7 @@ void byte_writer::addBytes(byte_t* start, size_t count) {
     position += count;
 }
 
-void byte_writer::addBytes(char* bytes, size_t count) {
+void byte_writer::addBytes(const char* bytes, size_t count) {
     ensureCapacity(count);
     std::memcpy(buffer + position, bytes, count);
     position += count;

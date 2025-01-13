@@ -10,6 +10,7 @@ enum access_target {
 };
 
 struct semantic_context {
+	friend struct semantic_analyzer;
 	std::map<std::string, struct_record*> classes;
 	std::map<type_node, struct_type*> specializedTypes;
 
@@ -25,5 +26,6 @@ struct semantic_context {
 	}
 private:
 	semantic_analyzer* analyzer;
+	bool isCodegen;
 };
 

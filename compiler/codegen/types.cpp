@@ -179,6 +179,9 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
         if (methodContext != nullptr && methodContext->locals.count(val->String)) {
             return methodContext->locals[val->String]->type;
         }
+        else if (methodContext != nullptr && methodContext->allLocals.count(val->localvarNum)) {
+            return methodContext->allLocals[val->localvarNum]->type;
+        }
         else if (context != nullptr && context->resolveField(val->String) != nullptr) {
             return context->resolveField(val->String)->type;
         }
@@ -194,6 +197,10 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
     }
     else if (val->type == expr_type::CallOrIndex) {
         semanticContext.processCallOrIndex(val, context, methodContext);
+        if (val->type == expr_type::CallOrIndex) {
+            type_error("Failed to convert ");
+            return new unknown_type();
+        }
         return inferType(val, context, methodContext, semanticContext);
     }
     else if (val->type == expr_type::MyBase) {
@@ -215,7 +222,7 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
             return context->resolveMethod(val->String)->returnType;
         }
         else {
-            name_error("'%s' method wasn't not found in '%s'", val->String.c_str(), context == nullptr ? "Unknown Context" : context->name.c_str());
+            name_error("'%s' method wasn't found in '%s'", val->String.c_str(), context == nullptr ? "Unknown Context" : context->name.c_str());
         }
     }
     else if (val->type == expr_type::MethodCall) {
@@ -232,7 +239,7 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
             }
             return method->returnType;
         } else {
-            name_error("'%s' method wasn't not found in '%s'", val->String, context == nullptr ? "Unknown Context" : context->name);
+            name_error("'%s' method wasn't found in '%s'", val->String, context == nullptr ? "Unknown Context" : context->name);
         }
     }
     else if (val->type == expr_type::MemberAccess
@@ -350,6 +357,7 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
         || val->type == expr_type::DivOp
         || val->type == expr_type::FloorDivOp
         || val->type == expr_type::ModOp
+        || val->type == expr_type::XorOp
         || val->type == expr_type::LshiftOp
         || val->type == expr_type::RshiftOp
         || val->type == expr_type::AndAlsoOp

@@ -1,4 +1,4 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 public abstract class Object {
     public abstract java.lang.String toJvmString();

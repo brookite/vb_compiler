@@ -1,31 +1,31 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.String;
 
-public class SByte extends Number {
+public class Byte extends Number {
     byte _src;
 
-    public SByte(long num) {
-        _src = (byte) num;
-    }
-
-    public SByte(double num) {
-        _src = (byte) num;
-    }
-
-    public SByte(Number n) {
+    public Byte(Number n) {
         _src = (byte) n.getInteger();
     }
 
-    public SByte() {
+    public Byte() {
         _src = 0;
     }
 
-    public SByte(boolean num) {
+    public Byte(long num) {
+        _src = (byte) num;
+    }
+
+    public Byte(double num) {
+        _src = (byte) num;
+    }
+
+    public Byte(boolean num) {
         _src = (byte) (num ? 1 : 0);
     }
 
-    public SByte(char num) {
+    public Byte(char num) {
         _src = (byte) num;
     }
 
@@ -36,7 +36,7 @@ public class SByte extends Number {
 
     @Override
     public boolean isUnsigned() {
-        return false;
+        return true;
     }
 
     @Override
@@ -61,6 +61,7 @@ public class SByte extends Number {
 
     @Override
     public String toJvmString() {
-        return java.lang.Long.toString(getInteger());
+        return java.lang.Long.toUnsignedString(getInteger());
     }
+
 }

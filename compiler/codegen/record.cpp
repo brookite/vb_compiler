@@ -1,6 +1,7 @@
 #include "record.hpp"
 #include "types.hpp"
 #include "constants.hpp"
+#include "bytecode.hpp"
 
 
 method_record::method_record()
@@ -49,12 +50,14 @@ std::string method_record::jvmDescriptor()
     return descr;
 }
 
-bytearray_t method_record::bytecode()
+bytearray_t method_record::bytecode(semantic_context * ctx)
 {
-    return bytearray_t();
+    Bytecode * code = new Bytecode(ctx, this);
+    bytecodeBlock(node->block, code, nullptr);
+    return code->writer->getByteArray();
 }
 
-bytearray_t method_record::toBytes()
+bytearray_t method_record::toBytes(semantic_context * ctx)
 {
     byte_writer* writer = new byte_writer();
     writer->addInt16(0x0001 |
@@ -67,13 +70,14 @@ bytearray_t method_record::toBytes()
     byte_writer* codeWriter = new byte_writer();
     codeWriter->addInt16(1000);
     codeWriter->addInt16(localvarCounter + 1);
-    bytearray_t bytecode = this->bytecode();
-    codeWriter->addInt32(bytecode.length);
+    bytearray_t bytecode = this->bytecode(ctx);
+    codeWriter->addInt32((uint32_t) bytecode.length);
     codeWriter->addBytes(bytecode);
     codeWriter->addInt16(0);
     codeWriter->addInt16(0);
 
     bytearray_t code = codeWriter->getByteArray();
+
     writer->addInt16(1); // Code constant always 1
     writer->addInt32(code.length);
     writer->addBytes(code);
@@ -95,7 +99,8 @@ constant_record* struct_record::addConstant(constant_record* record)
 {
     constant_record* found = findConstant(record);
     if (found == nullptr) {
-        record->number = ++constantCounter;
+        record->number = constantCounter;
+        constantCounter++;
         constant[record->number] = record;
         return record;
     }
@@ -195,7 +200,7 @@ constant_methodref* struct_record::getConstructorConstant(list<std::string> desc
 
 constant_class* struct_record::getConstantFor(struct_record* record)
 {
-   return (constant_class*) record->addConstantBy(record->type);
+   return (constant_class*) record->addConstantBy(this->type);
 }
 
 void struct_record::makeInit(semantic_context & ctx)
@@ -213,6 +218,25 @@ void struct_record::makeInit(semantic_context & ctx)
     insproc->isStatic = false;
     insproc->isProcedure = true;
     insproc->block = new list<stmt_node*>();
+
+    method_record* entryPoint = this->resolveMethod("Main");
+    if (entryPoint != nullptr && entryPoint->isStatic && entryPoint->args.isEmpty()) {
+        procedure_node* mainproc = new procedure_node();
+        mainproc->name = "main";
+        mainproc->returnType = nullptr;
+        mainproc->isStatic = true;
+        mainproc->isProcedure = true;
+        mainproc->block = new list<stmt_node*>();
+        stmt_node* call = new stmt_node(stmt_type::Call);
+        call->target_expr = new expr_node(expr_type::Call);
+        call->target_expr->left = new expr_node(expr_type::Id);
+        call->target_expr->left->String = "Main";
+        call->target_expr->String = "Main";
+        mainproc->block->add(call);
+
+        method_record* meth = addMethod(mainproc, ctx);
+        meth->args.add(new parameter_record("args", new jvm_type("String[]", "[Ljava/lang/String;"), meth));
+    }
 
     for (auto& pair : fields) {
         expr_node* lvalue = new expr_node(expr_type::Id);
@@ -267,7 +291,7 @@ method_record* struct_record::addMethod(procedure_node* procNode, semantic_conte
     method->node = procNode;
     method->node->record = method;
     method->isStatic = procNode->isStatic;
-    method->localvarCounter = method->isStatic ? -1 : 0;
+    method->localvarCounter = method->isStatic ? 1 : 0;
     if (procNode->isProcedure) {
         method->returnType = new void_type();
     }
@@ -332,18 +356,21 @@ field_record* struct_record::resolveStaticField(std::string id)
     return record;
 }
 
-bytearray_t struct_record::toBytes()
+bytearray_t struct_record::toBytes(semantic_context * ctx)
 {
     byte_writer* writer = new byte_writer();
     bytearray_t fields = asBytes(&this->fields);
-    bytearray_t methods = asBytes(&this->methods);
+    bytearray_t methods = asBytes(&this->methods, ctx);
+
+    uint16_t currentConst = getConstantFor(this)->number;
+    uint16_t parentConst = parent == nullptr ? 0 : parent->getConstantFor(this)->number;
 
     writer->addInt32((uint32_t)0xCAFEBABE);
     writer->addInt32((uint32_t)0x00000041);
-    writer->addBytes(asBytes(&this->constant));
+    writer->addBytes(asBytes(&this->constant, this->constantCounter));
     writer->addInt16(0x0001 | 0x0002);
-    writer->addInt16(getConstantFor(this)->number);
-    writer->addInt16(parent == nullptr ? 0 : getConstantFor(parent)->number);
+    writer->addInt16(currentConst);
+    writer->addInt16(parentConst);
     writer->addInt16(0);
     writer->addBytes(fields);
     writer->addBytes(methods);
@@ -390,10 +417,10 @@ constant_fieldref* field_record::getConstantFor(struct_record* record, struct_ty
     return (constant_fieldref*)record->addConstantBy(this, trueOwner != nullptr ? trueOwner->record : nullptr);
 }
 
-bytearray_t asBytes(std::map<uint16_t, constant_record*>* table)
+bytearray_t asBytes(std::map<uint16_t, constant_record*>* table, uint16_t count)
 {
     byte_writer* writer = new byte_writer();
-    writer->addInt16(table->size() + 1);
+    writer->addInt16(count);
     for (auto& pair : *table) {
         if (pair.first != pair.second->number) {
             internal_error("Inconsistent constant numbers");
@@ -428,11 +455,11 @@ bytearray_t asBytes(std::map<std::string, field_record*>* table) {
     return writer->getByteArray();
 }
 
-bytearray_t asBytes(std::map<std::string, method_record*>* table) {
+bytearray_t asBytes(std::map<std::string, method_record*>* table, semantic_context * ctx) {
     byte_writer* writer = new byte_writer();
     writer->addInt16(table->size());
     for (auto& pair : *table) {
-        writer->addBytes(pair.second->toBytes());
+        writer->addBytes(pair.second->toBytes(ctx));
     }
     return writer->getByteArray();
 }

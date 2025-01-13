@@ -3,6 +3,7 @@
 #include "../compiler/codegen/bytecode.hpp"
 #include "../compiler/semantics.hpp"
 #include "../compiler/codegen/rtl.hpp"
+#include "../compiler/codegen/constants.hpp"
 
 std::string expr_node::getName() {
 	switch (type) {
@@ -338,17 +339,16 @@ void expr_node::bytecode(Bytecode* code)
 	else if (type == expr_type::Int) {
 		rtl_class_record* rec = ((rtl_type*)inferType(this->numericType, *code->context, nullptr))->record;
 		code->newObject(rec->type);
+		code->dup();
 		if (Int > INT16_MAX || Int < INT16_MIN) {
-			code->intLoad(Int);
-		}
-		else {
 			code->constLoad(this->constant);
 		}
-		code->dup();
+		else {
+			code->intLoad(Int);
+		}
 		code->invokevirtual(rec->getConstructorConstant({ "L" }, code->method->owner)->number);
 	}
 	else if (type == expr_type::Float) {
-		//TODO: check
 		rtl_class_record* rec = ((rtl_type*)inferType(this->numericType, *code->context, nullptr))->record;
 		code->newObject(rec->type);
 		code->dup();
@@ -356,7 +356,6 @@ void expr_node::bytecode(Bytecode* code)
 		code->invokevirtual(rec->getConstructorConstant({ "D" }, code->method->owner)->number);
 	}
 	else if (type == expr_type::String) {
-		//TODO: check
 		code->newObject(rtl_class_record::String->type);
 		code->dup();
 		code->constLoad(constant);
@@ -412,7 +411,7 @@ void expr_node::bytecode(Bytecode* code)
 		}
 	}
 	else if (type == expr_type::Call) {
-		std::pair<record*, access_target> record = code->context->resolveId(this, code->method->owner, code->method);
+		std::pair<record*, access_target> record = code->context->resolveId(left, code->method->owner, code->method);
 		method_record* method = (method_record*)record.first;
 		if (!method->isStatic) {
 			code->loadThis();
@@ -424,7 +423,10 @@ void expr_node::bytecode(Bytecode* code)
 	}
 	else if (type == expr_type::MethodCall) {
 		struct type* ownerType = nullptr;
-		std::pair<record*, access_target> record = code->context->resolveMemberAccess(this, code->method->owner, code->method, &ownerType);
+		expr_node* methodAccess = new expr_node(expr_type::MemberAccess);
+		methodAccess->left = this->left;
+		methodAccess->String = this->String;
+		std::pair<record*, access_target> record = code->context->resolveMemberAccess(methodAccess, code->method->owner, code->method, &ownerType);
 		method_record* method = (method_record*)record.first;
 		if (!method->isStatic) {
 			left->bytecode(code);
@@ -455,7 +457,15 @@ void expr_node::bytecode(Bytecode* code)
 		}
 		else {
 			left->bytecode(code);
-			code->getfield(field->getConstantFor(code->method->owner, (struct_type*)ownerType)->number);
+			if (dynamic_cast<jvm_array_type*>(field->owner->type) != nullptr && field->name == "Length") {
+				code->newObject(rtl_class_record::ULong->type);
+				code->dup();
+				code->arrayLength();
+				code->invokevirtual(rtl_class_record::ULong->getConstructorConstant({ "L" }, code->method->owner)->number);
+			}
+			else {
+				code->getfield(field->getConstantFor(code->method->owner, (struct_type*)ownerType)->number);
+			}
 		}
 	}
 	else if (type == expr_type::Cast) {
@@ -489,7 +499,7 @@ void expr_node::bytecode(Bytecode* code)
 			targetType = (struct_type*)inferType(this, code->method->owner, code->method, *code->context);
 		}
 		else {
-			targetType = (struct_type*)inferType(this->datatype, *code->context, nullptr);
+			targetType = (struct_type*)inferType(this->datatype, *code->context, code->method->owner->typeMap);
 		}
 		expr_node* length = this->arg_list->isEmpty() ? nullptr : this->arg_list->first();
 		size_t size = this->collection->size();
@@ -540,7 +550,7 @@ void expr_node::bytecode(Bytecode* code)
 	else if (type == expr_type::If) {
 		condition->bytecode(code);
 		struct type* condType = inferType(condition, code->method->owner, code->method, *code->context);
-		if (dynamic_cast<sized_rtl_type*>(condition) != nullptr) {
+		if (dynamic_cast<sized_rtl_type*>(condType) != nullptr) {
 			code->invokemethod(((sized_rtl_type*)condType)->record->resolveMethod("getBoolean"), CallInfo::VIRTUAL);
 		}
 		else {
@@ -554,9 +564,15 @@ void expr_node::bytecode(Bytecode* code)
 		code->resolveFuture(f2);
 	}
 	else if (type == expr_type::Index) {
+		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
 		left->bytecode(code);
 		argument->bytecode(code);
-		code->aaload();
+		if (leftType == rtl_class_record::String->type) {
+			code->invokemethod(leftType->record->resolveMethod("Get"), CallInfo::VIRTUAL);
+		}
+		else {
+			code->aaload();
+		}
 	}
 	else if (type == expr_type::AddOp) {
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
@@ -586,7 +602,7 @@ void expr_node::bytecode(Bytecode* code)
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
 		left->bytecode(code);
 		right->bytecode(code);
-		code->invokemethod(leftType->record->resolveMethod("floordiv"), CallInfo::VIRTUAL);
+		code->invokemethod(leftType->record->resolveMethod("floorDiv"), CallInfo::VIRTUAL);
 	}
 	else if (type == expr_type::ExpOp) {
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
@@ -598,7 +614,7 @@ void expr_node::bytecode(Bytecode* code)
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
 		left->bytecode(code);
 		right->bytecode(code);
-		code->invokemethod(leftType->record->resolveMethod("concat"), CallInfo::VIRTUAL);
+		code->invokemethod(leftType->record->resolveMethod("Concat"), CallInfo::VIRTUAL);
 	}
 	else if (type == expr_type::LtOp) {
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
@@ -697,18 +713,18 @@ void expr_node::bytecode(Bytecode* code)
 		code->invokemethod(leftType->record->resolveMethod("isNot"), CallInfo::VIRTUAL);
 	}
 	else if (type == expr_type::UnaryMinusOp) {
-		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
-		left->bytecode(code);
+		struct_type* leftType = (struct_type*)inferType(argument, code->method->owner, code->method, *code->context);
+		argument->bytecode(code);
 		code->invokemethod(leftType->record->resolveMethod("unaryMinus"), CallInfo::VIRTUAL);
 	}
 	else if (type == expr_type::UnaryPlusOp) {
-		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
-		left->bytecode(code);
+		struct_type* leftType = (struct_type*)inferType(argument, code->method->owner, code->method, *code->context);
+		argument->bytecode(code);
 		code->invokemethod(leftType->record->resolveMethod("unaryPlus"), CallInfo::VIRTUAL);
 	}
 	else if (type == expr_type::NotOp) {
-		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
-		left->bytecode(code);
+		struct_type* leftType = (struct_type*)inferType(argument, code->method->owner, code->method, *code->context);
+		argument->bytecode(code);
 		code->invokemethod(leftType->record->resolveMethod("not"), CallInfo::VIRTUAL);
 	}
 }
@@ -734,19 +750,19 @@ void bytecodeBlock(block* block, Bytecode* code, stmt_node* parent) {
 		stmt_node *lastNode = nullptr;
 		bool isExit = node->type == stmt_type::ExitDo || node->type == stmt_type::ExitFor || node->type == stmt_type::ExitWhile;
 		if (node->type == stmt_type::ContinueDo || node->type == stmt_type::ExitDo) {
-			if (code->lastDo == nullptr || parent == nullptr || (parent->type != stmt_type::DoUntil && parent->type != stmt_type::DoWhile)) {
+			if (code->lastDo == nullptr || parent == nullptr) {
 				codegen_error("ContinueDo or ExitDo are not allowed here");
 			}
 			lastNode = code->lastDo;
 		}
 		if (node->type == stmt_type::ContinueFor || node->type == stmt_type::ExitFor) {
-			if (code->lastFor == nullptr || parent == nullptr || (parent->type != stmt_type::For && parent->type != stmt_type::ForEach)) {
+			if (code->lastFor == nullptr || parent == nullptr) {
 				codegen_error("ContinueFor or ExitFor are not allowed here");
 			}
 			lastNode = code->lastFor;
 		}
 		if (node->type == stmt_type::ContinueWhile || node->type == stmt_type::ExitWhile) {
-			if (code->lastWhile == nullptr || parent == nullptr || parent->type != stmt_type::While) {
+			if (code->lastWhile == nullptr || parent == nullptr) {
 				codegen_error("ContinueFor or ExitFor are not allowed here");
 			}
 			lastNode = code->lastWhile;
@@ -771,7 +787,7 @@ void stmt_node::bytecode(Bytecode* code)
 	else if (type == stmt_type::If) {
 		condition->bytecode(code);
 		struct type* condType = inferType(condition, code->method->owner, code->method, *code->context);
-		if (dynamic_cast<sized_rtl_type*>(condition) != nullptr) {
+		if (dynamic_cast<sized_rtl_type*>(condType) != nullptr) {
 			code->invokemethod(((sized_rtl_type*)condType)->record->resolveMethod("getBoolean"), CallInfo::VIRTUAL);
 		}
 		else {
@@ -786,7 +802,7 @@ void stmt_node::bytecode(Bytecode* code)
 		for (stmt_node* stmt : *condition_nodes) {
 			stmt->condition->bytecode(code);
 			struct type* condType = inferType(stmt->condition, code->method->owner, code->method, *code->context);
-			if (dynamic_cast<sized_rtl_type*>(stmt->condition) != nullptr) {
+			if (dynamic_cast<sized_rtl_type*>(condType) != nullptr) {
 				code->invokemethod(((sized_rtl_type*)condType)->record->resolveMethod("getBoolean"), CallInfo::VIRTUAL);
 			}
 			else {
@@ -870,7 +886,6 @@ void stmt_node::bytecode(Bytecode* code)
 
 		bytecodeBlock(this->block, code, this);
 
-		step_node->bytecode(code);
 		int16_t offset = (code->currentOffset() - code->popWaypoint(this));
 		code->jump(Instruction::_goto, -offset);
 		code->resolveFuture(f);
@@ -931,16 +946,16 @@ void stmt_node::bytecode(Bytecode* code)
 			code->invokemethod(lvalueType->record->resolveMethod("mul"), CallInfo::VIRTUAL);
 		}
 		else if (assign_type == assignment_type::DivAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("diì"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("div"), CallInfo::VIRTUAL);
 		}
 		else if (assign_type == assignment_type::FloorDivAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("floordiv"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("floorDiv"), CallInfo::VIRTUAL);
 		}
 		else if (assign_type == assignment_type::ExpAssign) {
 			code->invokemethod(lvalueType->record->resolveMethod("exp"), CallInfo::VIRTUAL);
 		}
 		else if (assign_type == assignment_type::StrConcatAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("concat"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("Concat"), CallInfo::VIRTUAL);
 		}
 		else if (assign_type == assignment_type::LshiftAssign) {
 			code->invokemethod(lvalueType->record->resolveMethod("lshift"), CallInfo::VIRTUAL);
@@ -949,11 +964,11 @@ void stmt_node::bytecode(Bytecode* code)
 			code->invokemethod(lvalueType->record->resolveMethod("rshift"), CallInfo::VIRTUAL);
 		}
 
-		std::pair<record*, access_target> target = code->context->resolveMemberAccess(lvalue, code->method->owner, code->method);
 		if (type == stmt_type::ArrayAssign) {
 			code->aastore();
 		}
 		else if (type == stmt_type::FieldAssign) {
+			std::pair<record*, access_target> target = code->context->resolveMemberAccess(lvalue, code->method->owner, code->method);
 			field_record* field = (field_record*) target.first;
 			if (field->isStatic) {
 				code->putstatic(field->getConstantFor(code->method->owner)->number);
@@ -963,6 +978,7 @@ void stmt_node::bytecode(Bytecode* code)
 			}
 		}
 		else {
+			std::pair<record*, access_target> target = code->context->resolveMemberAccess(lvalue, code->method->owner, code->method);
 			localvar_record* var = (localvar_record*)target.first;
 			code->astore(var->number);
 		}
@@ -979,7 +995,7 @@ void stmt_node::bytecode(Bytecode* code)
 	else if (type == stmt_type::Redim) {
 		for (redim_clause_node* clause : *redim) {
 			expr_node* idNode = new expr_node(expr_type::Id);
-			idNode->String = clause->Id;
+			idNode->String = clause->Id->String;
 			idNode->bytecode(code);
 			clause->arg->first()->bytecode(code);
 			code->invokemethod(rtl_class_record::CompilerUtils->resolveStaticMethod("redim"), CallInfo::STATIC);
@@ -1241,8 +1257,8 @@ void typed_value::dot(DotWriter* out) {
 
 void redim_clause_node::dot(DotWriter* out) {
 
-	size_t id = out->addStringNode(Id);
-	out->link(this->id, id, "id");
+	out->addNode(Id);
+	out->linkNodes(this, Id, "id");
 	out->addList(arg);
 	out->linkList(this, arg, "args");
 }

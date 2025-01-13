@@ -1,37 +1,37 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.String;
 
-public class Short extends Number {
-    short _src;
+public class SByte extends Number {
+    byte _src;
 
-    public Short(long num) {
-        _src = (short) num;
+    public SByte(long num) {
+        _src = (byte) num;
     }
 
-    public Short(double num) {
-        _src = (short) num;
+    public SByte(double num) {
+        _src = (byte) num;
     }
 
-    public Short(Number n) {
-        _src = (short) n.getInteger();
+    public SByte(Number n) {
+        _src = (byte) n.getInteger();
     }
 
-    public Short(boolean num) {
-        _src = (short) (num ? 1 : 0);
-    }
-
-    public Short() {
+    public SByte() {
         _src = 0;
     }
 
-    public Short(char num) {
-        _src = (short) num;
+    public SByte(boolean num) {
+        _src = (byte) (num ? 1 : 0);
+    }
+
+    public SByte(char num) {
+        _src = (byte) num;
     }
 
     @Override
     public int byteSize() {
-        return 2;
+        return 1;
     }
 
     @Override

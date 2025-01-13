@@ -1,23 +1,31 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.String;
 
-public class ULong extends Number {
+public class Long extends Number {
     long _src;
 
-    public ULong(long num) {
+    public Long(long num) {
         _src = (int) num;
     }
 
-    public ULong(double num) {
+    public Long(double num) {
         _src = (int) num;
     }
 
-    public ULong(boolean num) {
+    public Long(Number n) {
+        _src = n.getInteger();
+    }
+
+    public Long() {
+        _src = 0;
+    }
+
+    public Long(boolean num) {
         _src = num ? 1 : 0;
     }
 
-    public ULong(char num) {
+    public Long(char num) {
         _src = num;
     }
 
@@ -26,17 +34,9 @@ public class ULong extends Number {
         return 8;
     }
 
-    public ULong(Number n) {
-        _src = n.getInteger();
-    }
-
-    public ULong() {
-        _src = 0;
-    }
-
     @Override
     public boolean isUnsigned() {
-        return true;
+        return false;
     }
 
     @Override
@@ -61,6 +61,6 @@ public class ULong extends Number {
 
     @Override
     public String toJvmString() {
-        return java.lang.Long.toUnsignedString(getInteger());
+        return java.lang.Long.toString(getInteger());
     }
 }

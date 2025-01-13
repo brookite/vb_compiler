@@ -287,7 +287,7 @@ rtl_class_record* initDouble() {
 rtl_class_record* initChar() {
 	rtl_class_record* rec = rtl_class_record::Char;
 	rec->type = new char_rtl_type(rec);
-	rec->parent = rtl_class_record::Object;
+	rec->parent = rtl_class_record::Number;
 
 	rec->methods["numberValue"] = new method_record("numberValue", rec, rtl_class_record::Number->type, false, {});
 	rec->methods["fromNumber"] = new method_record("fromNumber", rec, rec->type, true, { new parameter_record("val", rtl_class_record::Number->type, nullptr) });

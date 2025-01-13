@@ -83,16 +83,16 @@ list<expr_node*> collectExprs(stmt_node* stmt) {
 	return result;
 }
 
-void findRedimIds(stmt_node* stmt, list<std::string>* result);
+void findRedimIds(stmt_node* stmt, list<expr_node*>* result);
 
-void findRedimIds(list<stmt_node*>* nodes, list<std::string>* result) {
+void findRedimIds(list<stmt_node*>* nodes, list<expr_node*>* result) {
 	if (nodes == nullptr) return;
 	for (stmt_node* stmt : *nodes) {
 		findRedimIds(stmt, result);
 	}
 }
 
-void findRedimIds(stmt_node* stmt, list<std::string>* result) {
+void findRedimIds(stmt_node* stmt, list<expr_node*>* result) {
 	if (stmt->redim != nullptr && !stmt->redim->isEmpty()) {
 		for (redim_clause_node* rnode : *stmt->redim) {
 			result->add(rnode->Id);
@@ -103,12 +103,12 @@ void findRedimIds(stmt_node* stmt, list<std::string>* result) {
 	findRedimIds(stmt->condition_nodes, result);
 }
 
-void findIdentifiers(expr_node* expr, list<std::string>* result) {
+void findIdentifiers(expr_node* expr, list<expr_node*>* result) {
 	if (expr == nullptr) {
 		return;
 	}
 	if (expr->type == expr_type::Id) {
-		result->add(expr->String);
+		result->add(expr);
 	}
 	else {
 		if (expr->condition != nullptr) {
@@ -126,6 +126,9 @@ void findIdentifiers(expr_node* expr, list<std::string>* result) {
 		if (expr->right != nullptr) {
 			findIdentifiers(expr->right, result);
 		}
+		if (expr->argument != nullptr) {
+			findIdentifiers(expr->argument, result);
+		}
 		for (expr_node* innerExpr : *expr->collection) {
 			findIdentifiers(innerExpr, result);
 		}
@@ -136,8 +139,8 @@ void findIdentifiers(expr_node* expr, list<std::string>* result) {
 }
 
 // Найти все упоминания идентификаторов, без учета самого объявления переменной
-list<std::string> findIdentifiers(stmt_node* stmt) {
-	list<std::string> result;
+list<expr_node*> findIdentifiers(stmt_node* stmt) {
+	list<expr_node*> result;
 	list<expr_node*> exprs = collectExprs(stmt);
 	findRedimIds(stmt, &result);
 	for (expr_node* expr : exprs) {
@@ -171,6 +174,9 @@ void findMemberAccess(expr_node* expr, list<expr_node*>* result) {
 		}
 		if (expr->left != nullptr) {
 			findMemberAccess(expr->left, result);
+		}
+		if (expr->argument != nullptr) {
+			findMemberAccess(expr->argument, result);
 		}
 		if (expr->right != nullptr) {
 			findMemberAccess(expr->right, result);
@@ -209,6 +215,9 @@ void findTypeMentions(expr_node* expr, list<type_node*>* result) {
 	}
 	if (expr->else_expr != nullptr) {
 		findTypeMentions(expr->else_expr, result);
+	}
+	if (expr->argument != nullptr) {
+		findTypeMentions(expr->argument, result);
 	}
 	if (expr->left != nullptr) {
 		findTypeMentions(expr->left, result);
@@ -282,7 +291,7 @@ semantic_analyzer::semantic_analyzer()
 	ctx.addRTL(rtl_class_record::Math);
 }
 
-void semantic_analyzer::analyzeProgram(program_node* node)
+bool semantic_analyzer::analyzeProgram(program_node* node)
 {
 	list<method_record*> * mainMethods = new list<method_record*>();
 
@@ -306,7 +315,7 @@ void semantic_analyzer::analyzeProgram(program_node* node)
 			struct_type* stype = dynamic_cast<struct_type*>(t);
 			if (stype == nullptr || *t == *cls->record->type) {
 				type_error("Inheritance from unknown or unsupported type '%s'", t->readableName().c_str());
-				return;
+				return true;
 			}
 			clsRecord->parent = stype->record;
 		}
@@ -343,15 +352,29 @@ void semantic_analyzer::analyzeProgram(program_node* node)
 		struct_record* clsRecord = pair.second;
 		processStruct(clsRecord);
 	}
+	bool err = hasCompilerErrors();
 	flushErrorBuffer();
+	return err;
 }
 
 std::map<std::string, bytearray_t>* semantic_analyzer::compile()
 {
+	this->ctx.isCodegen = true;
 	std::map<std::string, bytearray_t>* result = new std::map<std::string, bytearray_t>();
 	for (auto& pair : this->ctx.classes) {
-		if (dynamic_cast<rtl_class_record*>(pair.second) == nullptr) {
-			(*result)[pair.first] = pair.second->toBytes();
+		if (dynamic_cast<rtl_class_record*>(pair.second) == nullptr && !pair.second->isGeneric()) {
+			bytearray_t bytes = pair.second->toBytes(&ctx);
+			(*result)[pair.first] = bytes;
+			if (hasCompilerErrors()) {
+				flushErrorBuffer();
+			}
+		}
+	}
+	for (auto& pair : this->ctx.specializedTypes) {
+		bytearray_t bytes = pair.second->record->toBytes(&ctx);
+		(*result)[pair.second->record->name] = bytes;
+		if (hasCompilerErrors()) {
+			flushErrorBuffer();
 		}
 	}
 	return result;
@@ -362,7 +385,8 @@ void semantic_analyzer::processMethod(struct_record* structRecord, method_record
 	size_t returnCount = 0;
 	for (parameter_record* param : method->args) {
 		method->locals[param->name] = param;
-		param->number = ++method->localvarCounter;
+		param->number = method->localvarCounter;
+		method->localvarCounter++;
 	}
 	for (stmt_node* stmt : *(method->node->block)) {
 		processStmt(structRecord, method, stmt, &returnCount);
@@ -402,21 +426,22 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 		processExpr(structRecord, method, expr);
 	}
 
-	list<std::string> idents = findIdentifiers(stmt);
+	list<expr_node*> idents = findIdentifiers(stmt);
 	list<expr_node*> memAccessNodes = findMemberAccess(stmt);
 	list<type_node*> mentionedTypes = findTypeMentions(stmt);
 
 	// check undefined identifier, type
-	for (std::string unknownId : idents) {
-		expr_node* id = new expr_node(expr_type::Id);
-		id->String = unknownId;
-		std::pair<record*, access_target> pair = ctx.resolveId(id, structRecord, method);
+	for (expr_node * unknownId : idents) {
+		std::pair<record*, access_target> pair = ctx.resolveId(unknownId, structRecord, method);
 		if (pair.first == nullptr) {
-			name_error("Unknown identifier '%s'", unknownId.c_str());
+			name_error("Unknown identifier '%s'", unknownId->String.c_str());
 			return;
 		}
 		if (pair.second == STRUCT || pair.second == STATIC_STRUCT) {
 			structRecord->addConstantBy((struct_record*)pair.first);
+		}
+		if (dynamic_cast<localvar_record*>(pair.first) != nullptr) {
+			unknownId->localvarNum = ((localvar_record*)pair.first)->number;
 		}
 	}
 	
@@ -458,9 +483,11 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 		varRecord->type = inferType(stmt->var_decl->type, ctx, structRecord->typeMap);
 		varRecord->owner = method;
 		varRecord->valueNode = stmt->var_decl;
-		varRecord->number = ++method->localvarCounter;
+		varRecord->number = method->localvarCounter;
+		method->localvarCounter++;
 		stmt->localvarNum = varRecord->number;
 		method->locals[varRecord->name] = varRecord;
+		method->allLocals[varRecord->number] = varRecord;
 
 		type* declaredType = inferType(stmt->var_decl->type, this->ctx, structRecord->typeMap);
 		if (stmt->var_decl->value == nullptr) {
@@ -502,9 +529,7 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 
 	if (stmt->type == stmt_type::Redim) {
 		for (redim_clause_node* redimCl : *stmt->redim) {
-			expr_node* id = new expr_node(expr_type::Id);
-			id->String = redimCl->Id;
-			type* varType = inferType(id, structRecord, method, this->ctx);
+			type* varType = inferType(redimCl->Id, structRecord, method, this->ctx);
 			if (dynamic_cast<jvm_array_type*>(varType) == nullptr) {
 				type_error("Redim is supported only for arrays");
 			}
@@ -623,7 +648,9 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 	if (stmt->block != nullptr) {
 		if (stmt->type == stmt_type::For || stmt->type == stmt_type::ForEach) {
 			method->locals[stmt->Id] = new localvar_record(stmt->Id, inferType(stmt->id_type, ctx, structRecord->typeMap), method);
-			method->locals[stmt->Id]->number = ++method->localvarCounter;
+			method->locals[stmt->Id]->number = method->localvarCounter;
+			method->localvarCounter++;
+			method->allLocals[method->locals[stmt->Id]->number] = method->locals[stmt->Id];
 			stmt->localvarNum = method->locals[stmt->Id]->number;
 			if (stmt->type == stmt_type::ForEach) {
 				++method->localvarCounter;
@@ -706,8 +733,8 @@ void semantic_analyzer::processExpr(struct_record* structRecord, method_record *
 	}
 
 	if (method != nullptr && (expr->type == expr_type::ArrayNew || expr->type == expr_type::Collection)) {
-		expr->localvarNum = ++method->localvarCounter;
-		method->localvarCounter++;
+		expr->localvarNum = method->localvarCounter;
+		method->localvarCounter += 2;
 	}
 
 	// detect index and call expr
@@ -742,5 +769,8 @@ void semantic_analyzer::processStruct(struct_record* clsRecord)
 	for (const auto& pair : clsRecord->methods) {
 		method_record* method = pair.second;
 		processMethod(clsRecord, method);
+		if (method->allLocals.size() >= UINT16_MAX - 1) {
+			codegen_error("Too many local variables in one method");
+		}
 	}
 }

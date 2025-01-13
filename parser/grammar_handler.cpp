@@ -370,7 +370,7 @@ expr_node* create_arraynew_expr(type_node* type, list<expr_node*>* size, list<ex
 
 redim_clause_node* create_redim_clause(std::string * id, list<expr_node*>* expr_list) {
     redim_clause_node* node = new redim_clause_node();
-	node->Id = *id;
+	node->Id = create_id(id);
     node->arg = expr_list;
     return node;
 }

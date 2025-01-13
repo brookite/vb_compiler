@@ -1,4 +1,4 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.String;
 import java.util.Scanner;
@@ -24,17 +24,17 @@ public class Console extends Object {
         System.out.print(o.toJvmString());
     }
 
-    public static brookit.vb.String ReadLine() {
+    public static brookit.vb.lang.String ReadLine() {
         try {
-            return new brookit.vb.String(scanner.nextLine());
+            return new brookit.vb.lang.String(scanner.nextLine());
         } catch (Exception e) {
             throw new RuntimeException("Error reading line: " + e.getMessage(), e);
         }
     }
 
-    public static brookit.vb.Long ReadInt() {
+    public static Long ReadInt() {
         try {
-            return new brookit.vb.Long(scanner.nextLong());
+            return new Long(scanner.nextLong());
         } catch (Exception e) {
             throw new RuntimeException("Error reading integer: " + e.getMessage(), e);
         } finally {
@@ -42,9 +42,9 @@ public class Console extends Object {
         }
     }
 
-    public static brookit.vb.Double ReadDouble() {
+    public static Double ReadDouble() {
         try {
-            return new brookit.vb.Double(scanner.nextDouble());
+            return new Double(scanner.nextDouble());
         } catch (Exception e) {
             throw new RuntimeException("Error reading double: " + e.getMessage(), e);
         } finally {
@@ -52,9 +52,9 @@ public class Console extends Object {
         }
     }
 
-    public static brookit.vb.Boolean ReadBoolean() {
+    public static Boolean ReadBoolean() {
         try {
-            return new brookit.vb.Boolean(scanner.nextBoolean());
+            return new Boolean(scanner.nextBoolean());
         } catch (Exception e) {
             throw new RuntimeException("Error reading boolean: " + e.getMessage(), e);
         } finally {

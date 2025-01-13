@@ -1,31 +1,23 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.String;
 
-public class Double extends Number {
-    double _src;
+public class ULong extends Number {
+    long _src;
 
-    public Double(double num) {
-        _src = num;
+    public ULong(long num) {
+        _src = (int) num;
     }
 
-    public Double(Number n) {
-        _src = n.getFloat();
+    public ULong(double num) {
+        _src = (int) num;
     }
 
-    public Double() {
-        _src = 0.0;
-    }
-
-    public Double(long num) {
-        _src = (double) num;
-    }
-
-    public Double(boolean num) {
+    public ULong(boolean num) {
         _src = num ? 1 : 0;
     }
 
-    public Double(char num) {
+    public ULong(char num) {
         _src = num;
     }
 
@@ -34,14 +26,22 @@ public class Double extends Number {
         return 8;
     }
 
+    public ULong(Number n) {
+        _src = n.getInteger();
+    }
+
+    public ULong() {
+        _src = 0;
+    }
+
     @Override
     public boolean isUnsigned() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isInteger() {
-        return false;
+        return true;
     }
 
     @Override
@@ -56,11 +56,11 @@ public class Double extends Number {
 
     @Override
     public long getInteger() {
-        return (long) _src;
+        return _src;
     }
 
     @Override
     public String toJvmString() {
-        return java.lang.Double.toString(getFloat());
+        return java.lang.Long.toUnsignedString(getInteger());
     }
 }

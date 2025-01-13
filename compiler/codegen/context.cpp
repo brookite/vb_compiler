@@ -13,6 +13,9 @@ std::pair<record*, access_target> semantic_context::resolveId(expr_node* value, 
 		if (methodContext != nullptr && methodContext->locals.count(member)) {
 			rec = methodContext->locals[member];
 			acc = LOCAL_VAR;
+		} else if (methodContext != nullptr && methodContext->allLocals.count(value->localvarNum)) {
+			rec = methodContext->allLocals[value->localvarNum];
+			acc = LOCAL_VAR;
 		} else if (context->resolveMethod(member) != nullptr && context->resolveField(member) != nullptr) {
 			name_error("Member '%s' in type %s declared twice", member.c_str(), context->type->readableName().c_str());
 			return std::pair<record*, access_target>(nullptr, FIELD);
@@ -126,9 +129,8 @@ std::pair<record*, access_target> semantic_context::resolveMember(record * recor
 		method_record* rec = dynamic_cast<method_record*>(record);
 		struct_type* typeRec = dynamic_cast<struct_type*>(rec->returnType);
 		if (ownerType != nullptr) *ownerType = typeRec;
-		if (memAccessType != expr_type::MethodCall) {
+		if (memAccessType != expr_type::MethodCall && !isCodegen) {
 			name_error("Method '%s' is not structure object", rec->name.c_str());
-			return std::pair(nullptr, METHOD);
 		}
 		if (typeRec != nullptr) {
 			struct_record* record = typeRec->record;
@@ -280,7 +282,7 @@ type* semantic_context::specializeType(type_node* node)
 		struct_node* structNode = cls->node->clone();
 		struct_record* newRecord = new struct_record();
 		newRecord->node = structNode;
-		newRecord->name = cls->name + "<";
+		newRecord->name = cls->name + "$";
 		newRecord->node->record = newRecord;
 		newRecord->type = new struct_type(newRecord);
 
@@ -290,9 +292,9 @@ type* semantic_context::specializeType(type_node* node)
 			(*cmpMap)[structNode->generics->get(i)] = type;
 		}
 		for (auto& pair : *cmpMap) {
-			newRecord->name += pair.first + ";";
+			newRecord->name += pair.second->readableName() + ";";
 		}
-		newRecord->name += ">";
+		newRecord->name += "$";
 		structNode->generics = new list<std::string>();
 		newRecord->node->name = newRecord->name;
 		newRecord->parent = cls->parent;

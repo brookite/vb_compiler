@@ -1,6 +1,13 @@
 #include "../utils.hpp"
+#include "../nodes.hpp"
 #include <unordered_set>
-#include "constants.hpp"
+#include <map>
+
+extern struct constant_record;
+extern struct semantic_context;
+extern struct method_record;
+extern struct struct_type;
+extern struct type;
 
 enum class CallInfo : uint8_t {
     VIRTUAL,
@@ -122,7 +129,7 @@ struct Bytecode {
     stmt_node* lastDo = nullptr;
 
 
-    Bytecode();
+    Bytecode(semantic_context* context, method_record* method);
     void writeSimple(Instruction instr);
     size_t currentOffset();
 

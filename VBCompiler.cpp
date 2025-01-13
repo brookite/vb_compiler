@@ -20,7 +20,19 @@ void runCompile(const char* path, const char * outDir) {
     fopen_s(&yyin, path, "r");
     yyparse();
     semantic_analyzer analyzer;
-    analyzer.analyzeProgram(program);
+    bool err = analyzer.analyzeProgram(program);
+    if (!err) {
+        std::map<std::string, bytearray_t>* code = analyzer.compile();
+        std::string dir = std::string(outDir) + "/out/brookit/vb/code/";
+        if (!fs::exists(dir)) {
+            fs::create_directories(dir);
+        }
+        for (auto& pair : *code) {
+            FILE* file = fopen((dir + pair.first + ".class").c_str(), "wb");
+            fwrite(pair.second.bytes, sizeof(byte_t), pair.second.length, file);
+            fclose(file);
+        }
+    }
     if (DEBUG) {
         std::string constantFile = std::string(outDir) + "/" + file_path.stem().string() + ".constant.txt";
         std::string text = path;
@@ -33,16 +45,6 @@ void runCompile(const char* path, const char * outDir) {
         FILE* out = fopen(constantFile.c_str(), "w");
         fwrite(text.c_str(), sizeof(char), text.length(), out);
         fclose(out);
-    }
-    std::map<std::string, bytearray_t>* code = analyzer.compile();
-    std::string dir = std::string(outDir) + "/out/brookit/vb/code/";
-    if (!fs::exists(dir)) {
-        fs::create_directories(dir);
-    }
-    for (auto& pair : *code) {
-        FILE* file = fopen((dir + pair.first + ".class").c_str(), "w");
-        fwrite(pair.second.bytes, sizeof(byte_t), pair.second.length, file);
-        fclose(file);
     }
     if (yyin != 0) fclose(yyin);
 }

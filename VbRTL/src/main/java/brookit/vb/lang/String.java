@@ -1,4 +1,4 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 public class String extends Object {
     private java.lang.String _jvm;

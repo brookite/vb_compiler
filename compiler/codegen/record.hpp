@@ -19,7 +19,13 @@ struct record {
 };
 
 struct byte_record : public record {
-	virtual bytearray_t toBytes() = 0;
+	virtual bytearray_t toBytes() {
+		return bytearray_t();
+	}
+
+	virtual bytearray_t toBytes(semantic_context * ctx) {
+		return toBytes();
+	}
 };
 
 struct var_record : record {
@@ -66,6 +72,7 @@ public:
 	bool isStatic;
 	list<parameter_record*> args;
 	std::map<std::string, localvar_record*> locals;
+	std::map<uint16_t, localvar_record*> allLocals;
 
 	method_record();
 	method_record(std::string, struct_record* owner, type* retType, bool isStatic, list<parameter_record*> args);
@@ -74,8 +81,8 @@ public:
 	virtual constant_methodref* getConstantFor(struct_record* record, struct_type* trueOwner = nullptr);
 
 	std::string jvmDescriptor();
-	bytearray_t bytecode();
-	virtual bytearray_t toBytes();
+	bytearray_t bytecode(semantic_context * ctx);
+	virtual bytearray_t toBytes(semantic_context * ctx);
 
 	uint16_t localvarCounter = 0;
 };
@@ -120,7 +127,7 @@ public:
 	virtual field_record * resolveField(std::string id);
 	virtual method_record* resolveStaticMethod(std::string id);
 	virtual field_record* resolveStaticField(std::string id);
-	virtual bytearray_t toBytes();
+	virtual bytearray_t toBytes(semantic_context * context);
 	bool isGeneric() const { return node->generics != nullptr && !node->generics->isEmpty(); };
 
 	std::string jvmDescriptor() {
@@ -129,7 +136,7 @@ public:
 
 protected:
 	constant_utf8* utf8ConstantOf(std::string name);
-	uint16_t constantCounter = 0;
+	uint16_t constantCounter = 1;
 };
 
 struct static_struct_record_wrapper : public struct_record {
@@ -167,7 +174,7 @@ private:
 	struct_record* source;
 };
 
-bytearray_t asBytes(std::map<uint16_t, constant_record*>*);
+bytearray_t asBytes(std::map<uint16_t, constant_record*>*, uint16_t);
 bytearray_t asBytes(std::map<std::string, field_record*>*);
-bytearray_t asBytes(std::map<std::string, method_record*>*);
+bytearray_t asBytes(std::map<std::string, method_record*>*, semantic_context* ctx);
 std::string printableConstant(std::string, std::map<uint16_t, constant_record*>);

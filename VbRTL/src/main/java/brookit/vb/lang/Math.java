@@ -1,4 +1,4 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.String;
 import java.util.Random;

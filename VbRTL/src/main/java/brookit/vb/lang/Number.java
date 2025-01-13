@@ -1,4 +1,4 @@
-package brookit.vb;
+package brookit.vb.lang;
 
 import java.lang.Double;
 import java.lang.reflect.InvocationTargetException;
