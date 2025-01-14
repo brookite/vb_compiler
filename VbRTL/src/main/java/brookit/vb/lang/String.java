@@ -19,8 +19,8 @@ public class String extends Object {
         return new String(java.lang.String.format(this.toJvmString(), fmt));
     }
 
-    public String concat(String other) {
-        return new String(other.toJvmString().concat(other.toJvmString()));
+    public String Concat(String other) {
+        return new String(this.toJvmString().concat(other.toJvmString()));
     }
 
     @Override

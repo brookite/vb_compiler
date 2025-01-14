@@ -328,7 +328,8 @@ bool semantic_analyzer::analyzeProgram(program_node* node)
 		// Сначала соберем информацию о всех методах
 		for (procedure_node* proc : *cls->methods) {
 			method_record * rec = clsRecord->addMethod(proc, ctx);
-			if (rec->name == "Main" && rec->isStatic) {
+			if (rec->name == "Main" && rec->isStatic && rec->args.isEmpty() 
+				&& dynamic_cast<void_type*>(rec->returnType) != nullptr) {
 				mainMethods->add(rec);
 			}
 		}
@@ -360,6 +361,9 @@ bool semantic_analyzer::analyzeProgram(program_node* node)
 std::map<std::string, bytearray_t>* semantic_analyzer::compile()
 {
 	this->ctx.isCodegen = true;
+	this->entryPoint->name = "main";
+	this->entryPoint->args.add(new parameter_record("args", new jvm_type("String[]", "[Ljava/lang/String;"), this->entryPoint));
+	this->entryPoint->localvarCounter++;
 	std::map<std::string, bytearray_t>* result = new std::map<std::string, bytearray_t>();
 	for (auto& pair : this->ctx.classes) {
 		if (dynamic_cast<rtl_class_record*>(pair.second) == nullptr && !pair.second->isGeneric()) {

@@ -118,6 +118,7 @@ public:
 	virtual constant_record* addLiteralConstant(float value);
 	virtual constant_record* addLiteralConstant(std::string value);
 	virtual constant_methodref* getConstructorConstant(list<std::string> descriptors, struct_record * dst);
+	virtual constant_methodref* getStaticConstructorConstant(struct_record* dst);
 	virtual constant_class* getConstantFor(struct_record* record);
 	virtual void makeInit(semantic_context & context);
 
@@ -128,6 +129,8 @@ public:
 	virtual method_record* resolveStaticMethod(std::string id);
 	virtual field_record* resolveStaticField(std::string id);
 	virtual bytearray_t toBytes(semantic_context * context);
+	constant_utf8* utf8ConstantOf(std::string name);
+
 	bool isGeneric() const { return node->generics != nullptr && !node->generics->isEmpty(); };
 
 	std::string jvmDescriptor() {
@@ -135,7 +138,6 @@ public:
 	}
 
 protected:
-	constant_utf8* utf8ConstantOf(std::string name);
 	uint16_t constantCounter = 1;
 };
 

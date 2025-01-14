@@ -53,23 +53,35 @@ std::string method_record::jvmDescriptor()
 bytearray_t method_record::bytecode(semantic_context * ctx)
 {
     Bytecode * code = new Bytecode(ctx, this);
+    if (name == "<init>") {
+        constant_methodref * parentCall = this->owner->parent->getConstructorConstant({}, this->owner);
+        code->loadThis();
+        code->invokespecial(parentCall->number);
+    }
     bytecodeBlock(node->block, code, nullptr);
+    if (dynamic_cast<void_type*>(this->returnType) == nullptr) {
+        code->nullLoad();
+        code->areturn();
+    }
+    else {
+        code->returnVoid();
+    }
     return code->writer->getByteArray();
 }
 
 bytearray_t method_record::toBytes(semantic_context * ctx)
 {
     byte_writer* writer = new byte_writer();
-    writer->addInt16(0x0001 |
+    writer->addInt16((this->name == "<clinit>" ? 0x0 : 0x0001) |
         (isStatic ? 0x0008 : 0)
     );
-    writer->addInt16(getConstantFor(owner)->nt->name->number);
-    writer->addInt16(getConstantFor(owner)->nt->type->number);
+    writer->addInt16(owner->utf8ConstantOf(name)->number);
+    writer->addInt16(owner->utf8ConstantOf(jvmDescriptor())->number);
     writer->addInt16(1);
 
     byte_writer* codeWriter = new byte_writer();
     codeWriter->addInt16(1000);
-    codeWriter->addInt16(localvarCounter + 1);
+    codeWriter->addInt16(localvarCounter);
     bytearray_t bytecode = this->bytecode(ctx);
     codeWriter->addInt32((uint32_t) bytecode.length);
     codeWriter->addBytes(bytecode);
@@ -198,6 +210,16 @@ constant_methodref* struct_record::getConstructorConstant(list<std::string> desc
     return mref;
 }
 
+constant_methodref* struct_record::getStaticConstructorConstant(struct_record* dst)
+{
+    std::string descr = "()V";
+    constant_nameandtype* nt = new constant_nameandtype(dst->utf8ConstantOf("<clinit>"), dst->utf8ConstantOf(descr));
+    constant_class* cls = (constant_class*)dst->addConstantBy(type);
+    constant_methodref* mref = new constant_methodref((constant_nameandtype*)dst->addConstant(nt), (constant_class*)dst->addConstant(cls));
+    mref = (constant_methodref*)dst->addConstant(mref);
+    return mref;
+}
+
 constant_class* struct_record::getConstantFor(struct_record* record)
 {
    return (constant_class*) record->addConstantBy(this->type);
@@ -218,25 +240,6 @@ void struct_record::makeInit(semantic_context & ctx)
     insproc->isStatic = false;
     insproc->isProcedure = true;
     insproc->block = new list<stmt_node*>();
-
-    method_record* entryPoint = this->resolveMethod("Main");
-    if (entryPoint != nullptr && entryPoint->isStatic && entryPoint->args.isEmpty()) {
-        procedure_node* mainproc = new procedure_node();
-        mainproc->name = "main";
-        mainproc->returnType = nullptr;
-        mainproc->isStatic = true;
-        mainproc->isProcedure = true;
-        mainproc->block = new list<stmt_node*>();
-        stmt_node* call = new stmt_node(stmt_type::Call);
-        call->target_expr = new expr_node(expr_type::Call);
-        call->target_expr->left = new expr_node(expr_type::Id);
-        call->target_expr->left->String = "Main";
-        call->target_expr->String = "Main";
-        mainproc->block->add(call);
-
-        method_record* meth = addMethod(mainproc, ctx);
-        meth->args.add(new parameter_record("args", new jvm_type("String[]", "[Ljava/lang/String;"), meth));
-    }
 
     for (auto& pair : fields) {
         expr_node* lvalue = new expr_node(expr_type::Id);
@@ -291,7 +294,7 @@ method_record* struct_record::addMethod(procedure_node* procNode, semantic_conte
     method->node = procNode;
     method->node->record = method;
     method->isStatic = procNode->isStatic;
-    method->localvarCounter = method->isStatic ? 1 : 0;
+    method->localvarCounter = method->isStatic ? 0 : 1;
     if (procNode->isProcedure) {
         method->returnType = new void_type();
     }
@@ -368,7 +371,7 @@ bytearray_t struct_record::toBytes(semantic_context * ctx)
     writer->addInt32((uint32_t)0xCAFEBABE);
     writer->addInt32((uint32_t)0x00000041);
     writer->addBytes(asBytes(&this->constant, this->constantCounter));
-    writer->addInt16(0x0001 | 0x0002);
+    writer->addInt16(0x0001 | 0x0020);
     writer->addInt16(currentConst);
     writer->addInt16(parentConst);
     writer->addInt16(0);

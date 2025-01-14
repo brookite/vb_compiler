@@ -346,20 +346,20 @@ void expr_node::bytecode(Bytecode* code)
 		else {
 			code->intLoad(Int);
 		}
-		code->invokevirtual(rec->getConstructorConstant({ "L" }, code->method->owner)->number);
+		code->invokespecial(rec->getConstructorConstant({ "L" }, code->method->owner)->number);
 	}
 	else if (type == expr_type::Float) {
 		rtl_class_record* rec = ((rtl_type*)inferType(this->numericType, *code->context, nullptr))->record;
 		code->newObject(rec->type);
 		code->dup();
 		code->constLoad(constant);
-		code->invokevirtual(rec->getConstructorConstant({ "D" }, code->method->owner)->number);
+		code->invokespecial(rec->getConstructorConstant({ "D" }, code->method->owner)->number);
 	}
 	else if (type == expr_type::String) {
 		code->newObject(rtl_class_record::String->type);
 		code->dup();
 		code->constLoad(constant);
-		code->invokevirtual(rtl_class_record::String->getConstructorConstant({ "Ljava/lang/String;" }, code->method->owner)->number);
+		code->invokespecial(rtl_class_record::String->getConstructorConstant({ "Ljava/lang/String;" }, code->method->owner)->number);
 	}
 	else if (type == expr_type::Bool) {
 		code->newObject(rtl_class_record::Boolean->type);
@@ -782,7 +782,6 @@ void stmt_node::bytecode(Bytecode* code)
 {
 	if (type == stmt_type::Call) {
 		target_expr->bytecode(code);
-		code->pop();
 	}
 	else if (type == stmt_type::If) {
 		condition->bytecode(code);

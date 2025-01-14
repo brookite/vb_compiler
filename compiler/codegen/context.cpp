@@ -297,7 +297,18 @@ type* semantic_context::specializeType(type_node* node)
 		newRecord->name += "$";
 		structNode->generics = new list<std::string>();
 		newRecord->node->name = newRecord->name;
-		newRecord->parent = cls->parent;
+		if (cls->parent == nullptr && cls->node->parent_class != nullptr) {
+			type* t = inferType(cls->node->parent_class, *this, nullptr);
+			struct_type* stype = dynamic_cast<struct_type*>(t);
+			if (stype == nullptr || *t == *cls->type) {
+				type_error("Inheritance from unknown or unsupported type '%s'", t->readableName().c_str());
+				return new unknown_type();
+			}
+			newRecord->parent = stype->record;
+		}
+		if (cls->node->parent_class == nullptr) {
+			newRecord->parent = rtl_class_record::Object;
+		}
 		newRecord->typeMap = cmpMap;
 		specializedTypes[*node] = (struct_type*)newRecord->type;
 		for (field_node* field : *structNode->fields) {
