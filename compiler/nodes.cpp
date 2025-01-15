@@ -353,10 +353,14 @@ void expr_node::bytecode(Bytecode* code)
 		code->invokespecial(rec->getConstructorConstant({ "J" }, code->method->owner)->number);
 	}
 	else if (type == expr_type::Float) {
-		rtl_class_record* rec = ((rtl_type*)inferType(this->numericType, *code->context, nullptr))->record;
+		rtl_class_record* rec = ((rtl_type*)inferType(this, code->method->owner, code->method, *code->context))->record;
+		char descr = 'D';
 		code->newObject(rec->type);
 		code->dup();
-		code->constLoad(constant);
+		code->constLoad(constant, &descr);
+		if (descr != 'D') {
+			code->writeSimple(Instruction::f2d);
+		}
 		code->invokespecial(rec->getConstructorConstant({ "D" }, code->method->owner)->number);
 	}
 	else if (type == expr_type::String) {
@@ -412,6 +416,11 @@ void expr_node::bytecode(Bytecode* code)
 			field_record* field = (field_record*)(record.first);
 			code->loadThis();
 			code->getfield(field->getConstantFor(code->method->owner)->number);
+		}
+		else if (record.second == STATIC_FIELD) {
+			field_record* field = (field_record*)(record.first);
+			code->loadThis();
+			code->getstatic(field->getConstantFor(code->method->owner)->number);
 		}
 	}
 	else if (type == expr_type::Call) {
@@ -582,6 +591,10 @@ void expr_node::bytecode(Bytecode* code)
 			code->nullLoad();
 		}
 		code->aastore();
+		code->iload(localvarNum + 1);
+		code->intLoad(1);
+		code->writeSimple(Instruction::iadd);
+		code->istore(localvarNum + 1);
 		int16_t offset = code->currentOffset() - pos1;
 		code->jump(Instruction::_goto, -offset);
 		code->resolveFuture(f1);
@@ -821,6 +834,24 @@ void bytecodeBlock(block* block, Bytecode* code, stmt_node* parent) {
 	}
 }
 
+void processAssignLvalue(stmt_node* stmt, Bytecode * code) {
+	if (stmt->type == stmt_type::ArrayAssign) {
+		struct_type* argType = (struct_type*)inferType(stmt->lvalue->argument, code->method->owner, code->method, *code->context);
+		stmt->lvalue->left->bytecode(code);
+		stmt->lvalue->argument->bytecode(code);
+		code->invokemethod(argType->record->resolveMethod("getInteger"), CallInfo::VIRTUAL);
+		code->writeSimple(Instruction::l2i);
+	}
+	else if (stmt->type == stmt_type::FieldAssign) {
+		if (stmt->lvalue->type == expr_type::MemberAccess) {
+			stmt->lvalue->left->bytecode(code);
+		}
+		else {
+			code->loadThis();
+		}
+	}
+}
+
 void stmt_node::bytecode(Bytecode* code)
 {
 	if (type == stmt_type::Call) {
@@ -1002,6 +1033,10 @@ void stmt_node::bytecode(Bytecode* code)
 			}
 		}
 
+		if (assign_type != assignment_type::Assign) {
+			lvalue->bytecode(code);
+		}
+
 		if (dynamic_cast<sized_rtl_type*>(lvalueType) != nullptr && dynamic_cast<sized_rtl_type*>(rvalueType) != nullptr && lvalueType != rvalueType) {
 			code->newObject(lvalueType);
 			code->dup();
@@ -1009,31 +1044,31 @@ void stmt_node::bytecode(Bytecode* code)
 
 		rvalue->bytecode(code);
 		if (assign_type == assignment_type::AddAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("add"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("add"), CallInfo::VIRTUAL, lvalueType);
 		}
 		else if (assign_type == assignment_type::SubAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("sub"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("sub"), CallInfo::VIRTUAL, lvalueType);
 		}
 		else if (assign_type == assignment_type::MulAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("mul"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("mul"), CallInfo::VIRTUAL, lvalueType);
 		}
 		else if (assign_type == assignment_type::DivAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("div"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("div"), CallInfo::VIRTUAL, lvalueType);
 		}
 		else if (assign_type == assignment_type::FloorDivAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("floorDiv"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("floorDiv"), CallInfo::VIRTUAL, lvalueType);
 		}
 		else if (assign_type == assignment_type::ExpAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("exp"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("exp"), CallInfo::VIRTUAL, lvalueType);
 		}
 		else if (assign_type == assignment_type::StrConcatAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("Concat"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("Concat"), CallInfo::VIRTUAL, lvalueType);
 		}
 		else if (assign_type == assignment_type::LshiftAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("lshift"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("lshift"), CallInfo::VIRTUAL, lvalueType);
 		}
 		else if (assign_type == assignment_type::RshiftAssign) {
-			code->invokemethod(lvalueType->record->resolveMethod("rshift"), CallInfo::VIRTUAL);
+			code->invokemethod(lvalueType->record->resolveMethod("rshift"), CallInfo::VIRTUAL, lvalueType);
 		}
 
 		if (dynamic_cast<sized_rtl_type*>(lvalueType) != nullptr && dynamic_cast<sized_rtl_type*>(rvalueType) != nullptr && lvalueType != rvalueType) {
@@ -1070,11 +1105,34 @@ void stmt_node::bytecode(Bytecode* code)
 	}
 	else if (type == stmt_type::Redim) {
 		for (redim_clause_node* clause : *redim) {
-			expr_node* idNode = new expr_node(expr_type::Id);
-			idNode->String = clause->Id->String;
-			idNode->bytecode(code);
+			struct type* ownerType = nullptr;
+			std::pair<record*, access_target> idRec = code->context->resolveMemberAccess(clause->Id, code->method->owner, code->method, &ownerType);
+			if (idRec.second == FIELD) {
+				field_record* rec = (field_record*)idRec.first;
+				if (clause->Id->type == expr_type::MemberAccess) {
+					clause->Id->bytecode(code);
+				}
+				else {
+					code->loadThis();
+				}
+			}
+			clause->Id->bytecode(code);
 			clause->arg->first()->bytecode(code);
 			code->invokemethod(rtl_class_record::CompilerUtils->resolveStaticMethod("redim"), CallInfo::STATIC);
+			if (idRec.second == LOCAL_VAR) {
+				localvar_record* var = (localvar_record*)idRec.first;
+				code->astore(var->number);
+			}
+			else if (idRec.second == FIELD) {
+				field_record* rec = (field_record*)idRec.first;
+				code->putfield(rec->getConstantFor(code->method->owner)->number);
+			} else if (idRec.second == STATIC_FIELD) {
+				field_record* rec = (field_record*)idRec.first;
+				code->putstatic(rec->getConstantFor(code->method->owner)->number);
+			}
+			else {
+				codegen_error("Unknown identifier for redim");
+			}
 		}
 	}
 	else if (type == stmt_type::Erase) {

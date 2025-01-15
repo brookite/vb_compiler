@@ -278,7 +278,7 @@ type* semantic_context::specializeType(type_node* node)
 	if (!cls->isGeneric()) {
 		internal_error("'%s' doesn't support generics", cls->name.c_str());
 	}
-	if (!specializedTypes.count(*node)) {
+	if (!specializedTypes.count(node->hash())) {
 		struct_node* structNode = cls->node->clone();
 		struct_record* newRecord = new struct_record();
 		newRecord->node = structNode;
@@ -292,7 +292,7 @@ type* semantic_context::specializeType(type_node* node)
 			(*cmpMap)[structNode->generics->get(i)] = type;
 		}
 		for (auto& pair : *cmpMap) {
-			newRecord->name += pair.second->readableName() + ";";
+			newRecord->name += pair.second->readableName() + "_";
 		}
 		newRecord->name += "$";
 		structNode->generics = new list<std::string>();
@@ -310,7 +310,7 @@ type* semantic_context::specializeType(type_node* node)
 			newRecord->parent = rtl_class_record::Object;
 		}
 		newRecord->typeMap = cmpMap;
-		specializedTypes[*node] = (struct_type*)newRecord->type;
+		specializedTypes[node->hash()] = (struct_type*)newRecord->type;
 		for (field_node* field : *structNode->fields) {
 			newRecord->addField(field, *this);
 		}
@@ -319,7 +319,7 @@ type* semantic_context::specializeType(type_node* node)
 		}
 		analyzer->processStruct(newRecord);
 	}
-	return specializedTypes[*node];
+	return specializedTypes[node->hash()];
 }
 
 struct_record* semantic_context::addClass(struct_node* cls)

@@ -325,8 +325,8 @@ public:
     void addBytes(const char* bytes, size_t count);
     void addBytes(bytearray_t & array);
     void addBytes(bytearray_t && array);
-    void addFloat(float value);
-    void addDouble(double value);
+    void addFloat(float value, bool big_endian = true);
+    void addDouble(double value, bool big_endian = true);
     void setBytes(size_t from, size_t to, void* val);
     int16_t bigEndian(int16_t);
     int32_t bigEndian(int32_t);

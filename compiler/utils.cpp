@@ -257,15 +257,21 @@ void byte_writer::addBytes(bytearray_t && array)
     addBytes(array.bytes, array.length);
 }
 
-void byte_writer::addFloat(float value) {
+void byte_writer::addFloat(float value, bool bigEndian) {
     ensureCapacity(sizeof(float));
-    std::memcpy(buffer + position, &value, sizeof(value));
+    if (bigEndian) {
+        return addInt32(htonf(value), false);
+    }
+    std::memcpy(buffer + position, &value, sizeof(float));
     position += sizeof(float);
 }
 
-void byte_writer::addDouble(double value) {
+void byte_writer::addDouble(double value, bool bigEndian) {
     ensureCapacity(sizeof(double));
-    std::memcpy(buffer + position, &value, sizeof(value));
+    if (bigEndian) {
+        return addInt64(htond(value), false);
+    }
+    std::memcpy(buffer + position, &value, sizeof(double));
     position += sizeof(double);
 }
 

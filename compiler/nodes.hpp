@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "utils.hpp"
+#include <functional>
 
 extern class DotWriter;
 
@@ -93,15 +94,27 @@ struct type_node : node {
 		}
 		return res;
 	}
-	bool operator== (const type_node& t) const {
-		return value == t.value && Id == t.Id &&
-			*generics == *t.generics && 
-			isArray == t.isArray && 
-			*dimensions == *t.dimensions;
-	}
 
-	bool operator<(const type_node& other) const {
-		return value < other.value;
+	std::size_t hash() const {
+		std::size_t hash = std::hash<int>()((int)this->value); // ’еш от value
+		hash ^= std::hash<std::string>()(this->Id) << 1; // ’еш от Id
+
+		// ’еш от isArray
+		hash ^= std::hash<bool>()(this->isArray) << 2;
+
+		// ’еш от dimensions
+		for (int dim : *this->dimensions) {
+			hash ^= std::hash<int>()(dim) << 3;
+		}
+
+		// ’еш от generics
+		for (type_node* gen : *this->generics) {
+			if (gen) {
+				hash ^= gen->hash() << 4;
+			}
+		}
+
+		return hash;
 	}
 };
 
@@ -239,7 +252,7 @@ struct stmt_node : node {
 	// Assignment
 	expr_node* lvalue = nullptr;
 	expr_node* rvalue = nullptr;
-	assignment_type assign_type;
+	assignment_type assign_type = assignment_type::Assign;
 
 	//For stmt
 	type_node* id_type = nullptr;

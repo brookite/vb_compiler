@@ -12,7 +12,7 @@ enum access_target {
 struct semantic_context {
 	friend struct semantic_analyzer;
 	std::map<std::string, struct_record*> classes;
-	std::map<type_node, struct_type*> specializedTypes;
+	std::map<size_t, struct_type*> specializedTypes;
 
 	struct_record* addClass(struct_node* cls);
 	rtl_class_record* addRTL(rtl_class_record* record);

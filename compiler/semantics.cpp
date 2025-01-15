@@ -64,6 +64,7 @@ list<expr_node*> collectExprs(stmt_node* stmt) {
 		result.add(stmt->rvalue);
 	}
 	for (redim_clause_node* redim : *stmt->redim) {
+		result.add(redim->Id);
 		result.addAllNotNull(*redim->arg);
 	}
 
@@ -328,7 +329,7 @@ bool semantic_analyzer::analyzeProgram(program_node* node)
 		// Сначала соберем информацию о всех методах
 		for (procedure_node* proc : *cls->methods) {
 			method_record * rec = clsRecord->addMethod(proc, ctx);
-			if (rec->name == "Main" && rec->isStatic && rec->args.isEmpty() 
+			if ((rec->name == "main" || rec->name == "Main") && rec->isStatic && rec->args.isEmpty()
 				&& dynamic_cast<void_type*>(rec->returnType) != nullptr) {
 				mainMethods->add(rec);
 			}
@@ -477,7 +478,7 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 	
 	// check type for var decl
 	if (stmt->type == stmt_type::VarDecl) {
-		if (method->locals.count(stmt->var_decl->varName)) {
+		if (method->locals.count(stmt->var_decl->varName) || structRecord->fields.count(stmt->var_decl->varName)) {
 			name_error("Variable '%s' already declared (re-declaraton)", stmt->var_decl->varName.c_str());
 		}
 		localvar_record* varRecord = new localvar_record();
@@ -717,11 +718,11 @@ void semantic_analyzer::processExpr(struct_record* structRecord, method_record *
 		constant = structRecord->addLiteralConstant(expr->String);
 	}
 	else if (expr->type == expr_type::Float) {
-		if (expr->Float <= FLT_MAX && expr->Float >= FLT_MIN) {
-			constant = structRecord->addLiteralConstant((float) expr->Float);
+		if (expr->Float > FLT_MAX && expr->Float < FLT_MIN) {
+			constant = structRecord->addLiteralConstant(expr->Float);
 		}
 		else {
-			constant = structRecord->addLiteralConstant(expr->Float);
+			constant = structRecord->addLiteralConstant((float) expr->Float);
 		}
 	}
 

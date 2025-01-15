@@ -94,6 +94,7 @@ enum class Instruction : uint8_t {
     i2d = 0x87,
     i2l = 0x85,
     l2i = 0x88,
+    f2d = 0x8d,
 
     dadd = 0x63,
     dsub = 0x67,

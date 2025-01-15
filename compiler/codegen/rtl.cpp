@@ -302,13 +302,13 @@ rtl_class_record* initDatetime() {
 }
 
 rtl_class_record* initUtils() {
-	rtl_class_record* rec = rtl_class_record::Console;
+	rtl_class_record* rec = rtl_class_record::CompilerUtils;
 	rec->type = new rtl_type(rec);
 	rec->parent = rtl_class_record::Object;
 
 	rec->methods["erase"] = new method_record("erase", rec, new void_type(), true, { new parameter_record("array", new jvm_array_type(rtl_class_record::Object->type), nullptr) });
 	rec->methods["redim"] = new method_record("redim", rec, new jvm_array_type(rtl_class_record::Object->type), true, { new parameter_record("array", new jvm_array_type(rtl_class_record::Object->type), nullptr),
-		 new parameter_record("size", new jvm_array_type(rtl_class_record::Number->type), nullptr)});
+		new parameter_record("length", rtl_class_record::Number->type, nullptr) });
 	rec->node = createDummyStructNode(rec);
 	return rec;
 }
@@ -331,7 +331,7 @@ rtl_class_record* rtl_class_record::Char = new rtl_class_record("Char");
 rtl_class_record* rtl_class_record::Console = new rtl_class_record("Console");
 rtl_class_record* rtl_class_record::DateTime = new rtl_class_record("Date");
 rtl_class_record* rtl_class_record::Math = new rtl_class_record("Math");
-rtl_class_record* rtl_class_record::CompilerUtils = new rtl_class_record("<CompilerUtils>");
+rtl_class_record* rtl_class_record::CompilerUtils = new rtl_class_record("CompilerUtils");
 
 void initRTL() {
 	rtl_class_record::Number = initNumber();

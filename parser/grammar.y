@@ -495,7 +495,7 @@ stmt: CALL_KW expr endl_list                        {parser_print("CALL_KW expr 
     | EXIT_KW SELECT_KW endl_list                   {parser_print("EXIT_KW SELECT_KW endl_list -> stmt");$$ = create_exit(stmt_type::ExitSelect); new_stmt = true;}
     ;
 
-redim_clause: ID '(' opt_endl expr_list opt_endl ')'                 { parser_print("ID '(' opt_endl expr_list opt_endl ')' -> redim_clause"); $$ = create_redim_clause($1, $4); }
+redim_clause: expr '(' opt_endl expr_list opt_endl ')'                 { parser_print("expr '(' opt_endl expr_list opt_endl ')' -> redim_clause"); $$ = create_redim_clause($1, $4); }
             ;
 
 redim_clause_list: redim_clause                                      { parser_print("redim_clause -> redim_clause_list"); $$ = create_redim_clause_list(); $$->add($1); }

@@ -3,10 +3,15 @@ Class Array(Of T)
     Dim ptr as Integer = 0
 
     Sub SetLength(size as ULong) 
+        Console.Write("Extending to ")
+        Console.WriteLine(size)
         Redim src(size)
     End Sub
     
     Sub Add(val as T)
+        If (ptr >= src.Length) Then
+            Call SetLength(ptr + 16)
+        End If
         src(ptr) = val
         ptr += 1
     End Sub
@@ -16,9 +21,6 @@ Class Array(Of T)
     End Sub
     
     Function Get(i as Integer) as T
-        If (i >= src.Length) Then
-            Call SetLength(i + 16)
-        End If
         Return src(i)
     End Function
     
@@ -43,5 +45,9 @@ Class Main
                 arr.Add(cnt)
             End If
         Next
+        
+        Dim arr2 as Array(Of Array(Of ULong)) = new Array(Of Array(Of ULong))()
+        arr2.Add(new Array(Of ULong)())
+        arr2.Add(new Array(Of ULong)())
     End Sub
 End Class
