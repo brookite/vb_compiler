@@ -23,14 +23,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 double res = a + b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     }
                 }
             } else {
@@ -38,14 +38,14 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 long res = a + b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     }
                 }
             }
@@ -61,14 +61,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 double res = a - b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     }
                 }
             } else {
@@ -76,19 +76,19 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 long res = a - b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     }
                 }
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new ArithmeticException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -99,14 +99,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 double res = a * b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     }
                 }
             } else {
@@ -114,14 +114,14 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 long res = a * b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     }
                 }
             }
@@ -137,14 +137,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 double res = a / b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     }
                 }
             } else {
@@ -152,14 +152,14 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 long res = a / b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     }
                 }
             }
@@ -175,14 +175,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 double res = a / b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     }
                 }
             } else {
@@ -190,14 +190,14 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 long res = a / b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     }
                 }
             }
@@ -213,14 +213,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 double res = java.lang.Math.pow(a, b);
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     }
                 }
             } else {
@@ -228,14 +228,14 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 long res = (long) java.lang.Math.pow(a, b);
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     }
                 }
             }
@@ -251,14 +251,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 double res = a % b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(double.class).newInstance(res);
                     }
                 }
             } else {
@@ -266,14 +266,14 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 long res = a % b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                     }
                 }
             }
@@ -288,14 +288,14 @@ public abstract class Number extends Object {
             long b = other.getInteger();
             long res = a | b;
             if (other.byteSize() > this.byteSize()) {
-                return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
             } else if (other.byteSize() < this.byteSize()) {
-                return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
             } else {
                 if (other.isUnsigned()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 }
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -309,14 +309,14 @@ public abstract class Number extends Object {
             boolean b = other.getBoolean();
             boolean res = a || b;
             if (other.byteSize() > this.byteSize()) {
-                return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
             } else if (other.byteSize() < this.byteSize()) {
-                return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
             } else {
                 if (other.isUnsigned()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 }
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -330,14 +330,14 @@ public abstract class Number extends Object {
             long b = other.getInteger();
             long res = a & b;
             if (other.byteSize() > this.byteSize()) {
-                return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
             } else if (other.byteSize() < this.byteSize()) {
-                return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
             } else {
                 if (other.isUnsigned()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 }
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -351,14 +351,14 @@ public abstract class Number extends Object {
             boolean b = other.getBoolean();
             boolean res = a && b;
             if (other.byteSize() > this.byteSize()) {
-                return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
             } else if (other.byteSize() < this.byteSize()) {
-                return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
             } else {
                 if (other.isUnsigned()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 }
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -371,11 +371,11 @@ public abstract class Number extends Object {
             if (!this.isInteger()) {
                 double a = this.getFloat();
                 double res = +a;
-                return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
             } else {
                 long a = this.getInteger();
                 long res = +a;
-                return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new ArithmeticException(e.getMessage());
@@ -387,11 +387,11 @@ public abstract class Number extends Object {
             if (!this.isInteger()) {
                 double a = this.getFloat();
                 double res = -a;
-                return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
             } else {
                 long a = this.getInteger();
                 long res = -a;
-                return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new ArithmeticException(e.getMessage());
@@ -402,7 +402,7 @@ public abstract class Number extends Object {
         try {
             long a = this.getInteger();
             long res = ~a;
-            return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+            return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new ArithmeticException(e.getMessage());
         }
@@ -414,14 +414,14 @@ public abstract class Number extends Object {
             long b = other.getInteger();
             long res = a << b;
             if (other.byteSize() > this.byteSize()) {
-                return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
             } else if (other.byteSize() < this.byteSize()) {
-                return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
             } else {
                 if (other.isUnsigned()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 }
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -435,14 +435,14 @@ public abstract class Number extends Object {
             long b = other.getInteger();
             long res = a >> b;
             if (other.byteSize() > this.byteSize()) {
-                return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
             } else if (other.byteSize() < this.byteSize()) {
-                return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
             } else {
                 if (other.isUnsigned()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 }
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -457,14 +457,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 boolean res = a <= b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     }
                 }
             } else {
@@ -472,14 +472,14 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 boolean res = a <= b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     }
                 }
             }
@@ -495,14 +495,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 boolean res = a >= b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     }
                 }
             } else {
@@ -510,14 +510,14 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 boolean res = a >= b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     }
                 }
             }
@@ -533,14 +533,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 boolean res = a < b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     }
                 }
             } else {
@@ -548,14 +548,14 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 boolean res = a < b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     }
                 }
             }
@@ -571,14 +571,14 @@ public abstract class Number extends Object {
                 double b = other.getFloat();
                 boolean res = a > b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Double.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     }
                 }
             } else {
@@ -586,14 +586,14 @@ public abstract class Number extends Object {
                 long b = other.getInteger();
                 boolean res = a > b;
                 if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                 } else {
                     if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     } else {
-                        return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
                     }
                 }
             }
@@ -608,14 +608,14 @@ public abstract class Number extends Object {
             long b = other.getInteger();
             long res = a ^ b;
             if (other.byteSize() > this.byteSize()) {
-                return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
             } else if (other.byteSize() < this.byteSize()) {
-                return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
             } else {
                 if (other.isUnsigned()) {
-                    return this.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 } else {
-                    return other.getClass().getDeclaredConstructor(Long.class).newInstance(res);
+                    return other.getClass().getDeclaredConstructor(long.class).newInstance(res);
                 }
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {

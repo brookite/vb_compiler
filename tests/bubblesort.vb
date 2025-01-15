@@ -22,11 +22,18 @@ Class Program
         Dim numbers() As Integer = {5, 2, 9, 1, 5, 6}
 
         Console.WriteLine("Исходный массив:")
-        Console.WriteLine(numbers)
+        For Each number As Integer In numbers
+            Console.Write(number)
+            Console.Write(" ")
+        Next
 
         BubbleSort.Sort(numbers)
+        Console.WriteLine("")
 
         Console.WriteLine("Отсортированный массив:")
-        Console.WriteLine(numbers)
+        For Each number As Integer In numbers
+            Console.Write(number)
+            Console.Write(" ")
+        Next
     End Sub
 End Class

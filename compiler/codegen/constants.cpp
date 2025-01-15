@@ -4,14 +4,18 @@ bytearray_t constant_utf8::toBytes()
 {
     byte_writer writer;
     writer.addByte(TAG);
-    writer.addInt16((uint16_t)this->value.length());
+    if (this->value.size() > UINT16_MAX) {
+        internal_error("Too big string");
+    }
+    writer.addInt16(this->value.size());
     writer.addUTF8(this->value);
     return writer.getByteArray();
 }
 
 std::string constant_utf8::printable()
 {
-    return "[" + std::to_string(this->number) + "]" + "utf8: " + this->value;
+    return "[" + std::to_string(this->number) + "]<" + std::to_string(this->value.size())
+        + "> " + "utf8: " + this->value;
 }
 
 bytearray_t constant_class::toBytes()

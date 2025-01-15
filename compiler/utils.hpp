@@ -18,6 +18,7 @@ void debug_print(const char* format, ...);
 void lexer_print(const char* format, ...);
 void parser_print(const char* format, ...);
 void semantic_print(const char* format, ...);
+void codegen_print(const char* format, ...);
 
 void internal_error(const char* msg, ...);
 void lexer_error(const char* msg, ...);
@@ -327,6 +328,10 @@ public:
     void addFloat(float value);
     void addDouble(double value);
     void setBytes(size_t from, size_t to, void* val);
+    int16_t bigEndian(int16_t);
+    int32_t bigEndian(int32_t);
+    int64_t bigEndian(int64_t);
+
     size_t offset();
 
     bytearray_t getByteArray();

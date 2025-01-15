@@ -23,15 +23,33 @@ void runCompile(const char* path, const char * outDir) {
     bool err = analyzer.analyzeProgram(program);
     if (!err) {
         std::map<std::string, bytearray_t>* code = analyzer.compile();
-        std::string dir = std::string(outDir) + "/out/brookit/vb/code/";
-        if (!fs::exists(dir)) {
-            fs::create_directories(dir);
+        std::string filename = file_path.stem().string();
+        std::string outputDir = std::string(outDir);
+        outputDir += std::string("/out/") + filename;
+        std::string codeDir = outputDir + "/brookit/vb/code/";
+        if (!fs::exists(codeDir)) {
+            fs::create_directories(codeDir);
         }
+
+        std::string rtlPath = "RTL/brookit/vb/lang";
+        if (!fs::exists(rtlPath)) {
+            rtlPath = "VbRTL/target/classes/brookit/vb/lang";
+            if (!fs::exists(rtlPath)) {
+                internal_error("No RTL added with executable file. Put RTL/ folder with RTL nearby this executable file");
+            }
+        }
+        fs::copy(rtlPath, outputDir + "/brookit/vb/lang", fs::copy_options::overwrite_existing);
+
         for (auto& pair : *code) {
-            FILE* file = fopen((dir + pair.first + ".class").c_str(), "wb");
+            FILE* file = fopen((codeDir + pair.first + ".class").c_str(), "wb");
             fwrite(pair.second.bytes, sizeof(byte_t), pair.second.length, file);
             fclose(file);
         }
+
+        char command[1024];
+        sprintf(command, "jar cfe %s.vb.jar brookit.vb.code.%s -C %s .", outputDir.c_str(), 
+            analyzer.entryPoint->owner->name.c_str(), outputDir.c_str());
+        system(command);
     }
     if (DEBUG) {
         std::string constantFile = std::string(outDir) + "/" + file_path.stem().string() + ".constant.txt";

@@ -81,7 +81,7 @@ public:
 	virtual constant_methodref* getConstantFor(struct_record* record, struct_type* trueOwner = nullptr);
 
 	std::string jvmDescriptor();
-	bytearray_t bytecode(semantic_context * ctx);
+	bytearray_t bytecode(semantic_context * ctx, Bytecode ** bytecode = nullptr);
 	virtual bytearray_t toBytes(semantic_context * ctx);
 
 	uint16_t localvarCounter = 0;

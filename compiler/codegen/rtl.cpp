@@ -50,49 +50,32 @@ rtl_class_record* initNumber() {
 	rec->type = new number_rtl_type(rec);
 	rec->parent = rtl_class_record::Object;
 
-	rec->methods["add"] = new method_record("add", rec, rec->type, false, {new parameter_record("left", rec->type, nullptr), 
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["sub"] = new method_record("sub", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["mul"] = new method_record("mul", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["div"] = new method_record("div", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["floorDiv"] = new method_record("floorDiv", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["exp"] = new method_record("exp", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["mod"] = new method_record("mod", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["or"] = new method_record("or", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["orElse"] = new method_record("orElse", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["and"] = new method_record("and", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["andAlso"] = new method_record("andAlso", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["unaryPlus"] = new method_record("unaryPlus", rec, rec->type, false, { new parameter_record("arg", rec->type, nullptr)});
-	rec->methods["unaryMinus"] = new method_record("unaryMinus", rec, rec->type, false, { new parameter_record("arg", rec->type, nullptr) });
-	rec->methods["not"] = new method_record("not", rec, rec->type, false, { new parameter_record("arg", rec->type, nullptr) });
-	rec->methods["lshift"] = new method_record("lshift", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["rshift"] = new method_record("rshift", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["lte"] = new method_record("lte", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["lt"] = new method_record("lt", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["gte"] = new method_record("gte", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["gt"] = new method_record("gt", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
-	rec->methods["xor"] = new method_record("xor", rec, rec->type, false, { new parameter_record("left", rec->type, nullptr),
-		new parameter_record("right", rec->type, nullptr) });
+	rec->methods["add"] = new method_record("add", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["sub"] = new method_record("sub", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["mul"] = new method_record("mul", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["div"] = new method_record("div", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["floorDiv"] = new method_record("floorDiv", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["exp"] = new method_record("exp", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["mod"] = new method_record("mod", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["or"] = new method_record("or", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["orElse"] = new method_record("orElse", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["and"] = new method_record("and", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["andAlso"] = new method_record("andAlso", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["unaryPlus"] = new method_record("unaryPlus", rec, rec->type, false, { });
+	rec->methods["unaryMinus"] = new method_record("unaryMinus", rec, rec->type, false, { });
+	rec->methods["not"] = new method_record("not", rec, rec->type, false, { });
+	rec->methods["lshift"] = new method_record("lshift", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["rshift"] = new method_record("rshift", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["lte"] = new method_record("lte", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["lt"] = new method_record("lt", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["gte"] = new method_record("gte", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["gt"] = new method_record("gt", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["xor"] = new method_record("xor", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
 
 	rec->methods["getBoolean"] = new method_record("getBoolean", rec, new jvm_type("Boolean", "Z"), false, {});
 	rec->methods["getDouble"] = new method_record("getDouble", rec, new jvm_type("Double", "D"), false, {});
-	rec->methods["getInteger"] = new method_record("getInteger", rec, new jvm_type("Long", "L"), false, {});
+	rec->methods["getInteger"] = new method_record("getInteger", rec, new jvm_type("Long", "J"), false, {});
+
 
 	rec->node = createDummyStructNode(rec);
 	return rec;
@@ -246,8 +229,8 @@ rtl_class_record* initConsole() {
 	rec->type = new rtl_type(rec);
 	rec->parent = rtl_class_record::Object;
 
-	rec->methods["WriteLine"] = new method_record("WriteLine", rec, new void_type(), true, { new parameter_record("val", rtl_class_record::Object->type, nullptr) });
-	rec->methods["Write"] = new method_record("Write", rec, new void_type(), true, {new parameter_record("val", rtl_class_record::Object->type, nullptr)});
+	rec->methods["WriteLine"] = new method_record("WriteLine", rec, new void_type(), true, { new parameter_record("val", new jvm_type("Object", "Ljava/lang/Object;"), nullptr)});
+	rec->methods["Write"] = new method_record("Write", rec, new void_type(), true, {new parameter_record("val", new jvm_type("Object", "Ljava/lang/Object;"), nullptr)});
 	rec->methods["ReadLine"] = new method_record("ReadLine", rec, rtl_class_record::String->type, true, {});
 	rec->methods["ReadInt"] = new method_record("ReadInt", rec, rtl_class_record::Long->type, true, {});
 	rec->methods["ReadDouble"] = new method_record("ReadDouble", rec, rtl_class_record::Double->type, true, {});
@@ -349,7 +332,6 @@ rtl_class_record* rtl_class_record::Console = new rtl_class_record("Console");
 rtl_class_record* rtl_class_record::DateTime = new rtl_class_record("Date");
 rtl_class_record* rtl_class_record::Math = new rtl_class_record("Math");
 rtl_class_record* rtl_class_record::CompilerUtils = new rtl_class_record("<CompilerUtils>");
-
 
 void initRTL() {
 	rtl_class_record::Number = initNumber();

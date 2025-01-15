@@ -1,6 +1,7 @@
 package brookit.vb.lang;
 
 import java.lang.String;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Console extends Object {
@@ -16,12 +17,24 @@ public class Console extends Object {
         return new Boolean(false);
     }
 
-    public static void WriteLine(Object o) {
-        System.out.println(o.toJvmString());
+    public static void WriteLine(java.lang.Object o) {
+        if (o instanceof Object obj) {
+            System.out.println(obj.toJvmString());
+        } else if (o instanceof Object[] arr) {
+            System.out.println(Arrays.toString(arr));
+        } else {
+            System.out.println(o.toString());
+        }
     }
 
-    public static void Write(Object o) {
-        System.out.print(o.toJvmString());
+    public static void Write(java.lang.Object o) {
+        if (o instanceof Object obj) {
+            System.out.print(obj.toJvmString());
+        } else if (o instanceof Object[] arr){
+            System.out.print(Arrays.toString(arr));
+        } else {
+            System.out.println(o.toString());
+        }
     }
 
     public static brookit.vb.lang.String ReadLine() {

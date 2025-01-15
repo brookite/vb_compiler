@@ -260,7 +260,7 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
 
 
     removeUnderline(intLiteral);
-    intValue = atoi(intLiteral); lexer_print("Found a integer value: %d\n", intValue);
+    intValue = atoll(intLiteral); lexer_print("Found a integer value: %d\n", intValue);
     IntType t = IntType::NO_SPEC;
     if (endsWith(lexeme, "S")){
         t = IntType::SHORT_MOD;

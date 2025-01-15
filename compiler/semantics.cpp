@@ -710,7 +710,7 @@ void semantic_analyzer::processExpr(struct_record* structRecord, method_record *
 	// avoid recursive subexprs changes here
 	
 	constant_record * constant = nullptr;
-	if (expr->type == expr_type::Int && intSizeOf(expr->Int) >= 2) {
+	if (expr->type == expr_type::Int && intSizeOf(expr->Int) > 2) {
 		constant = structRecord->addLiteralConstant(expr->Int);
 	}
 	else if (expr->type == expr_type::String) {

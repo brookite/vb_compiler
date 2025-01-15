@@ -50,7 +50,7 @@ std::string method_record::jvmDescriptor()
     return descr;
 }
 
-bytearray_t method_record::bytecode(semantic_context * ctx)
+bytearray_t method_record::bytecode(semantic_context * ctx, Bytecode ** bytecode)
 {
     Bytecode * code = new Bytecode(ctx, this);
     if (name == "<init>") {
@@ -59,18 +59,26 @@ bytearray_t method_record::bytecode(semantic_context * ctx)
         code->invokespecial(parentCall->number);
     }
     bytecodeBlock(node->block, code, nullptr);
-    if (dynamic_cast<void_type*>(this->returnType) == nullptr) {
-        code->nullLoad();
-        code->areturn();
+    if (node->block->isEmpty() || node->block->last()->type != stmt_type::Return) {
+        if (dynamic_cast<void_type*>(this->returnType) == nullptr) {
+            code->nullLoad();
+            code->areturn();
+        }
+        else {
+            code->returnVoid();
+        }
     }
-    else {
-        code->returnVoid();
+
+    if (bytecode != nullptr) {
+        *bytecode = code;
     }
+
     return code->writer->getByteArray();
 }
 
 bytearray_t method_record::toBytes(semantic_context * ctx)
 {
+    Bytecode * bytecodeObj = nullptr;
     byte_writer* writer = new byte_writer();
     writer->addInt16((this->name == "<clinit>" ? 0x0 : 0x0001) |
         (isStatic ? 0x0008 : 0)
@@ -82,16 +90,20 @@ bytearray_t method_record::toBytes(semantic_context * ctx)
     byte_writer* codeWriter = new byte_writer();
     codeWriter->addInt16(1000);
     codeWriter->addInt16(localvarCounter);
-    bytearray_t bytecode = this->bytecode(ctx);
+    bytearray_t bytecode = this->bytecode(ctx, &bytecodeObj);
     codeWriter->addInt32((uint32_t) bytecode.length);
     codeWriter->addBytes(bytecode);
     codeWriter->addInt16(0);
-    codeWriter->addInt16(0);
+    codeWriter->addInt16(0); // stack map решено не делать
 
     bytearray_t code = codeWriter->getByteArray();
 
     writer->addInt16(1); // Code constant always 1
+    if (code.length == 0) {
+        internal_error("Empty code");
+    }
     writer->addInt32(code.length);
+    codegen_print("%s Code length: %d, offset=%d", name.c_str(), code.length, writer->offset());
     writer->addBytes(code);
 
     return writer->getByteArray();
@@ -113,6 +125,9 @@ constant_record* struct_record::addConstant(constant_record* record)
     if (found == nullptr) {
         record->number = constantCounter;
         constantCounter++;
+        if (dynamic_cast<constant_double*>(record) != nullptr || dynamic_cast<constant_long*>(record) != nullptr) {
+            constantCounter++;
+        }
         constant[record->number] = record;
         return record;
     }
@@ -177,8 +192,16 @@ constant_record* struct_record::addConstantBy(struct type* type)
 
 constant_record* struct_record::addLiteralConstant(long long value)
 {
-    return addConstant(new constant_long(value));
+    constant_record* rec;
+    if (intSizeOf(value) > 4) {
+        rec = new constant_long(value);
+    }
+    else {
+        rec = new constant_int(value);
+    }
+    return addConstant(rec);
 }
+
 
 constant_record* struct_record::addLiteralConstant(double value)
 {
@@ -375,8 +398,11 @@ bytearray_t struct_record::toBytes(semantic_context * ctx)
     writer->addInt16(currentConst);
     writer->addInt16(parentConst);
     writer->addInt16(0);
+    codegen_print("Fields offset=%d", writer->offset());
     writer->addBytes(fields);
+    codegen_print("Methods offset=%d", writer->offset());
     writer->addBytes(methods);
+    codegen_print("End of methods offset=%d", writer->offset());
     writer->addInt16(0);
     return writer->getByteArray();
 }
@@ -462,6 +488,7 @@ bytearray_t asBytes(std::map<std::string, method_record*>* table, semantic_conte
     byte_writer* writer = new byte_writer();
     writer->addInt16(table->size());
     for (auto& pair : *table) {
+        codegen_print("%s method offset = %d", pair.first.c_str(), writer->offset());
         writer->addBytes(pair.second->toBytes(ctx));
     }
     return writer->getByteArray();

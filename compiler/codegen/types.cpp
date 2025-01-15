@@ -107,7 +107,11 @@ bool type::isAssignableFrom(type * t, semantic_context& context) const
     rtl_type* rtl = dynamic_cast<rtl_type*>(t);
     const struct_type* s = dynamic_cast<const struct_type*>(t);
 
-    if (this == rtl_class_record::Object->type || *this == *rtl_class_record::Object->type) {
+    if (this->jvmDescriptor() == "Ljava/lang/Object;") {
+        return true;
+    }
+
+    if (this == rtl_class_record::Object->type && dynamic_cast<jvm_array_type*>(t) == nullptr) {
         return true;
     }
     if (t == rtl_class_record::Number->type && dynamic_cast<const sized_rtl_type*>(this) != nullptr) {

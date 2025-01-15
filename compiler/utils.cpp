@@ -230,9 +230,9 @@ void byte_writer::addInt64(int64_t num, bool big_endian) {
     if (big_endian) {
         num = htonll(num);
     }
-    ensureCapacity(sizeof(num));
-    std::memcpy(buffer + position, &num, sizeof(num));
-    position += sizeof(num);
+    ensureCapacity(sizeof(int64_t));
+    std::memcpy(buffer + position, &num, sizeof(int64_t));
+    position += sizeof(int64_t);
 }
 
 void byte_writer::addBytes(byte_t* start, size_t count) {
@@ -272,6 +272,21 @@ void byte_writer::addDouble(double value) {
 void byte_writer::setBytes(size_t from, size_t to, void* val)
 {
     std::memcpy(buffer + from, val, to - from);
+}
+
+int16_t byte_writer::bigEndian(int16_t val)
+{
+    return htons(val);
+}
+
+int32_t byte_writer::bigEndian(int32_t val)
+{
+    return htonl(val);
+}
+
+int64_t byte_writer::bigEndian(int64_t val)
+{
+    return htonll(val);
 }
 
 size_t byte_writer::offset()

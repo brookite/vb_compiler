@@ -1,7 +1,7 @@
-target/
+target/generated-sources/
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+!**/src/main/**/target/generated-sources/
+!**/src/test/**/target/generated-sources/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

@@ -203,6 +203,7 @@ expr_node* create_new_expr(type_node* type, list<expr_node*>* expr_list) {
 expr_node* create_array_literal(list<expr_node*>* expr_list) {
 	expr_node* node = new expr_node(expr_type::Collection);
 	node->arg_list = expr_list;
+	node->collection = expr_list;
 	return node;
 }
 

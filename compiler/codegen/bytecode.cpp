@@ -1,6 +1,7 @@
 #include "bytecode.hpp"
 #include "types.hpp"
 #include "constants.hpp"
+#include "../utils.hpp"
 
 Bytecode::Bytecode(semantic_context * context, method_record * method)
 {
@@ -69,8 +70,11 @@ bytearray_t Bytecode::astore(uint16_t val)
 bytearray_t Bytecode::iload(uint16_t val)
 {
     size_t start = currentOffset();
+    if (val > UINT8_MAX) {
+        writeSimple(Instruction::wide);
+    }
     writeSimple(Instruction::iload);
-    writer->addByte(val);
+    val > UINT8_MAX ? writer->addInt16(val) : writer->addByte((uint8_t)val);
     return writer->getByteArray(start, currentOffset());
 }
 
@@ -215,6 +219,7 @@ bytearray_t Bytecode::jump(Instruction instr, int16_t offset)
     if (!isJump(instr)) {
         internal_error("Jump accept only jump opcodes");
     }
+    jumpUsed = true;
     size_t start = currentOffset();
     writeSimple(instr);
     writer->addInt16(offset);
@@ -226,6 +231,7 @@ uint32_t Bytecode::futureJump(Instruction instr)
     if (!isJump(instr)) {
         internal_error("Jump accept only jump opcodes");
     }
+    jumpUsed = true;
     writeSimple(instr);
     size_t currOffset = currentOffset();
     writer->addInt16(0);
@@ -241,7 +247,8 @@ void Bytecode::resolveFuture(uint32_t futureNum)
         internal_error("No such jump future");
     }
     std::pair<size_t, size_t> bounds = _futures[futureNum];
-    int16_t offset = currentOffset() - bounds.first;
+    int16_t offset = currentOffset() - (bounds.first - 1);
+    offset = writer->bigEndian(offset);
     writer->setBytes(bounds.first, bounds.second, &offset);
 }
 
@@ -312,9 +319,20 @@ bytearray_t Bytecode::arrayLength()
     return writer->getByteArray(currentOffset() - 1, currentOffset());
 }
 
-bytearray_t Bytecode::constLoad(constant_record* constant)
+bytearray_t Bytecode::constLoad(constant_record* constant, char * sizeDescriptor)
 {
     uint16_t num = constant->number;
+
+    if (dynamic_cast<constant_double*>(constant) != nullptr && sizeDescriptor != nullptr) {
+        *sizeDescriptor = 'D';
+    } else if (dynamic_cast<constant_long*>(constant) != nullptr && sizeDescriptor != nullptr) {
+        *sizeDescriptor = 'J';
+    } else if (dynamic_cast<constant_int*>(constant) != nullptr && sizeDescriptor != nullptr) {
+        *sizeDescriptor = 'I';
+    } if (dynamic_cast<constant_float*>(constant) != nullptr && sizeDescriptor != nullptr) {
+        *sizeDescriptor = 'F';
+    }
+
     if (dynamic_cast<constant_double*>(constant) != nullptr || dynamic_cast<constant_long*>(constant) != nullptr) {
         return ldc2_w(num);
     }
@@ -349,9 +367,17 @@ bytearray_t Bytecode::nullLoad()
     return writer->getByteArray(currentOffset() - 1, currentOffset());
 }
 
-bytearray_t Bytecode::intLoad(int16_t val)
+bytearray_t Bytecode::intLoad(int16_t val, char * sizeDescriptor)
 {
     size_t start = currentOffset();
+
+    if (val < INT8_MAX && sizeDescriptor != nullptr) {
+        *sizeDescriptor = 'B';
+    }
+    else if (sizeDescriptor != nullptr) {
+        *sizeDescriptor = 'S';
+    }
+
     if (val == 0) {
         writeSimple(Instruction::iconst_0);
     }
@@ -374,10 +400,10 @@ bytearray_t Bytecode::intLoad(int16_t val)
         writeSimple(Instruction::iconst_m1);
     }
     else if (val < INT8_MIN || val > INT8_MAX) {
-        bipush((int8_t)val);
+        sipush(val);
     }
     else {
-        sipush(val);
+        bipush((int8_t)val);
     }
     return writer->getByteArray(start, currentOffset());
 }

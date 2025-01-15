@@ -7,6 +7,10 @@ public abstract class Object {
         return new String(toJvmString());
     }
 
+    public java.lang.String toString() {
+        return toJvmString();
+    }
+
     public abstract Boolean equals(Object other);
 
     public Boolean notEquals(Object other) {

@@ -340,13 +340,17 @@ void expr_node::bytecode(Bytecode* code)
 		rtl_class_record* rec = ((rtl_type*)inferType(this->numericType, *code->context, nullptr))->record;
 		code->newObject(rec->type);
 		code->dup();
+		char descr = 'I';
 		if (Int > INT16_MAX || Int < INT16_MIN) {
-			code->constLoad(this->constant);
+			code->constLoad(this->constant, &descr);
 		}
 		else {
-			code->intLoad(Int);
+			code->intLoad(Int, &descr);
 		}
-		code->invokespecial(rec->getConstructorConstant({ "L" }, code->method->owner)->number);
+		if (descr != 'J') {
+			code->writeSimple(Instruction::i2l);
+		}
+		code->invokespecial(rec->getConstructorConstant({ "J" }, code->method->owner)->number);
 	}
 	else if (type == expr_type::Float) {
 		rtl_class_record* rec = ((rtl_type*)inferType(this->numericType, *code->context, nullptr))->record;
@@ -416,8 +420,23 @@ void expr_node::bytecode(Bytecode* code)
 		if (!method->isStatic) {
 			code->loadThis();
 		}
+		int i = 0;
 		for (expr_node* expr : *arg_list) {
+			struct_type* argType = (struct_type *) method->args.get(i)->type;
+			struct_type* exprArgType = (struct_type*) inferType(expr, code->method->owner, code->method, *code->context);
+
+			if (dynamic_cast<sized_rtl_type*>(exprArgType) != nullptr && dynamic_cast<sized_rtl_type*>(argType) != nullptr && argType != exprArgType) {
+				code->newObject(argType);
+				code->dup();
+			}
+
 			expr->bytecode(code);
+
+			if (dynamic_cast<sized_rtl_type*>(exprArgType) != nullptr && dynamic_cast<sized_rtl_type*>(argType) != nullptr && argType != exprArgType) {
+				code->invokespecial(dynamic_cast<sized_rtl_type*>(argType)->record->getConstructorConstant({ "Lbrookit/vb/lang/Number;" }, code->method->owner)->number);
+			}
+
+			i++;
 		}
 		code->invokemethod(method, method->isStatic ? CallInfo::STATIC : CallInfo::VIRTUAL);
 	}
@@ -431,8 +450,23 @@ void expr_node::bytecode(Bytecode* code)
 		if (!method->isStatic) {
 			left->bytecode(code);
 		}
+		int i = 0;
 		for (expr_node* expr : *arg_list) {
+			struct_type* argType = (struct_type*)method->args.get(i)->type;
+			struct_type* exprArgType = (struct_type*)inferType(expr, code->method->owner, code->method, *code->context);
+
+			if (dynamic_cast<sized_rtl_type*>(exprArgType) != nullptr && dynamic_cast<sized_rtl_type*>(argType) != nullptr && exprArgType != argType) {
+				code->newObject(argType);
+				code->dup();
+			}
+
 			expr->bytecode(code);
+
+			if (dynamic_cast<sized_rtl_type*>(exprArgType) != nullptr && dynamic_cast<sized_rtl_type*>(argType) != nullptr && exprArgType != argType) {
+				code->invokespecial(dynamic_cast<sized_rtl_type*>(argType)->record->getConstructorConstant({ "Lbrookit/vb/lang/Number;" }, code->method->owner)->number);
+			}
+
+			i++;
 		}
 		CallInfo info = CallInfo::VIRTUAL;
 		if (method->isStatic) {
@@ -456,14 +490,16 @@ void expr_node::bytecode(Bytecode* code)
 			code->getstatic(field->getConstantFor(code->method->owner, (struct_type*) ownerType)->number);
 		}
 		else {
-			left->bytecode(code);
 			if (dynamic_cast<jvm_array_type*>(field->owner->type) != nullptr && field->name == "Length") {
-				code->newObject(rtl_class_record::ULong->type);
+				code->newObject(rtl_class_record::UInteger->type);
 				code->dup();
+				left->bytecode(code);
 				code->arrayLength();
-				code->invokevirtual(rtl_class_record::ULong->getConstructorConstant({ "L" }, code->method->owner)->number);
+				code->writeSimple(Instruction::i2l);
+				code->invokespecial(rtl_class_record::UInteger->getConstructorConstant({ "J" }, code->method->owner)->number);
 			}
 			else {
+				left->bytecode(code);
 				code->getfield(field->getConstantFor(code->method->owner, (struct_type*)ownerType)->number);
 			}
 		}
@@ -496,40 +532,43 @@ void expr_node::bytecode(Bytecode* code)
 	else if (type == expr_type::ArrayNew || type == expr_type::Collection) {
 		struct_type* targetType;
 		if (type == expr_type::Collection) {
-			targetType = (struct_type*)inferType(this, code->method->owner, code->method, *code->context);
+			targetType = (struct_type*) ((jvm_array_type*)inferType(this, code->method->owner, code->method, *code->context))->valueType;
 		}
 		else {
 			targetType = (struct_type*)inferType(this->datatype, *code->context, code->method->owner->typeMap);
 		}
-		expr_node* length = this->arg_list->isEmpty() ? nullptr : this->arg_list->first();
+		expr_node* length = this->arg_list->isEmpty() || type == expr_type::Collection ? nullptr : this->arg_list->first();
 		size_t size = this->collection->size();
 		if (length == nullptr) {
 			if (size <= UINT16_MAX) {
 				code->intLoad(size);
 			}
 			else {
-				constant_record* constRec = code->method->owner->addConstant(new constant_long(size));
+				constant_record* constRec = code->method->owner->addConstant(new constant_int(size));
 				code->constLoad(constRec);
 			}
 		}
 		else {
+			struct_type* lengthType = (struct_type*)inferType(length, code->method->owner, code->method, *code->context);
 			length->bytecode(code);
+			code->invokemethod(lengthType->record->resolveMethod("getInteger"), CallInfo::VIRTUAL);
+			code->writeSimple(Instruction::l2i);
 		}
 		code->newArray(targetType);
 
 		for (size_t i = 0; i < collection->size(); i++) {
 			code->dup();
-			code->intLoad(size);
+			code->intLoad(i);
 			collection->get(i)->bytecode(code);
 			code->aastore();
 		}
 		code->astore(localvarNum);
 		code->intLoad(collection->size());
 		code->istore(localvarNum + 1);
+		size_t pos1 = code->currentOffset();
 		code->iload(localvarNum + 1);
 		code->aload(localvarNum);
 		code->arrayLength();
-		size_t pos1 = code->currentOffset();
 		uint32_t f1 = code->futureJump(Instruction::if_icmpge);
 
 		code->aload(localvarNum);
@@ -546,6 +585,7 @@ void expr_node::bytecode(Bytecode* code)
 		int16_t offset = code->currentOffset() - pos1;
 		code->jump(Instruction::_goto, -offset);
 		code->resolveFuture(f1);
+		code->aload(localvarNum);
 	}
 	else if (type == expr_type::If) {
 		condition->bytecode(code);
@@ -565,12 +605,15 @@ void expr_node::bytecode(Bytecode* code)
 	}
 	else if (type == expr_type::Index) {
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
+		struct_type* argType = (struct_type*)inferType(argument, code->method->owner, code->method, *code->context);
 		left->bytecode(code);
 		argument->bytecode(code);
 		if (leftType == rtl_class_record::String->type) {
 			code->invokemethod(leftType->record->resolveMethod("Get"), CallInfo::VIRTUAL);
 		}
 		else {
+			code->invokemethod(argType->record->resolveMethod("getInteger"), CallInfo::VIRTUAL);
+			code->writeSimple(Instruction::l2i);
 			code->aaload();
 		}
 	}
@@ -782,6 +825,10 @@ void stmt_node::bytecode(Bytecode* code)
 {
 	if (type == stmt_type::Call) {
 		target_expr->bytecode(code);
+		struct type* retType = inferType(target_expr, code->method->owner, code->method, *code->context);
+		if (dynamic_cast<void_type*>(retType) == nullptr && retType != nullptr) {
+			code->pop();
+		}
 	}
 	else if (type == stmt_type::If) {
 		condition->bytecode(code);
@@ -828,7 +875,7 @@ void stmt_node::bytecode(Bytecode* code)
 		code->makeWaypoint(this);
 		beginOffset = code->getWaypoint(this);
 		code->aload(localvarNum);
-		target_expr->bytecode(code);
+		to_expr->bytecode(code);
 		code->invokemethod(varType->record->resolveMethod("lt"), CallInfo::VIRTUAL);
 		code->invokemethod(rtl_class_record::Boolean->resolveMethod("getBoolean"), CallInfo::VIRTUAL);
 		uint32_t f = code->futureJump(Instruction::ifeq);
@@ -838,6 +885,7 @@ void stmt_node::bytecode(Bytecode* code)
 		code->aload(localvarNum);
 		step_node->bytecode(code);
 		code->invokemethod(varType->record->resolveMethod("add"), CallInfo::VIRTUAL);
+		code->astore(localvarNum);
 		int16_t offset = (code->currentOffset() - code->popWaypoint(this));
 		code->jump(Instruction::_goto, -offset);
 		code->resolveFuture(f);
@@ -920,20 +968,45 @@ void stmt_node::bytecode(Bytecode* code)
 		code->lastDo = nullptr;
 	}
 	else if (type == stmt_type::VarDecl) {
+		struct_type* lvalueType = (struct_type*)inferType(var_decl->type, *code->context, code->method->owner->typeMap);
+		struct_type* rvalueType = (struct_type*)inferType(var_decl->value, code->method->owner, code->method, *code->context);
+
+		codegen_print("VarDecl offset=%d", code->currentOffset());
+		if (dynamic_cast<sized_rtl_type*>(lvalueType) != nullptr && dynamic_cast<sized_rtl_type*>(rvalueType) != nullptr && lvalueType != rvalueType) {
+			code->newObject(lvalueType);
+			code->dup();
+		}
 		var_decl->value->bytecode(code);
+		if (dynamic_cast<sized_rtl_type*>(lvalueType) != nullptr && dynamic_cast<sized_rtl_type*>(rvalueType) != nullptr && lvalueType != rvalueType) {
+			code->invokespecial(lvalueType->record->getConstructorConstant({ "Lbrookit/vb/lang/Number;" }, code->method->owner)->number);
+		}
 		code->astore(localvarNum);
+		codegen_print("VarDecl exit offset=%d", code->currentOffset());
 	}
 	else if (type == stmt_type::ArrayAssign || type == stmt_type::FieldAssign || type == stmt_type::Assignment) {
 		struct_type* lvalueType = (struct_type*)inferType(lvalue, code->method->owner, code->method, *code->context);
-		
+		struct_type* rvalueType = (struct_type*)inferType(rvalue, code->method->owner, code->method, *code->context);
+
 		if (type == stmt_type::ArrayAssign) {
+			struct_type* argType = (struct_type*)inferType(lvalue->argument, code->method->owner, code->method, *code->context);
 			lvalue->left->bytecode(code);
 			lvalue->argument->bytecode(code);
+			code->invokemethod(argType->record->resolveMethod("getInteger"), CallInfo::VIRTUAL);
+			code->writeSimple(Instruction::l2i);
+		} else if (type == stmt_type::FieldAssign) {
+			if (lvalue->type == expr_type::MemberAccess) {
+				lvalue->left->bytecode(code);
+			}
+			else {
+				code->loadThis();
+			}
 		}
 
-		if (assign_type != assignment_type::Assign) {
-			lvalue->bytecode(code);
+		if (dynamic_cast<sized_rtl_type*>(lvalueType) != nullptr && dynamic_cast<sized_rtl_type*>(rvalueType) != nullptr && lvalueType != rvalueType) {
+			code->newObject(lvalueType);
+			code->dup();
 		}
+
 		rvalue->bytecode(code);
 		if (assign_type == assignment_type::AddAssign) {
 			code->invokemethod(lvalueType->record->resolveMethod("add"), CallInfo::VIRTUAL);
@@ -961,6 +1034,10 @@ void stmt_node::bytecode(Bytecode* code)
 		}
 		else if (assign_type == assignment_type::RshiftAssign) {
 			code->invokemethod(lvalueType->record->resolveMethod("rshift"), CallInfo::VIRTUAL);
+		}
+
+		if (dynamic_cast<sized_rtl_type*>(lvalueType) != nullptr && dynamic_cast<sized_rtl_type*>(rvalueType) != nullptr && lvalueType != rvalueType) {
+			code->invokespecial(lvalueType->record->getConstructorConstant({ "Lbrookit/vb/lang/Number;" }, code->method->owner)->number);
 		}
 
 		if (type == stmt_type::ArrayAssign) {

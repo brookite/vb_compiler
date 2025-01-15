@@ -92,6 +92,8 @@ enum class Instruction : uint8_t {
     iinc = 0x84,
 
     i2d = 0x87,
+    i2l = 0x85,
+    l2i = 0x88,
 
     dadd = 0x63,
     dsub = 0x67,
@@ -119,6 +121,8 @@ struct Bytecode {
 	byte_writer* writer;
     method_record* method;
     semantic_context* context;
+
+    bool jumpUsed = false;
 
     std::map<uint32_t, std::pair<size_t, size_t>> _futures;
     std::map<void*, size_t> _waypoints;
@@ -176,9 +180,9 @@ struct Bytecode {
     bytearray_t arrayLength();
 
 
-    bytearray_t constLoad(constant_record* constant);
+    bytearray_t constLoad(constant_record* constant, char* sizeDescriptor = nullptr);
     bytearray_t invokemethod(method_record* record, CallInfo type, struct_type* trueOwner = nullptr);
     bytearray_t nullLoad();
-    bytearray_t intLoad(int16_t val);
+    bytearray_t intLoad(int16_t val, char* sizeDescriptor = nullptr);
     bytearray_t boolLoad(bool val);
 };

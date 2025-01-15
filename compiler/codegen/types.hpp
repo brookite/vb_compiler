@@ -105,5 +105,3 @@ struct unknown_type : public type {
 type* inferType(expr_node* val, struct_record * context, method_record* methodContext, semantic_context& semanticContext);
 type* inferType(type_node* type, semantic_context& context, std::map<std::string, struct type*>* typeMap);
 size_t intSizeOf(long long value);
-// учесть преобразование типа в expr
-// учесть типы бинарных и логических операторов
