@@ -21,10 +21,16 @@ std::pair<record*, access_target> semantic_context::resolveId(expr_node* value, 
 			return std::pair<record*, access_target>(nullptr, FIELD);
 		} else if (context->resolveMethod(member) != nullptr) {
 			rec = context->resolveMethod(member);
+			if (!context->resolveMethod(member)->isStatic && methodContext->isStatic) {
+				type_error("'%s' is instance method. Instance method isn't allowed in static context", member.c_str());
+			}
 			acc = ((method_record*)rec)->isStatic ? STATIC_METHOD : METHOD;
 		}
 		else if (context->resolveField(member) != nullptr) {
 			rec = context->resolveField(member);
+			if (!context->resolveField(member)->isStatic && methodContext->isStatic) {
+				type_error("'%s' is instance field. Instance field isn't allowed in static context", member.c_str());
+			}
 			acc = FIELD;
 		}
 		else if (classes.count(member)) {

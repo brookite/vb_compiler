@@ -48,14 +48,14 @@ void parser_print(const char* format, ...) {
 void semantic_print(const char* format, ...) {
     va_list args;
     va_start(args, format);
-    debug_print(DEBUG, "semantic", format, args);
+    debug_print(COMPILE_DEBUG, "semantic", format, args);
     va_end(args);
 }
 
 void codegen_print(const char* format, ...) {
     va_list args;
     va_start(args, format);
-    debug_print(DEBUG, "codegen", format, args);
+    debug_print(COMPILE_DEBUG, "codegen", format, args);
     va_end(args);
 }
 

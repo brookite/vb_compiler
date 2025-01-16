@@ -716,9 +716,16 @@ void expr_node::bytecode(Bytecode* code)
 	}
 	else if (type == expr_type::AndAlsoOp) {
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
+		code->newObject(rtl_class_record::Boolean->type);
+		code->dup();
 		left->bytecode(code);
+		code->dup();
+		code->invokemethod(leftType->record->resolveMethod("getBoolean"), CallInfo::VIRTUAL);
+		size_t f = code->futureJump(Instruction::ifeq);
 		right->bytecode(code);
 		code->invokemethod(leftType->record->resolveMethod("andAlso"), CallInfo::VIRTUAL);
+		code->resolveFuture(f);
+		code->invokespecial(rtl_class_record::Boolean->getConstructorConstant({ "Lbrookit/vb/lang/Number;" }, code->method->owner)->number);
 	}
 	else if (type == expr_type::OrOp) {
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
@@ -728,9 +735,16 @@ void expr_node::bytecode(Bytecode* code)
 	}
 	else if (type == expr_type::OrElseOp) {
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
+		code->newObject(rtl_class_record::Boolean->type);
+		code->dup();
 		left->bytecode(code);
+		code->dup();
+		code->invokemethod(leftType->record->resolveMethod("getBoolean"), CallInfo::VIRTUAL);
+		size_t f = code->futureJump(Instruction::ifne);
 		right->bytecode(code);
 		code->invokemethod(leftType->record->resolveMethod("orElse"), CallInfo::VIRTUAL);
+		code->resolveFuture(f);
+		code->invokespecial(rtl_class_record::Boolean->getConstructorConstant({ "Lbrookit/vb/lang/Number;" }, code->method->owner)->number);
 	}
 	else if (type == expr_type::XorOp) {
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);

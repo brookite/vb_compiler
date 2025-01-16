@@ -1,6 +1,6 @@
 Class LuhnAlgorithm
     ' Реализация собственной функции Mid
-    Function MyMid(str As String, startPos As Integer, length As Integer) As String
+    Shared Function MyMid(str As String, startPos As Integer, length As Integer) As String
         Dim result As String = ""
         Dim strLength As Integer = GetLength(str)
         Dim endPos As Integer = startPos + length - 1
@@ -17,17 +17,17 @@ Class LuhnAlgorithm
     End Function
 
     ' Функция для получения длины строки
-    Function GetLength(str As String) As Integer
+    Shared Function GetLength(str As String) As Integer
         Return str.Length()
     End Function
 
     ' Преобразование символа в число
-    Function StrToInt(str as String) As Integer
+    Shared Function StrToInt(str as String) As Integer
         Return CInt(str)
     End Function
 
     ' Функция для извлечения только цифр из строки
-    Function FilterDigits(code As String) As String
+    Shared Function FilterDigits(code As String) As String
         Dim result As String = ""
         For i As Integer = 1 To GetLength(code)
             Dim ch As Char = MyMid(code, i, 1)(0)
@@ -39,7 +39,7 @@ Class LuhnAlgorithm
     End Function
 
     ' Вычисление суммы Луна
-    Function LuhnSum(code As String) As Integer
+    Shared Function LuhnSum(code As String) As Integer
         code = FilterDigits(code)
         Dim length As Integer = GetLength(code)
         Dim parity As Integer = length Mod 2
@@ -62,7 +62,7 @@ Class LuhnAlgorithm
     End Function
 
     ' Проверка валидности по алгоритму Луна
-    Function LuhnCheck(code As String) As Boolean
+    Shared Function LuhnCheck(code As String) As Boolean
         Return LuhnSum(code) Mod 10 = 0
     End Function
 

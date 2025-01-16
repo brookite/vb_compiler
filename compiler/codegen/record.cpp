@@ -285,7 +285,7 @@ void struct_record::makeInit(semantic_context & ctx)
 field_record* struct_record::addField(field_node* node, semantic_context & context)
 {
     field_record* field = new field_record();
-    field->isStatic = field->isStatic;
+    field->isStatic = node->isStatic;
     field->name = node->decl->varName;
     if (field->name == "") {
         internal_error("Empty varName passed");

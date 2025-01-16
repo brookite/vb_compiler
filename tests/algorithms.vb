@@ -1,5 +1,5 @@
 Class Main
-    Function BinaryFind(item As Integer, array() As Integer) As Integer
+    Shared Function BinaryFind(item As Integer, array() As Integer) As Integer
         Dim a As Integer = 0
         Dim b As Integer = array.Length
 
@@ -19,7 +19,7 @@ Class Main
         End If
     End Function
     
-    Function GCD(a As Integer, b As Integer) As Integer
+    Shared Function GCD(a As Integer, b As Integer) As Integer
         While a <> 0 And b <> 0
             If a > b Then
                 a = a Mod b
@@ -31,7 +31,7 @@ Class Main
     End Function
     
     
-    Function Dels(x As Integer) As Integer()
+    Shared Function Dels(x As Integer) As Integer()
         Dim divisors(0) As Integer
         Dim count As Integer = 0
 

@@ -12,6 +12,7 @@
 extern bool DEBUG;
 extern bool PARSER_DEBUG;
 extern bool LEXER_DEBUG;
+extern bool COMPILE_DEBUG;
 
 void debug_print(const char* format, ...);
 

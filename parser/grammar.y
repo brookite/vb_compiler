@@ -28,6 +28,7 @@ void yyerror(char const* s) {
 
 bool PARSER_DEBUG = false;
 bool DEBUG = false;
+
 program_node * program = nullptr;
 
 %}

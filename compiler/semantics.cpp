@@ -603,7 +603,7 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 					value_error("Const variables cannot be redefined");
 				}
 			}
-			else if (res.second == FIELD || res.second == STATIC_FIELD) {
+			else if ((res.second == FIELD || res.second == STATIC_FIELD) && res.first != nullptr) {
 				field_record* field = (field_record*)res.first;
 				if (field->isConst) {
 					value_error("Const fields cannot be redefined");

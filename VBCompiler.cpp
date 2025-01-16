@@ -10,6 +10,8 @@ extern bool new_stmt;
 extern bool DEBUG;
 extern void runParserTests();
 
+bool COMPILE_DEBUG = false;
+
 extern program_node* program;
 
 void runCompile(const char* path, const char * outDir) {

@@ -47,7 +47,7 @@ extern int yydebug;
 /* "%code requires" blocks.  */
 #line 5 "grammar.y"
  #include "../compiler/nodes.hpp" 
-#line 186 "grammar.y"
+#line 187 "grammar.y"
 
     enum class IntType {
         LONG_MOD, INT_MOD, SHORT_MOD, NO_SPEC
@@ -218,7 +218,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 215 "grammar.y"
+#line 216 "grammar.y"
 
     IntLiteral * Int;
     std::string * Str;
