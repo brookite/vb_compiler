@@ -37,10 +37,10 @@ Class BMICalculator
         Dim height As Double = Console.ReadDouble()
 
         ' Расчет и вывод результата
-        Dim bmi As Double = BMI.CalculateBMI(weight, height)
-        Dim category As String = BMI.GetBMICategory(bmi)
+        Dim bmiIndex As Double = BMI.CalculateBMI(weight, height)
+        Dim category As String = BMI.GetBMICategory(bmiIndex)
 
-        Console.WriteLine("Ваш BMI: " & bmi)
+        Console.WriteLine("Ваш BMI: " & bmiIndex)
         Console.WriteLine("Категория: " & category)
     End Sub
 

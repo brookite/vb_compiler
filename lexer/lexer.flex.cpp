@@ -3090,7 +3090,7 @@ YY_RULE_SETUP
     } else {
         yylval.Id = new std::string(yytext);
     }
-    // toLower(yylval.Id);
+    toLower(yylval.Id);
     return ID;
 }
 	YY_BREAK

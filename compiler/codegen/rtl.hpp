@@ -26,6 +26,11 @@ struct rtl_class_record : struct_record {
 	static std::string jvmStdlibPackage() { return "java/lang/"; }
 	static std::string vbPackage() { return "brookit/vb/lang/"; }
 
+	virtual method_record* resolveMethod(std::string id);
+	virtual field_record* resolveField(std::string id);
+	virtual method_record* resolveStaticMethod(std::string id);
+	virtual field_record* resolveStaticField(std::string id);
+
 	bool allowLowercase = false;
  
 	rtl_class_record() {}

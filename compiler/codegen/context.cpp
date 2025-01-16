@@ -344,7 +344,7 @@ rtl_class_record* semantic_context::addRTL(rtl_class_record* record)
 {
 	std::string name = record->name;
 	if (record->allowLowercase) {
-		//toLower(&name);
+		toLower(&name);
 	}
 	classes[name] = record;
 	return record;

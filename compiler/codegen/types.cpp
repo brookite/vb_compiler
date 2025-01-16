@@ -160,7 +160,7 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
             }
             return method->returnType;
         } else {
-            name_error("'%s' method wasn't found in '%s'", val->String, context == nullptr ? "Unknown Context" : context->name);
+            name_error("'%s' method wasn't found in '%s'", val->String.c_str(), context == nullptr ? "Unknown Context" : context->name.c_str());
         }
     }
     else if (val->type == expr_type::MemberAccess

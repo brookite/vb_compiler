@@ -362,3 +362,51 @@ std::string number_rtl_type::jvmDescriptor() const
 {
 	return vbDescriptor("Number");
 }
+
+method_record* rtl_class_record::resolveMethod(std::string id)
+{
+	for (auto& pair : methods) {
+		std::string name = pair.first;
+		toLower(&name);
+		if (name == id) {
+			return pair.second;
+		}
+	}
+	return struct_record::resolveMethod(id);
+}
+
+field_record* rtl_class_record::resolveField(std::string id)
+{
+	for (auto& pair : fields) {
+		std::string name = pair.first;
+		toLower(&name);
+		if (name == id) {
+			return pair.second;
+		}
+	}
+	return struct_record::resolveField(id);
+}
+
+method_record* rtl_class_record::resolveStaticMethod(std::string id)
+{
+	for (auto& pair : methods) {
+		std::string name = pair.first;
+		toLower(&name);
+		if (name == id && pair.second->isStatic) {
+			return pair.second;
+		}
+	}
+	return struct_record::resolveMethod(id);
+}
+
+field_record* rtl_class_record::resolveStaticField(std::string id)
+{
+	for (auto& pair : fields) {
+		std::string name = pair.first;
+		toLower(&name);
+		if (name == id && pair.second->isStatic) {
+			return pair.second;
+		}
+	}
+	return struct_record::resolveField(id);
+}

@@ -450,7 +450,7 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     } else {
         yylval.Id = new std::string(yytext);
     }
-    // toLower(yylval.Id);
+    toLower(yylval.Id);
     return ID;
 }
 
