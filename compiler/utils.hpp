@@ -37,6 +37,8 @@ namespace fs = std::filesystem;
 
 size_t getNewId();
 bool endsWith(const std::string& str, const std::string& suffix);
+void toLower(std::string* strPtr);
+void capitalize(std::string * input);
 size_t lastId();
 std::vector<std::string> find_files(const std::string& directory, const std::string& extension);
 

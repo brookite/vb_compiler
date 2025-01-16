@@ -8,6 +8,7 @@ extern FILE * yyin;
 extern int yylineno;
 extern bool new_stmt;
 extern bool DEBUG;
+extern bool hasSyntaxErrors;
 extern void runParserTests();
 
 bool COMPILE_DEBUG = false;
@@ -21,6 +22,9 @@ void runCompile(const char* path, const char * outDir) {
     }
     fopen_s(&yyin, path, "r");
     yyparse();
+    if (hasSyntaxErrors) {
+        return;
+    }
     semantic_analyzer analyzer;
     bool err = analyzer.analyzeProgram(program);
     if (!err) {

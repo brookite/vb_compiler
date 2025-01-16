@@ -3,89 +3,6 @@
 #include "../semantics.hpp"
 
 
-method_record* operatorToMethod(expr_node* node, struct_record* record, rtl_type* type) {
-    method_record* method = nullptr;
-    if (node->type == expr_type::AddOp) {
-        method = type->record->resolveMethod("add");
-    }
-    else if (node->type == expr_type::AndAlsoOp) {
-        method = type->record->resolveMethod("andAlso");
-    }
-    else if (node->type == expr_type::AndOp) {
-        method = type->record->resolveMethod("and");
-    }
-    else if (node->type == expr_type::DivOp) {
-        method = type->record->resolveMethod("div");
-    }
-    else if (node->type == expr_type::FloorDivOp) {
-        method = type->record->resolveMethod("floorDiv");
-    }
-    else if (node->type == expr_type::MulOp) {
-        method = type->record->resolveMethod("mul");
-    }
-    else if (node->type == expr_type::ExpOp) {
-        method = type->record->resolveMethod("add");
-    }
-    else if (node->type == expr_type::DivOp) {
-        method = type->record->resolveMethod("div");
-    }
-    else if (node->type == expr_type::OrOp) {
-        method = type->record->resolveMethod("or");
-    }
-    else if (node->type == expr_type::OrElseOp) {
-        method = type->record->resolveMethod("orElse");
-    }
-    else if (node->type == expr_type::ModOp) {
-        method = type->record->resolveMethod("mod");
-    }
-    else if (node->type == expr_type::UnaryPlusOp) {
-        method = type->record->resolveMethod("unaryPlus");
-    }
-    else if (node->type == expr_type::UnaryMinusOp) {
-        method = type->record->resolveMethod("unaryMinus");
-    }
-    else if (node->type == expr_type::NotOp) {
-        method = type->record->resolveMethod("not");
-    }
-    else if (node->type == expr_type::LshiftOp) {
-        method = type->record->resolveMethod("lshift");
-    }
-    else if (node->type == expr_type::RshiftOp) {
-        method = type->record->resolveMethod("rshift");
-    }
-    else if (node->type == expr_type::LteOp) {
-        method = type->record->resolveMethod("lte");
-    }
-    else if (node->type == expr_type::GteOp) {
-        method = type->record->resolveMethod("gte");
-    }
-    else if (node->type == expr_type::LtOp) {
-        method = type->record->resolveMethod("lt");
-    }
-    else if (node->type == expr_type::GtOp) {
-        method = type->record->resolveMethod("gt");
-    }
-    else if (node->type == expr_type::IsOp) {
-        method = type->record->resolveMethod("is");
-    }
-    else if (node->type == expr_type::IsNotOp) {
-        method = type->record->resolveMethod("isNot");
-    }
-    else if (node->type == expr_type::EqOp) {
-        method = type->record->resolveMethod("equals");
-    }
-    else if (node->type == expr_type::XorOp) {
-        method = type->record->resolveMethod("xor");
-    }
-    else if (node->type == expr_type::NeqOp) {
-        method = type->record->resolveMethod("notEquals");
-    }
-    if (method != nullptr) {
-        record->addConstantBy(method);
-    }
-    return method;
-}
-
 bool type::operator==(const type& t) const
 {
     return t.jvmDescriptor() == jvmDescriptor();
@@ -386,6 +303,8 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
         char_rtl_type* rightChar = dynamic_cast<char_rtl_type*>(leftT);
 
         list<sized_rtl_type*> cmp;
+        list<sized_rtl_type*> cmpLeft;
+        list<sized_rtl_type*> cmpRight;
         if (leftFloat != nullptr || rightFloat != nullptr) {
             cmp = { (sized_rtl_type*)leftFloat, (sized_rtl_type*)rightFloat };
         }
@@ -397,8 +316,23 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
             };
         }
 
-        if ((cmp.size() - cmp.countNotNull()) == cmp.size()) {
-            type_error("Incompatible types for arithmetic or logical operator, '%s' and '%s'", leftT->readableName().c_str(), rightT->readableName().c_str());
+        cmpLeft = { (sized_rtl_type*)leftInt,
+                (sized_rtl_type*)leftFloat,
+                (sized_rtl_type*)leftBool,
+                (sized_rtl_type*)leftChar,
+        };
+        cmpRight = { (sized_rtl_type*)rightInt,
+            (sized_rtl_type*)rightFloat,
+            (sized_rtl_type*)rightBool,
+            (sized_rtl_type*)rightChar
+        };
+
+        if ((cmpLeft.size() - cmpLeft.countNotNull()) == cmpLeft.size()) {
+            type_error("Incompatible types for arithmetic or logical operator (for left operand), '%s' and '%s'", leftT->readableName().c_str(), rightT->readableName().c_str());
+            return new unknown_type();
+        }
+        if ((cmpRight.size() - cmpRight.countNotNull()) == cmpRight.size()) {
+            type_error("Incompatible types for arithmetic or logical operator (for right operand), '%s' and '%s'", leftT->readableName().c_str(), rightT->readableName().c_str());
             return new unknown_type();
         }
         sized_rtl_type* maxT = nullptr;
@@ -407,7 +341,6 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
                 maxT = t;
             }
         }
-        operatorToMethod(val, context, maxT);
         if (val->type == expr_type::AndAlsoOp
             || val->type == expr_type::OrElseOp
             || val->type == expr_type::OrOp
@@ -425,7 +358,6 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
         
     }
     else if (val->type == expr_type::NeqOp || val->type == expr_type::EqOp) {
-        operatorToMethod(val, context, (rtl_type*) rtl_class_record::Object->type);
         return rtl_class_record::Boolean->type;
     }
     else if (val->type == expr_type::If) {
@@ -481,7 +413,6 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
                 maxT = t;
             }
         }
-        operatorToMethod(val, context, maxT);
         return maxT;
 
     }

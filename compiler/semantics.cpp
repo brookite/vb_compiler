@@ -7,6 +7,10 @@ void _walk_exprs(expr_node* expr, list<expr_node*>* result) {
 		result->add(expr->condition);
 		_walk_exprs(expr->condition, result);
 	}
+	if (expr->argument != nullptr) {
+		result->add(expr->argument);
+		_walk_exprs(expr->argument, result);
+	}
 	if (expr->then_expr != nullptr) {
 		result->add(expr->then_expr);
 		_walk_exprs(expr->then_expr, result);

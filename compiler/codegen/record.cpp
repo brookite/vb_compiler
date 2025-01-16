@@ -349,37 +349,73 @@ method_record* struct_record::addMethod(procedure_node* procNode, semantic_conte
 method_record* struct_record::resolveMethod(std::string id)
 {
     method_record * method = methods.count(id) ? methods[id]: nullptr;
+    std::string origId = id;
+    if (method == nullptr) {
+        toLower(&id);
+        method = methods.count(id) ? methods[id] : nullptr;
+    }
+    if (method == nullptr) {
+        capitalize(&id);
+        method = methods.count(id) ? methods[id] : nullptr;
+    }
     if (method == nullptr && this->parent != nullptr) {
-        method = this->parent->resolveMethod(id);
+        method = this->parent->resolveMethod(origId);
     }
     return method;
 }
 
 field_record* struct_record::resolveField(std::string id)
 {
+    std::string origId = id;
     field_record * field = fields.count(id) ? fields[id] : nullptr;
+    if (field == nullptr) {
+        toLower(&id);
+        field = fields.count(id) ? fields[id] : nullptr;
+    }
+    if (field == nullptr) {
+        capitalize(&id);
+        field = fields.count(id) ? fields[id] : nullptr;
+    }
     if (field == nullptr && this->parent != nullptr) {
-        field = this->parent->resolveField(id);
+        field = this->parent->resolveField(origId);
     }
     return field;
 }
 
 method_record* struct_record::resolveStaticMethod(std::string id)
 {
-    method_record * record = methods.count(id) && methods[id]->isStatic ? methods[id] : nullptr;
-    if (record == nullptr && this->parent != nullptr) {
-        record = this->parent->resolveStaticMethod(id);
+    std::string origId = id;
+    method_record * method = methods.count(id) && methods[id]->isStatic ? methods[id] : nullptr;
+    if (method == nullptr) {
+        toLower(&id);
+        method = methods.count(id) ? methods[id] : nullptr;
     }
-    return record;
+    if (method == nullptr) {
+        capitalize(&id);
+        method = methods.count(id) ? methods[id] : nullptr;
+    }
+    if (method == nullptr && this->parent != nullptr) {
+        method = this->parent->resolveStaticMethod(origId);
+    }
+    return method;
 }
 
 field_record* struct_record::resolveStaticField(std::string id)
 {
-    field_record * record = fields.count(id) && fields[id]->isStatic ? fields[id] : nullptr;
-    if (record == nullptr && this->parent != nullptr) {
-        record = this->parent->resolveStaticField(id);
+    std::string origId = id;
+    field_record * field = fields.count(id) && fields[id]->isStatic ? fields[id] : nullptr;
+    if (field == nullptr) {
+        toLower(&id);
+        field = fields.count(id) ? fields[id] : nullptr;
     }
-    return record;
+    if (field == nullptr) {
+        capitalize(&id);
+        field = fields.count(id) ? fields[id] : nullptr;
+    }
+    if (field == nullptr && this->parent != nullptr) {
+        field = this->parent->resolveStaticField(origId);
+    }
+    return field;
 }
 
 bytearray_t struct_record::toBytes(semantic_context * ctx)

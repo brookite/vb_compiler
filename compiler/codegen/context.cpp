@@ -342,6 +342,10 @@ struct_record* semantic_context::addClass(struct_node* cls)
 
 rtl_class_record* semantic_context::addRTL(rtl_class_record* record)
 {
-	classes[record->name] = record;
+	std::string name = record->name;
+	if (record->allowLowercase) {
+		//toLower(&name);
+	}
+	classes[name] = record;
 	return record;
 }

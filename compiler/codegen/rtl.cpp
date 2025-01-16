@@ -125,6 +125,7 @@ rtl_class_record* initMath() {
 	rtl_class_record* rec = rtl_class_record::Math;
 	rec->type = new rtl_type(rec);
 	rec->parent = rtl_class_record::Object;
+	rec->allowLowercase = true;
 
 	rec->methods["Sin"] = new method_record("Sin", rec, rtl_class_record::Double->type, true, { new parameter_record("a", rtl_class_record::Number->type, nullptr) });
 	rec->methods["Cos"] = new method_record("Cos", rec, rtl_class_record::Double->type, true, { new parameter_record("a", rtl_class_record::Number->type, nullptr) });
@@ -228,6 +229,7 @@ rtl_class_record* initConsole() {
 	rtl_class_record* rec = rtl_class_record::Console;
 	rec->type = new rtl_type(rec);
 	rec->parent = rtl_class_record::Object;
+	rec->allowLowercase = true;
 
 	rec->methods["WriteLine"] = new method_record("WriteLine", rec, new void_type(), true, { new parameter_record("val", new jvm_type("Object", "Ljava/lang/Object;"), nullptr)});
 	rec->methods["Write"] = new method_record("Write", rec, new void_type(), true, {new parameter_record("val", new jvm_type("Object", "Ljava/lang/Object;"), nullptr)});
@@ -305,6 +307,7 @@ rtl_class_record* initUtils() {
 	rtl_class_record* rec = rtl_class_record::CompilerUtils;
 	rec->type = new rtl_type(rec);
 	rec->parent = rtl_class_record::Object;
+	rec->allowLowercase = true;
 
 	rec->methods["erase"] = new method_record("erase", rec, new void_type(), true, { new parameter_record("array", new jvm_array_type(rtl_class_record::Object->type), nullptr) });
 	rec->methods["redim"] = new method_record("redim", rec, new jvm_array_type(rtl_class_record::Object->type), true, { new parameter_record("array", new jvm_array_type(rtl_class_record::Object->type), nullptr),

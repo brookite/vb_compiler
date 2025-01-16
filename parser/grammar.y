@@ -19,10 +19,13 @@ int yyparse();
 int yylex();
 void yyrestart(FILE * file);
 
+bool hasSyntaxErrors = false;
+
 void yyerror(char const* s) {
     fprintf(stderr, "\033[31mSyntaxError: %s on line %d, text: %s\n", s, yylineno, yytext);
     fprintf(stderr, "\033[0m");
     yyrestart(yyin);
+    hasSyntaxErrors = true;
     if (!PARSER_DEBUG && !DEBUG) exit(1);
 }
 

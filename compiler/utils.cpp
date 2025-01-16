@@ -1,5 +1,8 @@
 #include "utils.hpp"
 #include <winsock2.h>  
+#include <algorithm> 
+#include <cctype>
+
 #pragma comment(lib, "ws2_32.lib") 
 
 #define INITIAL_CAPACITY 128
@@ -332,4 +335,25 @@ void bytearray_t::reverseByteOrder()
         left++;
         right--;
     }
+}
+
+void toLower(std::string* strPtr) {
+    if (strPtr == nullptr) {
+        return;
+    }
+    std::transform(strPtr->begin(), strPtr->end(), strPtr->begin(),
+        [](unsigned char c) { return std::tolower(c); });
+}
+
+void capitalize(std::string * result) {
+    if (result->empty()) {
+        return; 
+    }
+
+    (*result)[0] = std::toupper((*result)[0]);
+
+    for (size_t i = 1; i < result->size(); ++i) {
+        (*result)[i] = std::tolower((*result)[i]);
+    }
+
 }

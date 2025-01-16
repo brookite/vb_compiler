@@ -8,15 +8,12 @@
     #include <string>
     #include <iostream>
     #include <regex>
-    #include <algorithm> 
-    #include <cctype>
     #include "../compiler/utils.hpp"
     #include "../parser/grammar.tab.h"
     #define YY_DECL int yylex()
 
     void removeUnderline(std::string * str);
     void removeUnderline(char * str);
-    void toLower(std::string* strPtr);
 
     void printDateTimeLiteral(DateTime& datetime);
 
@@ -453,6 +450,7 @@ False { lexer_print("Found boolean literal : %s\n", yytext); yylval.Bool = false
     } else {
         yylval.Id = new std::string(yytext);
     }
+    // toLower(yylval.Id);
     return ID;
 }
 
@@ -520,15 +518,6 @@ void printDateTimeLiteral(DateTime & datetime) {
             lexer_print("24-hour format\n");
         }
     }
-}
-
-void toLower(std::string* strPtr) {
-    if (strPtr == nullptr) {
-        std::cerr << "Ошибка: указатель на строку равен nullptr!" << std::endl;
-        return;
-    }
-    std::transform(strPtr->begin(), strPtr->end(), strPtr->begin(),
-                   [](unsigned char c) { return std::tolower(c); });
 }
 
 void runLexerTests() {
