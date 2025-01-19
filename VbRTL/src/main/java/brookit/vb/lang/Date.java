@@ -22,6 +22,12 @@ public class Date {
         }
     }
 
+    public Date() {
+        year = new Integer(1970);
+        month = new Integer(1);
+        day = new Integer(1);
+    }
+
     public Date(int year, int month, int day) {
         this.year = new Integer(year);
         this.month = new Integer(month);
@@ -43,9 +49,13 @@ public class Date {
         return new Date(1970, 1, 1, hour, minute, second);
     }
 
-    public ULong ToTimestamp() {
+    public Long ToTimestamp() {
         validate();
-        return new ULong(toJavaDate().toEpochSecond(ZoneOffset.UTC));
+        return new Long(toJavaDate().toEpochSecond(ZoneOffset.UTC));
+    }
+
+    public static Date OfTimestamp(Long val) {
+        return fromJavaDate(LocalDateTime.ofEpochSecond(val.getInteger(), 0, ZoneOffset.UTC));
     }
 
     public static Date FromTimestamp(Long val) {

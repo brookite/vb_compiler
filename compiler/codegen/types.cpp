@@ -263,6 +263,9 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
                 generalType = types.get(i);
             }
         }
+        if (generalType == nullptr) {
+            return new jvm_array_type(new unknown_type());
+        }
         if (maxCount == types.size()) {
             return new jvm_array_type(generalType);
         }

@@ -482,7 +482,9 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 	
 	// check type for var decl
 	if (stmt->type == stmt_type::VarDecl) {
-		if (method->locals.count(stmt->var_decl->varName) || structRecord->fields.count(stmt->var_decl->varName)) {
+		if (method->locals.count(stmt->var_decl->varName) 
+			|| (structRecord->resolveField(stmt->var_decl->varName)
+				&& structRecord->resolveField(stmt->var_decl->varName)->isStatic == method->isStatic)) {
 			name_error("Variable '%s' already declared (re-declaraton)", stmt->var_decl->varName.c_str());
 		}
 		localvar_record* varRecord = new localvar_record();
@@ -597,7 +599,6 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 			value_error("This expression cannot be lvalue");
 			return;
 		}
-
 
 		if (stmt->lvalue->type != expr_type::Index) {
 			std::pair<record*, access_target> res = ctx.resolveMemberAccess(stmt->lvalue, structRecord, method);

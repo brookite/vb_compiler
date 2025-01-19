@@ -1,5 +1,7 @@
 package brookit.vb.lang;
 
+import java.util.Arrays;
+
 public class String extends Object {
     private java.lang.String _jvm;
 
@@ -24,6 +26,11 @@ public class String extends Object {
     }
 
     public Char Get(Integer number) {return new Char(_jvm.charAt((int) number.getInteger()));}
+
+    public static String Join(String delim, Object[] array) {
+        return new String(java.lang.String.join(delim.toJvmString(), Arrays.stream(array)
+                .map(Object::toJvmString).toList().toArray(new java.lang.String[0])));
+    }
 
     @Override
     public java.lang.String toJvmString() {

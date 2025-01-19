@@ -24,7 +24,9 @@ rtl_class_record* initString() {
 	rec->methods["Concat"] = new method_record("Concat", rec, rec->type, false, {new parameter_record("other", rec->type, nullptr)});
 	rec->methods["Format"] = new method_record("Format", rec, rec->type, false, { new parameter_record("fmt", new jvm_array_type(rtl_class_record::Object->type), nullptr)});
 	rec->methods["Get"] = new method_record("Get", rec, rtl_class_record::Char->type, false, {new parameter_record("index", rtl_class_record::Integer->type, nullptr)});
-	
+	rec->methods["Join"] = new method_record("Join", rec, rtl_class_record::String->type, true, { new parameter_record("delim", rtl_class_record::String->type, nullptr),
+		new parameter_record("array", new jvm_array_type(rtl_class_record::Object->type), nullptr)});
+
 	rec->node = createDummyStructNode(rec);
 	return rec;
 }
@@ -76,7 +78,6 @@ rtl_class_record* initNumber() {
 	rec->methods["getBoolean"] = new method_record("getBoolean", rec, new jvm_type("Boolean", "Z"), false, {});
 	rec->methods["getDouble"] = new method_record("getDouble", rec, new jvm_type("Double", "D"), false, {});
 	rec->methods["getInteger"] = new method_record("getInteger", rec, new jvm_type("Long", "J"), false, {});
-
 
 	rec->node = createDummyStructNode(rec);
 	return rec;
@@ -296,8 +297,9 @@ rtl_class_record* initDatetime() {
 	rec->fields["minute"] = new field_record("minute", false, rtl_class_record::Integer->type, rec);
 	rec->fields["second"] = new field_record("second", false, rtl_class_record::Integer->type, rec);
 
-	rec->methods["ToTimestamp"] = new method_record("ToTimestamp", rec, rtl_class_record::ULong->type, false, {});
-	rec->methods["OfTimestamp"] = new method_record("OfTimestamp", rec, rec->type, true, {new parameter_record("val", rtl_class_record::ULong->type, nullptr)});
+	rec->methods["ToTimestamp"] = new method_record("ToTimestamp", rec, rtl_class_record::Long->type, false, {});
+	rec->methods["OfTimestamp"] = new method_record("OfTimestamp", rec, rec->type, true, {new parameter_record("val", rtl_class_record::Long->type, nullptr)});
+	rec->methods["FromTimestamp"] = new method_record("FromTimestamp", rec, rec->type, true, { new parameter_record("val", rtl_class_record::Long->type, nullptr) });
 	rec->methods["Now"] = new method_record("Now", rec, rec->type, true, {});
 
 	rec->node = createDummyStructNode(rec);

@@ -525,7 +525,9 @@ void expr_node::bytecode(Bytecode* code)
 			code->newObject(castType);
 			code->dup();
 			argument->bytecode(code);
-			code->invokevirtual(castType->record->getConstructorConstant({ exprType->jvmDescriptor() }, code->method->owner)->number);
+			code->invokevirtual(castType->record->getConstructorConstant({ exprType == rtl_class_record::String->type ?
+				rtl_class_record::String->type->jvmDescriptor() : rtl_class_record::Number->type->jvmDescriptor()
+				}, code->method->owner)->number);
 		}
 		else {
 			argument->bytecode(code);

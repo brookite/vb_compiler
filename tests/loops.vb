@@ -1,22 +1,22 @@
 Class Main
     Shared Sub main()
-        Const a(10) as Integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+        Dim a As Integer() = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
         Console.WriteLine(a)
-        For Each i as Integer in a
-            Console.WriteLine(i)
+        For Each t As Integer In a
+            Console.WriteLine(t)
         Next
         Console.WriteLine("")
-        For i as Integer = 5 to 100
-            Console.Write(i)
+        For t As Integer = 5 To 100
+            Console.Write(t)
             Console.Write(" ")
         Next
         Console.WriteLine("")
-        For i as Integer = 5 to 100
-            Console.Write(i)
+        For t As Integer = 5 To 100
+            Console.Write(t)
             Console.Write(" ")
-            if (i mod 35 = 0) Then 
+            If (t Mod 35 = 0) Then
                 Exit For
-            ElseIf (i mod 10 = 0) Then
+            ElseIf (t Mod 10 = 0) Then
                 Continue For
             End If
         Next
@@ -24,10 +24,10 @@ Class Main
         Dim i As Integer = 0
         While i < 15
             Console.WriteLine(i)
-            If (i mod 11 = 0) Then
+            If (i Mod 11 = 0) Then
                 Exit While
             End If
             i += 1
         End While
     End Sub
-End Class 
+End Class

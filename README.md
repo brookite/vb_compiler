@@ -1,6 +1,6 @@
 # Visual Basic Compiler
 
-*Курсовая работа по трансляции языков*
+*Курсовая работа по трансляции языков*  
 Компилятор языка Visual Basic в байткод виртуальной машины JVM, покрывающий часть его функционала
 
 ## Возможности
@@ -71,5 +71,5 @@
 Пример:
 
 ```bash
-> java -cp out/path_to_vb_file out/path_to_vb_file/brookit/vb/code/main.class
+> java -noverify -cp out/path_to_vb_file out/path_to_vb_file/brookit/vb/code/main.class
 ```
