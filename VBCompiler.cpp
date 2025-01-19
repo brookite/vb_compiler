@@ -101,11 +101,10 @@ int main(int argc, char** argv) {
             runTests();
             return 0;
         }
-        runCompile(argv[1], cwd);
         if (argc > 2 && strcmp(argv[2], "--debug") == 0) {
             DEBUG = true;
         }
-        
+        runCompile(argv[1], cwd);
     }
     else {
         printf("File not found");
