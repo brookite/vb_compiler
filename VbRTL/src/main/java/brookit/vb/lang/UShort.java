@@ -29,6 +29,10 @@ public class UShort extends Number {
         _src = 0;
     }
 
+    public UShort(brookit.vb.lang.String val) {
+        _src = java.lang.Short.parseShort(val.toJvmString());
+    }
+
     @Override
     public int byteSize() {
         return 2;

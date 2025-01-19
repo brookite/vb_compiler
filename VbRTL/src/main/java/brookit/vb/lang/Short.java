@@ -25,6 +25,10 @@ public class Short extends Number {
         _src = 0;
     }
 
+    public Short(brookit.vb.lang.String val) {
+        _src = java.lang.Short.parseShort(val.toJvmString());
+    }
+
     public Short(char num) {
         _src = (short) num;
     }

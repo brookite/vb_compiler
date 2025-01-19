@@ -221,9 +221,10 @@ stmt_node* create_call_stmt(expr_node* call, list<expr_node*>* expr_list) {
 }
 
 
-stmt_node* create_redim(list<redim_clause_node*>* redim_clause) {
+stmt_node* create_redim(list<redim_clause_node*>* redim_clause, bool preserve) {
 	stmt_node* node = new stmt_node(stmt_type::Redim);
 	node->redim = redim_clause;
+	node->preserveRedim = preserve;
 	return node;
 }
 

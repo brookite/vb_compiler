@@ -29,6 +29,10 @@ public class Single extends Number {
         _src = 0;
     }
 
+    public Single(brookit.vb.lang.String val) {
+        _src = java.lang.Float.parseFloat(val.toJvmString());
+    }
+
     @Override
     public int byteSize() {
         return 4;

@@ -20,7 +20,7 @@ Class Main
     End Function
     
     Shared Function GCD(a As Integer, b As Integer) As Integer
-        While a <> 0 And b <> 0
+        While a <> 0 AndAlso b <> 0
             If a > b Then
                 a = a Mod b
             Else
@@ -38,11 +38,11 @@ Class Main
         Dim k As Integer = 1
         While k * k <= x
             If x Mod k = 0 Then
-                ReDim divisors(count + 1)
+                ReDim Preserve divisors(count + 1)
                 divisors(count) = k
                 count += 1
                 If k <> x \ k Then
-                    ReDim divisors(count + 1)
+                    ReDim Preserve divisors(count + 1)
                     divisors(count) = x \ k
                     count += 1
                 End If

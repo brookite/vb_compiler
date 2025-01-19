@@ -17,6 +17,10 @@ public class Boolean extends Number {
         _src = num != 0;
     }
 
+    public Boolean(brookit.vb.lang.String val) {
+        _src = java.lang.Boolean.parseBoolean(val.toJvmString());
+    }
+
     public Boolean(double num) {
         _src = num != 0;
     }

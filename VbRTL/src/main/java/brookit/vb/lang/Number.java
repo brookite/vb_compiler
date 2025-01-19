@@ -1,6 +1,5 @@
 package brookit.vb.lang;
 
-import java.lang.Double;
 import java.lang.reflect.InvocationTargetException;
 
 public abstract class Number extends Object {
@@ -15,6 +14,24 @@ public abstract class Number extends Object {
     public abstract boolean getBoolean();
 
     public abstract long getInteger();
+
+    public Number inc() {
+        try {
+            if (!this.isInteger()) {
+                double a = this.getFloat();
+                double b = 1;
+                double res = a + b;
+                return this.getClass().getDeclaredConstructor(double.class).newInstance(res);
+            } else {
+                long a = this.getInteger();
+                long b = 1;
+                long res = a + b;
+                return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
+            }
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new ArithmeticException(e.getMessage());
+        }
+    }
 
     public Number add(Number other) {
         try {
@@ -400,9 +417,13 @@ public abstract class Number extends Object {
 
     public Number not() {
         try {
-            long a = this.getInteger();
-            long res = ~a;
-            return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
+            if (this instanceof Boolean) {
+                boolean res = !(this.getBoolean());
+                return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
+            } else {
+                long res = ~(this.getInteger());
+                return this.getClass().getDeclaredConstructor(long.class).newInstance(res);
+            }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new ArithmeticException(e.getMessage());
         }

@@ -655,6 +655,7 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 	}
 
 	if (stmt->block != nullptr) {
+		list<std::string> locals;
 		if (stmt->type == stmt_type::For || stmt->type == stmt_type::ForEach) {
 			method->locals[stmt->Id] = new localvar_record(stmt->Id, inferType(stmt->id_type, ctx, structRecord->typeMap), method);
 			method->locals[stmt->Id]->number = method->localvarCounter;
@@ -664,8 +665,8 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 			if (stmt->type == stmt_type::ForEach) {
 				++method->localvarCounter;
 			}
+			locals.add(stmt->Id);
 		}
-		list<std::string> locals;
 		for (stmt_node* innerStmt : *stmt->block) {
 			processStmt(structRecord, method, innerStmt, returnCount);
 			if (innerStmt->type == stmt_type::VarDecl) {
@@ -675,9 +676,6 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 		// Удалить переменную при выходе из блока
 		for (std::string local : locals) {
 			method->locals.erase(local);
-		}
-		if (stmt->type == stmt_type::For || stmt->type == stmt_type::ForEach) {
-			method->locals.erase(stmt->Id);
 		}
 	}
 	if (stmt->else_block != nullptr) {

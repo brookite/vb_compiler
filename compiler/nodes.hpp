@@ -266,6 +266,8 @@ struct stmt_node : node {
 	size_t beginOffset = 0;
 	int64_t endFutureJump = -1;
 
+	bool preserveRedim = false;
+
 	// Use condition for loops while and do-until, do-while
 
 	// Block for If, For, While, etc.
@@ -291,6 +293,7 @@ struct stmt_node : node {
 		}
 		stmt->condition = condition != nullptr ? condition->clone() : nullptr;
 		stmt->condition_nodes = new list<stmt_node*>();
+		stmt->preserveRedim = preserveRedim;
 		for (stmt_node* expr : *condition_nodes) {
 			stmt->condition_nodes->add(expr != nullptr ? expr->clone() : nullptr);
 		}

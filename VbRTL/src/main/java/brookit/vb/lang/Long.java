@@ -29,6 +29,10 @@ public class Long extends Number {
         _src = num;
     }
 
+    public Long(brookit.vb.lang.String val) {
+        _src = java.lang.Long.parseLong(val.toJvmString());
+    }
+
     @Override
     public int byteSize() {
         return 8;

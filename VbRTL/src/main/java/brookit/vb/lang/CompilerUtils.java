@@ -4,19 +4,46 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 public class CompilerUtils {
-    public static Object[] redim(Object[] array, Number size) {
+    public static Object[] redimPreserve(Object[] array, Number size) {
         if (array == null || size == null) {
             throw new IllegalArgumentException("Array and size must not be null");
         }
 
         int oldLength = array.length;
-        long newSize = size.getInteger();
+        long newSize = size.getInteger() + 1;
         if (newSize < 0) {
             throw new IllegalArgumentException("Size cannot be negative");
         }
 
         Object[] newArray = Arrays.copyOf(array, (int) newSize);
         for (int i = oldLength; i < newSize; i++) {
+            if (Number.class.isAssignableFrom(array.getClass().getComponentType())) {
+                try {
+                    newArray[i] = (Object) array.getClass().getComponentType().getConstructor().newInstance();
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                         NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                newArray[i] = null;
+            }
+        }
+        return newArray;
+    }
+
+    public static Object[] redim(Object[] array, Number size) {
+        if (array == null || size == null) {
+            throw new IllegalArgumentException("Array and size must not be null");
+        }
+
+        int oldLength = array.length;
+        long newSize = size.getInteger() + 1;
+        if (newSize < 0) {
+            throw new IllegalArgumentException("Size cannot be negative");
+        }
+
+        Object[] newArray = new Object[(int) newSize];
+        for (int i = 0; i < newSize; i++) {
             if (Number.class.isAssignableFrom(array.getClass().getComponentType())) {
                 try {
                     newArray[i] = (Object) array.getClass().getComponentType().getConstructor().newInstance();

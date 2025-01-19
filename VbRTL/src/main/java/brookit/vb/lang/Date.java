@@ -65,4 +65,8 @@ public class Date {
     public static Date Now() {
         return fromJavaDate(LocalDateTime.now());
     }
+
+    public brookit.vb.lang.String ToString() {
+        return new brookit.vb.lang.String(toJavaDate().toString());
+    }
 }

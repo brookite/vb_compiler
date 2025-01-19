@@ -29,6 +29,10 @@ public class Double extends Number {
         _src = num;
     }
 
+    public Double(brookit.vb.lang.String val) {
+        _src = java.lang.Double.parseDouble(val.toJvmString());
+    }
+
     @Override
     public int byteSize() {
         return 8;

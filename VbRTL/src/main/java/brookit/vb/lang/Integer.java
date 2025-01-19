@@ -29,6 +29,10 @@ public class Integer extends Number {
         _src = (int) num;
     }
 
+    public Integer(brookit.vb.lang.String val) {
+        _src = java.lang.Integer.parseInt(val.toJvmString());
+    }
+
     @Override
     public int byteSize() {
         return 4;

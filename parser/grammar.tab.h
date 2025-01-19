@@ -47,7 +47,7 @@ extern int yydebug;
 /* "%code requires" blocks.  */
 #line 5 "grammar.y"
  #include "../compiler/nodes.hpp" 
-#line 190 "grammar.y"
+#line 191 "grammar.y"
 
     enum class IntType {
         LONG_MOD, INT_MOD, SHORT_MOD, NO_SPEC
@@ -125,91 +125,92 @@ extern int yydebug;
     SELECT_KW = 293,               /* SELECT_KW  */
     CASE_KW = 294,                 /* CASE_KW  */
     TO_KW = 295,                   /* TO_KW  */
-    FOR_KW = 296,                  /* FOR_KW  */
-    EACH_KW = 297,                 /* EACH_KW  */
-    WHILE_KW = 298,                /* WHILE_KW  */
-    NEXT_KW = 299,                 /* NEXT_KW  */
-    IN_KW = 300,                   /* IN_KW  */
-    UNTIL_KW = 301,                /* UNTIL_KW  */
-    LOOP_KW = 302,                 /* LOOP_KW  */
-    DO_KW = 303,                   /* DO_KW  */
-    STEP_KW = 304,                 /* STEP_KW  */
-    AS_KW = 305,                   /* AS_KW  */
-    CALL_KW = 306,                 /* CALL_KW  */
-    GOTO_KW = 307,                 /* GOTO_KW  */
-    CONTINUE_KW = 308,             /* CONTINUE_KW  */
-    EXIT_KW = 309,                 /* EXIT_KW  */
-    STOP_KW = 310,                 /* STOP_KW  */
-    RETURN_KW = 311,               /* RETURN_KW  */
-    STATIC_KW = 312,               /* STATIC_KW  */
-    DIM_KW = 313,                  /* DIM_KW  */
-    CONST_KW = 314,                /* CONST_KW  */
-    OF_KW = 315,                   /* OF_KW  */
-    FUNCTION_KW = 316,             /* FUNCTION_KW  */
-    SUB_KW = 317,                  /* SUB_KW  */
-    BYREF_KW = 318,                /* BYREF_KW  */
-    BYVAL_KW = 319,                /* BYVAL_KW  */
-    PARAMARRAY_KW = 320,           /* PARAMARRAY_KW  */
-    OPTIONAL_KW = 321,             /* OPTIONAL_KW  */
-    PRIVATE_KW = 322,              /* PRIVATE_KW  */
-    PROTECTED_KW = 323,            /* PROTECTED_KW  */
-    PUBLIC_KW = 324,               /* PUBLIC_KW  */
-    SHARED_KW = 325,               /* SHARED_KW  */
-    CLASS_KW = 326,                /* CLASS_KW  */
-    STRUCT_KW = 327,               /* STRUCT_KW  */
-    INHERITS_KW = 328,             /* INHERITS_KW  */
-    READONLY_KW = 329,             /* READONLY_KW  */
-    ERASE_KW = 330,                /* ERASE_KW  */
-    CBOOL_KW = 331,                /* CBOOL_KW  */
-    CBYTE_KW = 332,                /* CBYTE_KW  */
-    CSBYTE_KW = 333,               /* CSBYTE_KW  */
-    CUSHORT_KW = 334,              /* CUSHORT_KW  */
-    CSHORT_KW = 335,               /* CSHORT_KW  */
-    CINTEGER_KW = 336,             /* CINTEGER_KW  */
-    CUINTEGER_KW = 337,            /* CUINTEGER_KW  */
-    CLONG_KW = 338,                /* CLONG_KW  */
-    CULONG_KW = 339,               /* CULONG_KW  */
-    CDATE_KW = 340,                /* CDATE_KW  */
-    CCHAR_KW = 341,                /* CCHAR_KW  */
-    CSTRING_KW = 342,              /* CSTRING_KW  */
-    CDECIMAL_KW = 343,             /* CDECIMAL_KW  */
-    CSINGLE_KW = 344,              /* CSINGLE_KW  */
-    CDOUBLE_KW = 345,              /* CDOUBLE_KW  */
-    COBJECT_KW = 346,              /* COBJECT_KW  */
-    CTYPE_KW = 347,                /* CTYPE_KW  */
-    END_FUNCTION = 348,            /* END_FUNCTION  */
-    END_SELECT = 349,              /* END_SELECT  */
-    END_IF = 350,                  /* END_IF  */
-    END_SUB = 351,                 /* END_SUB  */
-    END_WHILE = 352,               /* END_WHILE  */
-    ADD_ASSIGN = 353,              /* ADD_ASSIGN  */
-    SUB_ASSIGN = 354,              /* SUB_ASSIGN  */
-    MUL_ASSIGN = 355,              /* MUL_ASSIGN  */
-    DIV_ASSIGN = 356,              /* DIV_ASSIGN  */
-    FLOORDIV_ASSIGN = 357,         /* FLOORDIV_ASSIGN  */
-    EXP_ASSIGN = 358,              /* EXP_ASSIGN  */
-    STRCAT_ASSIGN = 359,           /* STRCAT_ASSIGN  */
-    LSHIFT_ASSIGN = 360,           /* LSHIFT_ASSIGN  */
-    RSHIFT_ASSIGN = 361,           /* RSHIFT_ASSIGN  */
-    NEW = 362,                     /* NEW  */
-    XOR = 363,                     /* XOR  */
-    OR = 364,                      /* OR  */
-    OR_ELSE = 365,                 /* OR_ELSE  */
-    AND = 366,                     /* AND  */
-    AND_ALSO = 367,                /* AND_ALSO  */
-    NOT = 368,                     /* NOT  */
-    EQ = 369,                      /* EQ  */
-    NEQ = 370,                     /* NEQ  */
-    LEQ = 371,                     /* LEQ  */
-    GEQ = 372,                     /* GEQ  */
-    IS = 373,                      /* IS  */
-    ISNOT = 374,                   /* ISNOT  */
-    LIKE = 375,                    /* LIKE  */
-    LSHIFT = 376,                  /* LSHIFT  */
-    RSHIFT = 377,                  /* RSHIFT  */
-    MOD = 378,                     /* MOD  */
-    UMINUS = 379,                  /* UMINUS  */
-    UPLUS = 380                    /* UPLUS  */
+    PRESERVE_KW = 296,             /* PRESERVE_KW  */
+    FOR_KW = 297,                  /* FOR_KW  */
+    EACH_KW = 298,                 /* EACH_KW  */
+    WHILE_KW = 299,                /* WHILE_KW  */
+    NEXT_KW = 300,                 /* NEXT_KW  */
+    IN_KW = 301,                   /* IN_KW  */
+    UNTIL_KW = 302,                /* UNTIL_KW  */
+    LOOP_KW = 303,                 /* LOOP_KW  */
+    DO_KW = 304,                   /* DO_KW  */
+    STEP_KW = 305,                 /* STEP_KW  */
+    AS_KW = 306,                   /* AS_KW  */
+    CALL_KW = 307,                 /* CALL_KW  */
+    GOTO_KW = 308,                 /* GOTO_KW  */
+    CONTINUE_KW = 309,             /* CONTINUE_KW  */
+    EXIT_KW = 310,                 /* EXIT_KW  */
+    STOP_KW = 311,                 /* STOP_KW  */
+    RETURN_KW = 312,               /* RETURN_KW  */
+    STATIC_KW = 313,               /* STATIC_KW  */
+    DIM_KW = 314,                  /* DIM_KW  */
+    CONST_KW = 315,                /* CONST_KW  */
+    OF_KW = 316,                   /* OF_KW  */
+    FUNCTION_KW = 317,             /* FUNCTION_KW  */
+    SUB_KW = 318,                  /* SUB_KW  */
+    BYREF_KW = 319,                /* BYREF_KW  */
+    BYVAL_KW = 320,                /* BYVAL_KW  */
+    PARAMARRAY_KW = 321,           /* PARAMARRAY_KW  */
+    OPTIONAL_KW = 322,             /* OPTIONAL_KW  */
+    PRIVATE_KW = 323,              /* PRIVATE_KW  */
+    PROTECTED_KW = 324,            /* PROTECTED_KW  */
+    PUBLIC_KW = 325,               /* PUBLIC_KW  */
+    SHARED_KW = 326,               /* SHARED_KW  */
+    CLASS_KW = 327,                /* CLASS_KW  */
+    STRUCT_KW = 328,               /* STRUCT_KW  */
+    INHERITS_KW = 329,             /* INHERITS_KW  */
+    READONLY_KW = 330,             /* READONLY_KW  */
+    ERASE_KW = 331,                /* ERASE_KW  */
+    CBOOL_KW = 332,                /* CBOOL_KW  */
+    CBYTE_KW = 333,                /* CBYTE_KW  */
+    CSBYTE_KW = 334,               /* CSBYTE_KW  */
+    CUSHORT_KW = 335,              /* CUSHORT_KW  */
+    CSHORT_KW = 336,               /* CSHORT_KW  */
+    CINTEGER_KW = 337,             /* CINTEGER_KW  */
+    CUINTEGER_KW = 338,            /* CUINTEGER_KW  */
+    CLONG_KW = 339,                /* CLONG_KW  */
+    CULONG_KW = 340,               /* CULONG_KW  */
+    CDATE_KW = 341,                /* CDATE_KW  */
+    CCHAR_KW = 342,                /* CCHAR_KW  */
+    CSTRING_KW = 343,              /* CSTRING_KW  */
+    CDECIMAL_KW = 344,             /* CDECIMAL_KW  */
+    CSINGLE_KW = 345,              /* CSINGLE_KW  */
+    CDOUBLE_KW = 346,              /* CDOUBLE_KW  */
+    COBJECT_KW = 347,              /* COBJECT_KW  */
+    CTYPE_KW = 348,                /* CTYPE_KW  */
+    END_FUNCTION = 349,            /* END_FUNCTION  */
+    END_SELECT = 350,              /* END_SELECT  */
+    END_IF = 351,                  /* END_IF  */
+    END_SUB = 352,                 /* END_SUB  */
+    END_WHILE = 353,               /* END_WHILE  */
+    ADD_ASSIGN = 354,              /* ADD_ASSIGN  */
+    SUB_ASSIGN = 355,              /* SUB_ASSIGN  */
+    MUL_ASSIGN = 356,              /* MUL_ASSIGN  */
+    DIV_ASSIGN = 357,              /* DIV_ASSIGN  */
+    FLOORDIV_ASSIGN = 358,         /* FLOORDIV_ASSIGN  */
+    EXP_ASSIGN = 359,              /* EXP_ASSIGN  */
+    STRCAT_ASSIGN = 360,           /* STRCAT_ASSIGN  */
+    LSHIFT_ASSIGN = 361,           /* LSHIFT_ASSIGN  */
+    RSHIFT_ASSIGN = 362,           /* RSHIFT_ASSIGN  */
+    NEW = 363,                     /* NEW  */
+    XOR = 364,                     /* XOR  */
+    OR = 365,                      /* OR  */
+    OR_ELSE = 366,                 /* OR_ELSE  */
+    AND = 367,                     /* AND  */
+    AND_ALSO = 368,                /* AND_ALSO  */
+    NOT = 369,                     /* NOT  */
+    EQ = 370,                      /* EQ  */
+    NEQ = 371,                     /* NEQ  */
+    LEQ = 372,                     /* LEQ  */
+    GEQ = 373,                     /* GEQ  */
+    IS = 374,                      /* IS  */
+    ISNOT = 375,                   /* ISNOT  */
+    LIKE = 376,                    /* LIKE  */
+    LSHIFT = 377,                  /* LSHIFT  */
+    RSHIFT = 378,                  /* RSHIFT  */
+    MOD = 379,                     /* MOD  */
+    UMINUS = 380,                  /* UMINUS  */
+    UPLUS = 381                    /* UPLUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -218,7 +219,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 219 "grammar.y"
+#line 220 "grammar.y"
 
     IntLiteral * Int;
     std::string * Str;
@@ -249,7 +250,7 @@ union YYSTYPE
     list<type_node *> * TypeList;
     list<typed_value*>* Vars;
 
-#line 253 "grammar.tab.h"
+#line 254 "grammar.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

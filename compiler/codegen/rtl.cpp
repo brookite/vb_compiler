@@ -23,7 +23,7 @@ rtl_class_record* initString() {
 	rec->methods["Length"] = new method_record("Length", rec, rtl_class_record::ULong->type, false, {});
 	rec->methods["Concat"] = new method_record("Concat", rec, rec->type, false, {new parameter_record("other", rec->type, nullptr)});
 	rec->methods["Format"] = new method_record("Format", rec, rec->type, false, { new parameter_record("fmt", new jvm_array_type(rtl_class_record::Object->type), nullptr)});
-	rec->methods["Get"] = new method_record("Get", rec, rtl_class_record::Char->type, false, {new parameter_record("index", rtl_class_record::ULong->type, nullptr)});
+	rec->methods["Get"] = new method_record("Get", rec, rtl_class_record::Char->type, false, {new parameter_record("index", rtl_class_record::Integer->type, nullptr)});
 	
 	rec->node = createDummyStructNode(rec);
 	return rec;
@@ -51,6 +51,7 @@ rtl_class_record* initNumber() {
 	rec->parent = rtl_class_record::Object;
 
 	rec->methods["add"] = new method_record("add", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
+	rec->methods["inc"] = new method_record("inc", rec, rec->type, false, { });
 	rec->methods["sub"] = new method_record("sub", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
 	rec->methods["mul"] = new method_record("mul", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
 	rec->methods["div"] = new method_record("div", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
@@ -312,6 +313,9 @@ rtl_class_record* initUtils() {
 	rec->methods["erase"] = new method_record("erase", rec, new void_type(), true, { new parameter_record("array", new jvm_array_type(rtl_class_record::Object->type), nullptr) });
 	rec->methods["redim"] = new method_record("redim", rec, new jvm_array_type(rtl_class_record::Object->type), true, { new parameter_record("array", new jvm_array_type(rtl_class_record::Object->type), nullptr),
 		new parameter_record("length", rtl_class_record::Number->type, nullptr) });
+	rec->methods["redimPreserve"] = new method_record("redimPreserve", rec, new jvm_array_type(rtl_class_record::Object->type), true, { new parameter_record("array", new jvm_array_type(rtl_class_record::Object->type), nullptr),
+		new parameter_record("length", rtl_class_record::Number->type, nullptr) });
+
 	rec->node = createDummyStructNode(rec);
 	return rec;
 }

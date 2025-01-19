@@ -23,6 +23,8 @@ public class String extends Object {
         return new String(this.toJvmString().concat(other.toJvmString()));
     }
 
+    public Char Get(Integer number) {return new Char(_jvm.charAt((int) number.getInteger()));}
+
     @Override
     public java.lang.String toJvmString() {
         return _jvm;

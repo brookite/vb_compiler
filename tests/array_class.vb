@@ -5,7 +5,7 @@ Class Array(Of T)
     Sub SetLength(size as ULong) 
         Console.Write("Extending to ")
         Console.WriteLine(size)
-        Redim src(size)
+        Redim Preserve src(size)
     End Sub
     
     Sub Add(val as T)
@@ -20,12 +20,24 @@ Class Array(Of T)
         Erase src
     End Sub
     
-    Function Get(i as Integer) as T
+    Function [Get](i as Integer) as T
         Return src(i)
     End Function
     
     Function Length() as Integer
         Return ptr
+    End Function
+    
+    Function ToString() As String
+        Dim res As String = "["
+        For Each i As T In src
+            If Not (i Is Nothing) Then
+                res &= i.ToString()
+                res &= ", "
+            End If
+        Next
+        res &= "]"
+        Return res
     End Function
 End Class
 
@@ -49,5 +61,8 @@ Class Main
         Dim arr2 as Array(Of Array(Of ULong)) = new Array(Of Array(Of ULong))()
         arr2.Add(new Array(Of ULong)())
         arr2.Add(new Array(Of ULong)())
+        
+        Console.WriteLine(arr2)
+        Console.WriteLine(arr)
     End Sub
 End Class

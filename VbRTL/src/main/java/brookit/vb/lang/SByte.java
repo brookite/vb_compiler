@@ -29,6 +29,10 @@ public class SByte extends Number {
         _src = (byte) num;
     }
 
+    public SByte(brookit.vb.lang.String val) {
+        _src = java.lang.Byte.parseByte(val.toJvmString());
+    }
+
     @Override
     public int byteSize() {
         return 1;

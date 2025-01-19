@@ -78,6 +78,7 @@ program_node * program = nullptr;
 %token SELECT_KW
 %token CASE_KW
 %token TO_KW
+%token PRESERVE_KW
 %token FOR_KW
 %token EACH_KW
 %token WHILE_KW
@@ -467,7 +468,8 @@ expr_list: expr                             {parser_print("expr -> expr_list"); 
 stmt: CALL_KW expr endl_list                        {parser_print("CALL_KW expr endl_list -> stmt"); $$ = create_call_stmt($2); new_stmt = true;}
     | expr '(' opt_endl expr_list opt_endl ')' endl_list       {parser_print("expr(expr_list) -> stmt"); $$ = create_call_stmt($1, $4);}
 	| expr '(' opt_endl ')' endl_list                          {parser_print("expr() -> stmt"); $$ = create_call_stmt($1, create_expr_list());}
-    | REDIM_KW redim_clause_list endl_list          {parser_print("REDIM_KW redim_clause_list endl_list -> stmt"); $$ = create_redim($2); new_stmt = true;}
+    | REDIM_KW redim_clause_list endl_list          {parser_print("REDIM_KW redim_clause_list endl_list -> stmt"); $$ = create_redim($2, false); new_stmt = true;}
+    | REDIM_KW PRESERVE_KW redim_clause_list endl_list          {parser_print("REDIM_KW PRESERVE_KW redim_clause_list endl_list -> stmt"); $$ = create_redim($3, true); new_stmt = true;}
     | ERASE_KW expr_list endl_list                  {parser_print("ERASE_KW expr_list endl_list -> stmt"); $$ = create_erase($2); new_stmt = true;}
     | if_stmt                                       {$$ = $1; new_stmt = true;}
     | select_stmt                                   {$$ = $1; new_stmt = true;}

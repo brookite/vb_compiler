@@ -30,6 +30,10 @@ public class ULong extends Number {
         _src = n.getInteger();
     }
 
+    public ULong(brookit.vb.lang.String val) {
+        _src = java.lang.Long.parseLong(val.toJvmString());
+    }
+
     public ULong() {
         _src = 0;
     }

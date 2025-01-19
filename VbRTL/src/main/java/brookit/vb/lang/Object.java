@@ -1,14 +1,16 @@
 package brookit.vb.lang;
 
 public abstract class Object {
-    public abstract java.lang.String toJvmString();
+    public java.lang.String toJvmString() {
+        return super.toString();
+    }
 
     public String ToString() {
         return new String(toJvmString());
     }
 
     public java.lang.String toString() {
-        return toJvmString();
+        return ToString().toJvmString();
     }
 
     public abstract Boolean equals(Object other);

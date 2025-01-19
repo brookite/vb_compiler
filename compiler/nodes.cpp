@@ -525,7 +525,7 @@ void expr_node::bytecode(Bytecode* code)
 			code->newObject(castType);
 			code->dup();
 			argument->bytecode(code);
-			code->invokevirtual(castType->record->getConstructorConstant({ rtl_class_record::Object->jvmDescriptor() }, code->method->owner)->number);
+			code->invokevirtual(castType->record->getConstructorConstant({ exprType->jvmDescriptor() }, code->method->owner)->number);
 		}
 		else {
 			argument->bytecode(code);
@@ -560,6 +560,7 @@ void expr_node::bytecode(Bytecode* code)
 		else {
 			struct_type* lengthType = (struct_type*)inferType(length, code->method->owner, code->method, *code->context);
 			length->bytecode(code);
+			code->invokemethod(lengthType->record->resolveMethod("inc"), CallInfo::VIRTUAL);
 			code->invokemethod(lengthType->record->resolveMethod("getInteger"), CallInfo::VIRTUAL);
 			code->writeSimple(Instruction::l2i);
 		}
@@ -772,15 +773,43 @@ void expr_node::bytecode(Bytecode* code)
 	}
 	else if (type == expr_type::IsOp) {
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
-		left->bytecode(code);
-		right->bytecode(code);
-		code->invokemethod(leftType->record->resolveMethod("is"), CallInfo::VIRTUAL);
+		if (right->type == expr_type::Nothing) {
+			code->newObject(rtl_class_record::Boolean->type);
+			code->dup();
+			left->bytecode(code);
+			code->nullLoad();
+			code->jump(Instruction::if_acmpeq, 7);
+			code->intLoad(0);
+			code->jump(Instruction::_goto, 4);
+			code->intLoad(1);
+			code->writeSimple(Instruction::i2l);
+			code->invokespecial(rtl_class_record::Boolean->getConstructorConstant({ "J" }, code->method->owner)->number);
+		}
+		else {
+			left->bytecode(code);
+			right->bytecode(code);
+			code->invokemethod(leftType->record->resolveMethod("is"), CallInfo::VIRTUAL);
+		}
 	}
 	else if (type == expr_type::IsNotOp) {
 		struct_type* leftType = (struct_type*)inferType(left, code->method->owner, code->method, *code->context);
-		left->bytecode(code);
-		right->bytecode(code);
-		code->invokemethod(leftType->record->resolveMethod("isNot"), CallInfo::VIRTUAL);
+		if (right->type == expr_type::Nothing) {
+			code->newObject(rtl_class_record::Boolean->type);
+			code->dup();
+			left->bytecode(code);
+			code->nullLoad();
+			code->jump(Instruction::if_acmpne, 7);
+			code->intLoad(0);
+			code->jump(Instruction::_goto, 4);
+			code->intLoad(1);
+			code->writeSimple(Instruction::i2l);
+			code->invokespecial(rtl_class_record::Boolean->getConstructorConstant({ "J" }, code->method->owner)->number);
+		}
+		else {
+			left->bytecode(code);
+			right->bytecode(code);
+			code->invokemethod(leftType->record->resolveMethod("isNot"), CallInfo::VIRTUAL);
+		}
 	}
 	else if (type == expr_type::UnaryMinusOp) {
 		struct_type* leftType = (struct_type*)inferType(argument, code->method->owner, code->method, *code->context);
@@ -803,18 +832,19 @@ void bytecodeBlock(block* block, Bytecode* code, stmt_node* parent) {
 	for (stmt_node* node : *block) {
 		node->bytecode(code);
 
-		if (parent != nullptr && node->type == stmt_type::ContinueFor && parent == code->lastFor && parent->type == stmt_type::For) {
-			struct_type* varType = (struct_type*)inferType(parent->id_type, *code->context, nullptr);
-			code->aload(parent->localvarNum);
-			parent->step_node->bytecode(code);
+		if (node->type == stmt_type::ContinueFor && code->lastFor->type == stmt_type::For) {
+			struct_type* varType = (struct_type*)inferType(code->lastFor->id_type, *code->context, nullptr);
+			code->aload(code->lastFor->localvarNum);
+			code->lastFor->step_node->bytecode(code);
 			code->invokemethod(varType->record->resolveMethod("add"), CallInfo::VIRTUAL);
+			code->astore(code->lastFor->localvarNum);
 		}
 
-		if (parent != nullptr && node->type == stmt_type::ContinueFor && parent == code->lastFor && parent->type == stmt_type::ForEach) {
-			code->iload(parent->localvarNum + 1);
+		if (node->type == stmt_type::ContinueFor && code->lastFor->type == stmt_type::ForEach) {
+			code->iload(code->lastFor->localvarNum + 1);
 			code->intLoad(1);
 			code->writeSimple(Instruction::iadd);
-			code->istore(parent->localvarNum + 1);
+			code->istore(code->lastFor->localvarNum + 1);
 		}
 
 		stmt_node *lastNode = nullptr;
@@ -842,7 +872,8 @@ void bytecodeBlock(block* block, Bytecode* code, stmt_node* parent) {
 				lastNode->endFutureJump = code->futureJump(Instruction::_goto);
 			}
 			else {
-				code->jump(Instruction::_goto, lastNode->beginOffset);
+				int16_t offset = code->currentOffset() - lastNode->beginOffset;
+				code->jump(Instruction::_goto, -offset);
 			}
 		}
 	}
@@ -905,7 +936,7 @@ void stmt_node::bytecode(Bytecode* code)
 			code->resolveFuture(f);
 		}
 		if (else_block != nullptr) {
-			bytecodeBlock(this->block, code, this);
+			bytecodeBlock(this->else_block, code, this);
 		}
 		for (uint32_t futureId : *exitStack) {
 			code->resolveFuture(futureId);
@@ -914,14 +945,14 @@ void stmt_node::bytecode(Bytecode* code)
 	else if (type == stmt_type::For) {
 		code->lastFor = this;
 		target_expr->bytecode(code);
-		struct_type* varType = (struct_type*)inferType(id_type, *code->context, nullptr);
+		struct_type* varType = (struct_type*)inferType(id_type, *code->context, code->method->owner->typeMap);
 		code->astore(localvarNum);
 
 		code->makeWaypoint(this);
 		beginOffset = code->getWaypoint(this);
 		code->aload(localvarNum);
 		to_expr->bytecode(code);
-		code->invokemethod(varType->record->resolveMethod("lt"), CallInfo::VIRTUAL);
+		code->invokemethod(varType->record->resolveMethod("lte"), CallInfo::VIRTUAL);
 		code->invokemethod(rtl_class_record::Boolean->resolveMethod("getBoolean"), CallInfo::VIRTUAL);
 		uint32_t f = code->futureJump(Instruction::ifeq);
 
@@ -940,7 +971,7 @@ void stmt_node::bytecode(Bytecode* code)
 	else if (type == stmt_type::ForEach) {
 		code->lastFor = this;
 		code->intLoad(0);
-		struct_type* varType = (struct_type*)inferType(id_type, *code->context, nullptr);
+		struct_type* varType = (struct_type*)inferType(id_type, *code->context, code->method->owner->typeMap);
 		code->istore(localvarNum + 1);
 
 		code->makeWaypoint(this);
@@ -1132,7 +1163,11 @@ void stmt_node::bytecode(Bytecode* code)
 			}
 			clause->Id->bytecode(code);
 			clause->arg->first()->bytecode(code);
-			code->invokemethod(rtl_class_record::CompilerUtils->resolveStaticMethod("redim"), CallInfo::STATIC);
+			if (preserveRedim) {
+				code->invokemethod(rtl_class_record::CompilerUtils->resolveStaticMethod("redimPreserve"), CallInfo::STATIC);
+			} else {
+				code->invokemethod(rtl_class_record::CompilerUtils->resolveStaticMethod("redim"), CallInfo::STATIC);
+			}
 			if (idRec.second == LOCAL_VAR) {
 				localvar_record* var = (localvar_record*)idRec.first;
 				code->astore(var->number);

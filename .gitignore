@@ -395,7 +395,7 @@ FodyWeavers.xsd
 *.msp
 
 .idea/
-VbRTL/target
+VbRTL/target/generated-sources
 
 # JetBrains Rider
 *.sln.iml

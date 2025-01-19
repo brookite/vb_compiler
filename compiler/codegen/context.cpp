@@ -10,11 +10,11 @@ std::pair<record*, access_target> semantic_context::resolveId(expr_node* value, 
 	access_target acc;
 	if (value->type == expr_type::Id) {
 		std::string member = value->String;
-		if (methodContext != nullptr && methodContext->locals.count(member)) {
-			rec = methodContext->locals[member];
-			acc = LOCAL_VAR;
-		} else if (methodContext != nullptr && methodContext->allLocals.count(value->localvarNum)) {
+		if (methodContext != nullptr && methodContext->allLocals.count(value->localvarNum)) {
 			rec = methodContext->allLocals[value->localvarNum];
+			acc = LOCAL_VAR;
+		} else if (methodContext != nullptr && methodContext->locals.count(member)) {
+			rec = methodContext->locals[member];
 			acc = LOCAL_VAR;
 		} else if (context->resolveMethod(member) != nullptr && context->resolveField(member) != nullptr) {
 			name_error("Member '%s' in type %s declared twice", member.c_str(), context->type->readableName().c_str());
@@ -31,7 +31,7 @@ std::pair<record*, access_target> semantic_context::resolveId(expr_node* value, 
 			if (!context->resolveField(member)->isStatic && methodContext->isStatic) {
 				type_error("'%s' is instance field. Instance field isn't allowed in static context", member.c_str());
 			}
-			acc = FIELD;
+			acc = context->resolveField(member)->isStatic ? STATIC_FIELD : FIELD;
 		}
 		else if (classes.count(member)) {
 			rec = classes[member];

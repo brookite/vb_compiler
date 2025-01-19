@@ -343,6 +343,9 @@ method_record* struct_record::addMethod(procedure_node* procNode, semantic_conte
         return nullptr;
     }
     methods[method->name] = method;
+    if (method->name == "tostring") {
+        method->name = "ToString";
+    }
     return method;
 }
 

@@ -151,6 +151,7 @@ Select { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; return
 Short { lexer_print("Found keyword : %s\n", yytext); return SHORT_KW; }
 Stop { lexer_print("Found keyword : %s\n", yytext); return STOP_KW; }
 UInteger { lexer_print("Found keyword : %s\n", yytext); return UINTEGER_KW; }
+Preserve  { lexer_print("Found keyword : %s\n", yytext); return PRESERVE_KW; }
 Xor { lexer_print("Found keyword : %s\n", yytext); return XOR; }
 Until { lexer_print("Found keyword : %s\n", yytext); blocking_kw = true; return UNTIL_KW; }
 

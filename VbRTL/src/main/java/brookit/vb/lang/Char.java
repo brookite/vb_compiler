@@ -29,6 +29,13 @@ public class Char extends Number {
         _src = (char) num;
     }
 
+    public Char(brookit.vb.lang.String val) {
+        if (val.toJvmString().isEmpty()) {
+            throw new RuntimeException("String is empty to convert to char");
+        }
+        _src = val.toString().charAt(0);
+    }
+
     @Override
     public int byteSize() {
         return 2;

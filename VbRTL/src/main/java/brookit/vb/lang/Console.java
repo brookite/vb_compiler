@@ -18,8 +18,10 @@ public class Console extends Object {
     }
 
     public static void WriteLine(java.lang.Object o) {
-        if (o instanceof Object obj) {
-            System.out.println(obj.toJvmString());
+        if (o == null) {
+            System.out.println("Nothing");
+        } else if (o instanceof Object obj) {
+            System.out.println(obj.ToString().toString());
         } else if (o instanceof Object[] arr) {
             System.out.println(Arrays.toString(arr));
         } else {
@@ -28,8 +30,10 @@ public class Console extends Object {
     }
 
     public static void Write(java.lang.Object o) {
-        if (o instanceof Object obj) {
-            System.out.print(obj.toJvmString());
+        if (o == null) {
+            System.out.print("Nothing");
+        } else if (o instanceof Object obj) {
+            System.out.print(obj.ToString().toString());
         } else if (o instanceof Object[] arr){
             System.out.print(Arrays.toString(arr));
         } else {

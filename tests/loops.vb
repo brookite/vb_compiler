@@ -1,6 +1,7 @@
 Class Main
     Shared Sub main()
         Const a(10) as Integer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+        Console.WriteLine(a)
         For Each i as Integer in a
             Console.WriteLine(i)
         Next
@@ -23,7 +24,7 @@ Class Main
         Dim i As Integer = 0
         While i < 15
             Console.WriteLine(i)
-            If (i mod 10 = 0) Then
+            If (i mod 11 = 0) Then
                 Exit While
             End If
             i += 1

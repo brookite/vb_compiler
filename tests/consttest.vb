@@ -8,7 +8,7 @@ class Main
         Const e as Long = -34359738368
         Const f as Long = -3840 + 10
         Const g as String = "Hello world!"
-        Const h as Date = # 18-06-2003 04:30:10 #
+        Const h as Date = # 06-18-2003 04:30:10 #
         Const i as Boolean = True
         Const k as Boolean = False
         Const l as Boolean = False
