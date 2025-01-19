@@ -497,7 +497,10 @@ typed_value* append_var_declarator(typed_value* var, type_node* node, expr_node*
 	if (var->isArray && var->type != nullptr) {
 		var->type->isArray = true;
 	}
-	if (var->value == nullptr && var->isArray && var->array_size != nullptr) {
+	if (var->isArray && var->array_size != nullptr) {
+		if (var->value != nullptr) {
+			type_error("Size declaration isn't supported if value is already specified");
+		}
 		type_node* valueType = var->type->clone();
 		valueType->isArray = false;
 		var->value = create_arraynew_expr(valueType, new list<expr_node*>({ var->array_size }));

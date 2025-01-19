@@ -1,21 +1,19 @@
 class Main
     Shared Sub Main()
-        Const a as Integer = 34359738368
-        Const b as UInteger = -34359738368 
-        Const z as ULong = -34359738368 
+        Const b as ULong = 34359738368 
+        Const z as Long = -34359738368 
         Const c as Long = &H10
         Const d as Integer = &O305
         Const e as Long = -34359738368
         Const f as Long = -3840 + 10
-        Const g as String = "Hello world!"
-        Const h as Date = # 06-18-2003 04:30:10 #
+        Dim g as String = "Hello world!"
+        Dim h as Date = # 06-18-2003 04:30:10 #
         Const i as Boolean = True
         Const k as Boolean = False
         Const l as Boolean = False
         Const m as Single = 4.23f
         Const n as Double = 195652.0681E10
         
-        Console.WriteLine(a)
         Console.WriteLine(b)
         Console.WriteLine(z)
         Console.WriteLine(c)

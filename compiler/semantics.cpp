@@ -515,7 +515,22 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 			type_error("Variable value in declaration '%s' has incompatible types: %s and %s (in value) ", stmt->var_decl->varName.c_str(), declaredType->readableName().c_str(),
 				inferredType->readableName().c_str()
 			);
+		}
+
+		if (dynamic_cast<int_rtl_type*>(declaredType) != nullptr
+			&& stmt->var_decl->value->type == expr_type::Int
+			&& (dynamic_cast<int_rtl_type*>(declaredType)->byteSize() < intSizeOf(stmt->var_decl->value->Int)
+				|| (dynamic_cast<int_rtl_type*>(declaredType)->isUnsigned() && stmt->var_decl->value->Int < 0)
+				)
+			) {
+			type_error("Overflow of variable %s: types %s and %s", stmt->var_decl->varName.c_str(),
+				declaredType->readableName().c_str(), inferredType->readableName().c_str());
 			return;
+		}
+
+		if (varRecord->isConst && dynamic_cast<sized_rtl_type*>(varRecord->type) == nullptr 
+			&& dynamic_cast<sized_rtl_type*>(inferredType) == nullptr) {
+			type_error("Const vars with object types is unsupported in VB by default");
 		}
 	}
 
@@ -622,6 +637,15 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 			type_error("Incompatible types in assignment statement: %s and %s (left-value type)",
 				rvalueType->readableName().c_str(), lvalueType->readableName().c_str());
 			return;
+		}
+		if (dynamic_cast<int_rtl_type*>(lvalueType) != nullptr 
+			&& stmt->rvalue->type == expr_type::Int
+			&& (dynamic_cast<int_rtl_type*>(lvalueType)->byteSize() < intSizeOf(stmt->rvalue->Int)
+				|| (dynamic_cast<int_rtl_type*>(lvalueType)->isUnsigned() && stmt->rvalue->Int < 0)
+				)
+			) {
+			type_error("Overflow of assignment: types %s and %s",
+				lvalueType->readableName().c_str(), rvalueType->readableName().c_str());
 		}
 
 		if (stmt->lvalue->type == expr_type::Index) {
