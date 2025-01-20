@@ -92,10 +92,10 @@ void flushErrorBuffer() {
         printf(error.c_str());
         if (!endsWith(error, "\n")) printf("\n");
     }
-    errorBuffer->clear();
-    if (!DEBUG) {
+    if (!DEBUG && !errorBuffer->isEmpty()) {
         exit(10);
     }
+    errorBuffer->clear();
 }
 
 bool hasCompilerErrors()

@@ -275,8 +275,8 @@ list<type_node*> findTypeMentions(stmt_node* stmt) {
 
 semantic_analyzer::semantic_analyzer()
 {
-	ctx.setAnalyzer(this);
 	initRTL();
+	ctx.setAnalyzer(this);
 	ctx.addRTL(rtl_class_record::String);
 	ctx.addRTL(rtl_class_record::Integer);
 	ctx.addRTL(rtl_class_record::Long);
@@ -333,8 +333,9 @@ bool semantic_analyzer::analyzeProgram(program_node* node)
 		// Сначала соберем информацию о всех методах
 		for (procedure_node* proc : *cls->methods) {
 			method_record * rec = clsRecord->addMethod(proc, ctx);
-			if ((rec->name == "main" || rec->name == "Main") && rec->isStatic && rec->args.isEmpty()
+			if ((rec->name == "main" || rec->name == "Main") && rec->args.isEmpty()
 				&& dynamic_cast<void_type*>(rec->returnType) != nullptr) {
+				rec->isStatic = true;
 				mainMethods->add(rec);
 			}
 		}

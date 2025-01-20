@@ -17,6 +17,9 @@ extern program_node* program;
 
 void runCompile(const char* path, const char * outDir) {
     fs::path file_path = path;
+    if (!fs::exists(file_path)) {
+        internal_error("File doesn't exists %s", fs::absolute(file_path).string().c_str());
+    }
     if (!fs::exists(outDir)) {
         fs::create_directories(outDir);
     }
@@ -53,7 +56,7 @@ void runCompile(const char* path, const char * outDir) {
         }
 
         char command[1024];
-        sprintf(command, "jar cfe %s.vb.jar brookit.vb.code.%s -C %s .", outputDir.c_str(), 
+        sprintf(command, "jar cfe \"%s.vb.jar\" brookit.vb.code.%s -C \"%s\" .", outputDir.c_str(), 
             analyzer.entryPoint->owner->name.c_str(), outputDir.c_str());
         system(command);
     }
@@ -90,7 +93,7 @@ static void runTests() {
 
 int main(int argc, char** argv) {
     if (argc > 1) {
-        const char * cwd = fs::current_path().string().c_str();
+        std::string cwd = fs::current_path().string();
         if (strcmp(argv[1], "--test-parser") == 0) {
             PARSER_DEBUG = true;
             LEXER_DEBUG = true;
@@ -104,9 +107,9 @@ int main(int argc, char** argv) {
         if (argc > 2 && strcmp(argv[2], "--debug") == 0) {
             DEBUG = true;
         }
-        runCompile(argv[1], cwd);
+        runCompile(argv[1], cwd.c_str());
     }
     else {
-        printf("File not found");
+        internal_error("File not found");
     }
 }

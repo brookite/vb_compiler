@@ -17,7 +17,6 @@ std::string jvmStdlibDescriptor(std::string className) {
 
 rtl_class_record* initString() {
 	rtl_class_record* rec = rtl_class_record::String;
-	rec->type = new rtl_type(rec);
 	rec->parent = rtl_class_record::Object;
 
 	rec->methods["Length"] = new method_record("Length", rec, rtl_class_record::ULong->type, false, {});
@@ -33,7 +32,6 @@ rtl_class_record* initString() {
 
 rtl_class_record* initObject() {
 	rtl_class_record* rec = rtl_class_record::Object;
-	rec->type = new rtl_type(rec);
 	rec->parent = nullptr;
 
 	rec->methods["toJvmString"] = new method_record("toJvmString", rec, new jvm_type("String", jvmStdlibDescriptor("String")), false, {});
@@ -49,7 +47,6 @@ rtl_class_record* initObject() {
 
 rtl_class_record* initNumber() {
 	rtl_class_record* rec = rtl_class_record::Number;
-	rec->type = new number_rtl_type(rec);
 	rec->parent = rtl_class_record::Object;
 
 	rec->methods["add"] = new method_record("add", rec, rec->type, false, { new parameter_record("right", rec->type, nullptr) });
@@ -85,7 +82,6 @@ rtl_class_record* initNumber() {
 
 rtl_class_record* initBoolean() {
 	rtl_class_record* rec = rtl_class_record::Boolean;
-	rec->type = new bool_rtl_type(rec);
 	rec->parent = rtl_class_record::Number;
 
 	rec->methods["jvmValue"] = new method_record("jvmValue", rec, new jvm_type("Boolean", "Z"), false, {});
@@ -343,10 +339,15 @@ rtl_class_record* rtl_class_record::Math = new rtl_class_record("Math");
 rtl_class_record* rtl_class_record::CompilerUtils = new rtl_class_record("CompilerUtils");
 
 void initRTL() {
+	rtl_class_record::Number->type = new number_rtl_type(rtl_class_record::Number);
+	rtl_class_record::Boolean->type = new bool_rtl_type(rtl_class_record::Boolean);
+	rtl_class_record::String->type = new rtl_type(rtl_class_record::String);
+	rtl_class_record::Object->type = new rtl_type(rtl_class_record::Object);
+
 	rtl_class_record::Number = initNumber();
 	rtl_class_record::Boolean = initBoolean();
-	rtl_class_record::Object = initObject();
 	rtl_class_record::String = initString();
+	rtl_class_record::Object = initObject();
 	rtl_class_record::Integer = initInteger();
 	rtl_class_record::Long = initLong();
 	rtl_class_record::ULong = initULong();

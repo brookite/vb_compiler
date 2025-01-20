@@ -18,7 +18,7 @@ Class BubbleSort
 End Class
 
 Class Program
-    Shared Sub Main()
+    Sub Main()
         Dim numbers() As Integer = {5, 2, 9, 1, 5, 6}
 
         Console.WriteLine("Исходный массив:")
