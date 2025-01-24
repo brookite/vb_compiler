@@ -370,7 +370,7 @@ type* inferType(expr_node* val, struct_record* context, method_record* methodCon
         if (!rtl_class_record::Boolean->type->isAssignableFrom(cond, semanticContext)) {
             type_error("Condition of If expression must be convertable to boolean");
         }
-        if (trueBranch->isAssignableFrom(falseBranch, semanticContext) || falseBranch->isAssignableFrom(trueBranch, semanticContext)) {
+        if (!trueBranch->isAssignableFrom(falseBranch, semanticContext) && !falseBranch->isAssignableFrom(trueBranch, semanticContext)) {
             type_error("Branch exprs must have the same or assignable types in If expression");
         }
     }

@@ -26,6 +26,7 @@ void runCompile(const char* path, const char * outDir) {
     fopen_s(&yyin, path, "r");
     yyparse();
     if (hasSyntaxErrors) {
+        hasSyntaxErrors = false;
         return;
     }
     semantic_analyzer analyzer;
@@ -74,6 +75,7 @@ void runCompile(const char* path, const char * outDir) {
         fclose(out);
     }
     if (yyin != 0) fclose(yyin);
+    hasSyntaxErrors = false;
 }
 
 

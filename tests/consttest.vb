@@ -13,6 +13,7 @@ class Main
         Const l as Boolean = False
         Const m as Single = 4.23f
         Const n as Double = 195652.0681E10
+        Const p As Integer = new Integer()
         
         Console.WriteLine(b)
         Console.WriteLine(z)
@@ -27,5 +28,6 @@ class Main
         Console.WriteLine(l)
         Console.WriteLine(m)
         Console.WriteLine(n)
+        Console.WriteLine(p)
     End Sub
 end class

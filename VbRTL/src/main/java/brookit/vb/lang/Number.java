@@ -472,154 +472,58 @@ public abstract class Number extends Object {
     }
 
     public Number lte(Number other) {
-        try {
-            if (!other.isInteger() || !this.isInteger()) {
-                double a = this.getFloat();
-                double b = other.getFloat();
-                boolean res = a <= b;
-                if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else {
-                    if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    } else {
-                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    }
-                }
-            } else {
-                long a = this.getInteger();
-                long b = other.getInteger();
-                boolean res = a <= b;
-                if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else {
-                    if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    } else {
-                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    }
-                }
-            }
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new ArithmeticException(e.getMessage());
+        if (!other.isInteger() || !this.isInteger()) {
+            double a = this.getFloat();
+            double b = other.getFloat();
+            boolean res = a <= b;
+            return new Boolean(res);
+        } else {
+            long a = this.getInteger();
+            long b = other.getInteger();
+            boolean res = a <= b;
+            return new Boolean(res);
         }
     }
 
     public Number gte(Number other) {
-        try {
-            if (!other.isInteger() || !this.isInteger()) {
-                double a = this.getFloat();
-                double b = other.getFloat();
-                boolean res = a >= b;
-                if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else {
-                    if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    } else {
-                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    }
-                }
-            } else {
-                long a = this.getInteger();
-                long b = other.getInteger();
-                boolean res = a >= b;
-                if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else {
-                    if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    } else {
-                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    }
-                }
-            }
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new ArithmeticException(e.getMessage());
+        if (!other.isInteger() || !this.isInteger()) {
+            double a = this.getFloat();
+            double b = other.getFloat();
+            boolean res = a >= b;
+            return new Boolean(res);
+        } else {
+            long a = this.getInteger();
+            long b = other.getInteger();
+            boolean res = a >= b;
+            return new Boolean(res);
         }
     }
 
     public Number lt(Number other) {
-        try {
-            if (!other.isInteger() || !this.isInteger()) {
-                double a = this.getFloat();
-                double b = other.getFloat();
-                boolean res = a < b;
-                if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else {
-                    if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    } else {
-                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    }
-                }
-            } else {
-                long a = this.getInteger();
-                long b = other.getInteger();
-                boolean res = a < b;
-                if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else {
-                    if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    } else {
-                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    }
-                }
-            }
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new ArithmeticException(e.getMessage());
+        if (!other.isInteger() || !this.isInteger()) {
+            double a = this.getFloat();
+            double b = other.getFloat();
+            boolean res = a < b;
+            return new Boolean(res);
+        } else {
+            long a = this.getInteger();
+            long b = other.getInteger();
+            boolean res = a < b;
+            return new Boolean(res);
         }
     }
 
     public Number gt(Number other) {
-        try {
-            if (!other.isInteger() || !this.isInteger()) {
-                double a = this.getFloat();
-                double b = other.getFloat();
-                boolean res = a > b;
-                if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else {
-                    if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    } else {
-                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    }
-                }
-            } else {
-                long a = this.getInteger();
-                long b = other.getInteger();
-                boolean res = a > b;
-                if (other.byteSize() > this.byteSize()) {
-                    return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else if (other.byteSize() < this.byteSize()) {
-                    return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                } else {
-                    if (other.isUnsigned()) {
-                        return this.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    } else {
-                        return other.getClass().getDeclaredConstructor(boolean.class).newInstance(res);
-                    }
-                }
-            }
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new ArithmeticException(e.getMessage());
+        if (!other.isInteger() || !this.isInteger()) {
+            double a = this.getFloat();
+            double b = other.getFloat();
+            boolean res = a > b;
+            return new Boolean(res);
+        } else {
+            long a = this.getInteger();
+            long b = other.getInteger();
+            boolean res = a > b;
+            return new Boolean(res);
         }
     }
 
