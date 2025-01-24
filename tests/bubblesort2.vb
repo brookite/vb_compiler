@@ -22,7 +22,7 @@ Class Program
         Dim numbers() As Integer = new Integer() {}
         Dim count As Integer = 0
 
-        Console.WriteLine("Введите числа (введите 0 для завершения ввода):")
+        Console.WriteLine("Введите числа (0 завершает ввод):")
         While True
             Dim input As String = Console.ReadLine()
             Dim number As Integer = CInt(input)

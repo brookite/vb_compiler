@@ -10,6 +10,24 @@ Class OperationsWithFloatAndInt
         Console.WriteLine("Вычитание: " & CStr(intNumber) & " - " & CStr(floatNumber) & " = " & CStr(intNumber - floatNumber))
         Console.WriteLine("Умножение: " & CStr(intNumber) & " * " & CStr(floatNumber) & " = " & CStr(intNumber * floatNumber))
         Console.WriteLine("Деление: " & CStr(intNumber) & " / " & CStr(floatNumber) & " = " & CStr(intNumber / floatNumber))
+        
+        Console.WriteLine("Арифметические операции:")
+        Console.WriteLine("Сложение: " & CStr(intNumber) & " + " & CStr(intNumber) & " = " & CStr(intNumber + intNumber))
+        Console.WriteLine("Вычитание: " & CStr(intNumber) & " - " & CStr(intNumber) & " = " & CStr(intNumber - intNumber))
+        Console.WriteLine("Умножение: " & CStr(intNumber) & " * " & CStr(intNumber) & " = " & CStr(intNumber * intNumber))
+        Console.WriteLine("Деление: " & CStr(intNumber) & " / " & CStr(intNumber + 5) & " = " & CStr(intNumber / (intNumber + 5)))
+        
+        Console.WriteLine("Арифметические операции:")
+        Console.WriteLine("Сложение: " & CStr(floatNumber) & " + " & CStr(intNumber) & " = " & CStr(floatNumber + intNumber))
+        Console.WriteLine("Вычитание: " & CStr(floatNumber) & " - " & CStr(intNumber) & " = " & CStr(floatNumber - intNumber))
+        Console.WriteLine("Умножение: " & CStr(floatNumber) & " * " & CStr(intNumber) & " = " & CStr(floatNumber * intNumber))
+        Console.WriteLine("Деление: " & CStr(floatNumber) & " / " & CStr(intNumber) & " = " & CStr(floatNumber / intNumber))
+        
+        Console.WriteLine("Арифметические операции:")
+        Console.WriteLine("Сложение: " & CStr(floatNumber) & " + " & CStr(floatNumber) & " = " & CStr(floatNumber + floatNumber))
+        Console.WriteLine("Вычитание: " & CStr(floatNumber) & " - " & CStr(floatNumber) & " = " & CStr(floatNumber - floatNumber))
+        Console.WriteLine("Умножение: " & CStr(floatNumber) & " * " & CStr(floatNumber) & " = " & CStr(floatNumber * floatNumber))
+        Console.WriteLine("Деление: " & CStr(floatNumber) & " / " & CStr(floatNumber) & " = " & CStr(floatNumber / floatNumber))
 
         ' Целочисленное деление
         Console.WriteLine("Целочисленное деление: " & CStr(intNumber) & " \ 3 = " & CStr(intNumber \ 3))
@@ -22,6 +40,28 @@ Class OperationsWithFloatAndInt
         Console.WriteLine(CStr(intNumber) & " > " & CStr(floatNumber) & ": " & CStr(intNumber > floatNumber))
         Console.WriteLine(CStr(intNumber) & " < " & CStr(floatNumber) & ": " & CStr(intNumber < floatNumber))
         Console.WriteLine(CStr(intNumber) & " = " & CStr(floatNumber) & ": " & CStr(intNumber = floatNumber))
+        
+        ' Целочисленное деление
+        Console.WriteLine("Целочисленное деление: " & CStr(floatNumber) & " \ 3 = " & CStr(floatNumber \ 3))
+
+        ' Остаток от деления
+        Console.WriteLine("Остаток от деления: " & CStr(floatNumber) & " Mod 3 = " & CStr(intNumber Mod 3))
+
+
+        Console.WriteLine("Сравнение чисел:")
+        Console.WriteLine(CStr(floatNumber) & " > " & CStr(floatNumber) & ": " & CStr(floatNumber > floatNumber))
+        Console.WriteLine(CStr(floatNumber) & " < " & CStr(floatNumber) & ": " & CStr(floatNumber < floatNumber))
+        Console.WriteLine(CStr(floatNumber) & " = " & CStr(floatNumber) & ": " & CStr(floatNumber = floatNumber))
+
+        Console.WriteLine("Сравнение чисел:")
+        Console.WriteLine(CStr(intNumber) & " > " & CStr(intNumber) & ": " & CStr(intNumber > intNumber))
+        Console.WriteLine(CStr(intNumber) & " < " & CStr(intNumber) & ": " & CStr(intNumber < intNumber))
+        Console.WriteLine(CStr(intNumber) & " = " & CStr(intNumber) & ": " & CStr(intNumber = intNumber))
+        
+        Console.WriteLine("Сравнение чисел:")
+        Console.WriteLine(CStr(floatNumber) & " > " & CStr(intNumber) & ": " & CStr(floatNumber > intNumber))
+        Console.WriteLine(CStr(floatNumber) & " < " & CStr(intNumber) & ": " & CStr(floatNumber < intNumber))
+        Console.WriteLine(CStr(floatNumber) & " = " & CStr(intNumber) & ": " & CStr(floatNumber = intNumber))
 
         ' Побитовые операции
         Console.WriteLine("Побитовые операции:")

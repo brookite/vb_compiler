@@ -65,6 +65,9 @@ public class Double extends Number {
 
     @Override
     public String toJvmString() {
+        if (java.lang.Math.abs(getFloat() - getInteger()) == 0) {
+            return java.lang.Long.toString(getInteger());
+        }
         return java.lang.Double.toString(getFloat());
     }
 }

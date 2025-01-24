@@ -1,16 +1,16 @@
 Class MainClass
     Shared Function LeftTest() As Boolean
-        Console.Write("Введите значение для Left (True/False): ")
+       ' Console.Write("Введите значение для Left (True/False): ")
         Dim input As Integer = Cint(Console.ReadLine())
-        Dim result As Boolean = input
-        Console.WriteLine("Left = " & result & " evaluated")
+        Dim result As Boolean = input < 10
+        'Console.WriteLine("Left = " & result & " evaluated")
         Return result
     End Function
 
     Shared Function RightTest() As Boolean
-        Console.Write("Введите значение для Right (True/False): ")
-        Dim input As Integer = Cint(Console.ReadLine())
-        Dim result As Boolean = input
+        'Console.Write("Введите значение для Right (True/False): ")
+        Dim input As Integer = 15'Cint(Console.ReadLine())
+        Dim result As Boolean = input > 20
         Console.WriteLine("Right = " & result & " evaluated")
         Return result
     End Function

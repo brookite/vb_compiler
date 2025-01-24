@@ -548,7 +548,7 @@ void semantic_analyzer::processStmt(struct_record* structRecord, method_record *
 		if (dynamic_cast<jvm_array_type*>(containerInferredType) == nullptr) {
 			type_error("ForEach can be only applied to arrays");
 		}
-		if (*(dynamic_cast<jvm_array_type*>(containerInferredType)->valueType) != *declaredType) {
+		if (dynamic_cast<jvm_array_type*>(containerInferredType) != nullptr && *(dynamic_cast<jvm_array_type*>(containerInferredType)->valueType) != *declaredType) {
 			type_error("Incompatible types in for-header %s (declared) and %s (arrayType)", declaredType->readableName().c_str(),
 				containerInferredType->readableName().c_str());
 		}

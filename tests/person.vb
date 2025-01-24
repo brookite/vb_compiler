@@ -2,27 +2,28 @@ Class Person
     Dim firstName As String = Nothing
     Dim lastName As String = Nothing
     
-    Function Greet() As String
-        return "Hello, " & firstName & " " & lastName
-    End Function
+    Sub Greet() 
+        Console.WriteLine("Person.Greet()")
+    End Sub
 End Class
 
 Class Student 
 Inherits Person
     Dim course As Short = 4
+    
+    Sub Greet()
+        Console.WriteLine("Student.greet()")
+    End Sub
 End Class
 
 Class Professor 
 Inherits Person
     Dim degree As String = Nothing
 
-    Function Greet() As String
-        return "Hello, professor " & firstName & " " & lastName
-    End Function
-    
-    Function GreetDefault() As String
-        return MyBase.Greet()
-    End Function
+    Sub Greet()
+        MyBase.Greet()
+        Console.WriteLine("Professor.greet()")
+    End Sub
 End Class
 
 Class Main
@@ -33,10 +34,11 @@ Class Main
         Dim y As Professor = new Professor()
         y.firstName = "Mr."
         y.lastName = "Professor"
-        Dim z As Person = x
-        Console.WriteLine(CType(y, Person).Greet())
-        Console.WriteLine(CType(x, Person).Greet())
-        Console.WriteLine(CType(z, Student).Greet())
-        Console.WriteLine(y.GreetDefault())
+        Dim z As Person = new Person()
+        
+        Dim arr as Person = {z, x, y}
+        For Each p as Person In arr
+            p.Greet()
+        Next
     End Sub
 End Class 

@@ -46,23 +46,16 @@ Class Main
         Dim arr as Array(Of ULong) = new Array(Of ULong)()
         arr.Add(10)
         arr.Add(16)
-        Console.WriteLine(arr.Get(0))
-        Console.WriteLine(arr.Get(1))
-        for cnt As Integer = 100 To 200
-            If (cnt Mod 5 = 0) Then
-                arr.Add(cnt * 105)
-            ElseIf (cnt Mod 3 = 0) Then
-                arr.Add(cnt / 10)
-            Else
-                arr.Add(cnt)
-            End If
-        Next
+        Dim arr3 as Array(Of String) = new Array(Of String)()
+        arr3.Add("Hello")
+        arr3.Add("World")
         
         Dim arr2 as Array(Of Array(Of ULong)) = new Array(Of Array(Of ULong))()
         arr2.Add(new Array(Of ULong)())
         arr2.Add(new Array(Of ULong)())
         
-        Console.WriteLine(arr2)
-        Console.WriteLine(arr)
+        Console.WriteLine(arr.ToString())
+        Console.WriteLine(arr2.ToString())
+        Console.WriteLine(arr3.ToString())
     End Sub
 End Class
